@@ -17,30 +17,32 @@ Sources:
 2. **Direction-neutral.** Layout uses logical properties (start, end, inline, block), so Arabic mirrors
    without special cases. Physical `left` and `right` are not allowed.
 3. **Honest status.** A control appears only when it works. Planned features are labelled "Planned".
-4. **Calm and professional.** Neutral surfaces, one warm accent (signal orange) for action and identity,
-   and status colours used only for status.
+4. **Calm and professional.** Deep charcoal/graphite surfaces, one restrained electric-cyan accent for
+   action and identity, subtle lighting and glass used sparingly. Status colours only for status.
 
 ## Colour
 
-Light theme only. The palette is in `tokens.css`. Each text colour is checked against the surface it is
-placed on.
+Dark theme only (the visual identity of the product surface). The palette is in `tokens.css`. Each text
+colour is checked against the surface it is placed on.
 
-| Role                                            | Token                                               | Value     | Use                                                     |
-| ----------------------------------------------- | --------------------------------------------------- | --------- | ------------------------------------------------------- |
-| Page background                                 | `--color-bg`                                        | `#f4f6f8` | Page                                                    |
-| Surface                                         | `--color-surface`                                   | `#ffffff` | Header, cards, drawer                                   |
-| Muted surface                                   | `--color-surface-muted`                             | `#e9edf2` | Hover states                                            |
-| Decorative border                               | `--color-border`                                    | `#c5ced9` | Dividers, card edges. Not required for contrast.        |
-| Control border                                  | `--color-border-strong`                             | `#6b7689` | Buttons and language switcher outlines (4.6:1 on white) |
-| Text                                            | `--color-text`                                      | `#111827` | Body and headings (17.7:1 on white)                     |
-| Muted text                                      | `--color-text-muted`                                | `#4b5563` | Secondary copy, planned items (7.6:1 on white)          |
-| Accent                                          | `--color-accent`                                    | `#c2410c` | Primary button, brand tile                              |
-| Accent, strong                                  | `--color-accent-strong`                             | `#9a3412` | Links, primary button hover (7.3:1 on white)            |
-| Accent, soft                                    | `--color-accent-soft`                               | `#ffedd5` | Current page in navigation                              |
-| Focus                                           | `--color-focus`                                     | `#1d4ed8` | Keyboard focus ring (6.7:1 on white)                    |
-| Status: neutral, info, success, warning, danger | `--color-{tone}-soft` with `--color-on-{tone}-soft` | see file  | Badges                                                  |
+| Role                                            | Token                                               | Value     | Use                                                       |
+| ----------------------------------------------- | --------------------------------------------------- | --------- | --------------------------------------------------------- |
+| Page background                                 | `--color-bg`                                        | `#0b0f14` | Deep charcoal page                                        |
+| Surface                                         | `--color-surface`                                   | `#131a22` | Header, cards, drawer, demo panels                        |
+| Muted surface                                   | `--color-surface-muted`                             | `#0f151c` | Hover states, planned callouts                            |
+| Decorative border                               | `--color-border`                                    | `#263340` | Dividers, card edges. Not required for contrast.          |
+| Control border                                  | `--color-border-strong`                             | `#5b6b7c` | Buttons and language switcher outlines (4.6:1 on surface) |
+| Text                                            | `--color-text`                                      | `#eef2f6` | Body and headings (13.6:1 on surface)                     |
+| Muted text                                      | `--color-text-muted`                                | `#a7b4c0` | Secondary copy, planned items (7.5:1 on surface)          |
+| Accent                                          | `--color-accent`                                    | `#22d3ee` | Primary button, brand tile (electric cyan)                |
+| Accent, strong                                  | `--color-accent-strong`                             | `#67e8f9` | Links, primary button hover (10.3:1 on surface)           |
+| Accent, soft                                    | `--color-accent-soft`                               | `#123642` | Current page in navigation                                |
+| Focus                                           | `--color-focus`                                     | `#7dd3fc` | Keyboard focus ring (10.6:1 on surface)                   |
+| Status: neutral, info, success, warning, danger | `--color-{tone}-soft` with `--color-on-{tone}-soft` | see file  | Badges                                                    |
+| Glass                                           | `--glass-surface`, `--glass-border`, `--glass-blur` | see file  | Restrained overlays: hero panel, pro teaser, previews     |
+| Glow                                            | `--shadow-glow`                                     | see file  | Cyan halo on hover, never on static surfaces              |
 
-Each status tone is a soft background with a dark text colour of the same hue. Every pair meets 4.5:1.
+Each status tone is a soft surface with text of the same hue. Every pair meets 4.5:1.
 A status is never shown by colour alone: badges always carry text.
 
 ## Typography
@@ -48,14 +50,19 @@ A status is never shown by colour alone: badges always carry text.
 - Sans: `--font-sans`, a system UI stack. No web font is loaded.
 - Arabic: `--font-arabic`, a stack that begins with system fonts that cover Arabic. Applied with
   `:root:lang(ar)`.
-- Scale: `--text-xs` (12px) to `--text-3xl` (30px). Body is 16px with 1.5 line height. Headings use 1.2.
+- Scale: `--text-xs` (12px) to `--text-5xl` (48px). Body is 16px with 1.5 line height. Headings use 1.25
+  (`--leading-tight`) up to 1.1 for display (`--leading-display`).
+- Display headings use `--tracking-display` (tight) and may use `clamp()` between two type tokens.
 - Headings use `text-wrap: balance`, and paragraphs use `text-wrap: pretty`.
 
 ## Spacing, shape and elevation
 
 - Spacing: `--space-1` (4px) to `--space-12` (48px), on a 4px base.
-- Radius: `--radius-sm` (6px), `--radius-md` (10px, controls), `--radius-lg` (16px, cards), `--radius-pill`.
-- Shadows: `--shadow-sm` for cards, `--shadow-lg` for the drawer and skip link.
+- Radius: `--radius-sm` (6px), `--radius-md` (10px, controls), `--radius-lg` (16px, cards),
+  `--radius-xl` (24px, hero and feature bands), `--radius-pill`.
+- Shadows: `--shadow-sm` for cards, `--shadow-lg` for the drawer and skip link, `--shadow-glow` for the
+  restrained cyan halo on interactive hover.
+- Depth is restrained: borders first, glass only over imagery, glow only on hover.
 
 ## Layout and breakpoints
 
@@ -71,8 +78,10 @@ A status is never shown by colour alone: badges always carry text.
 
 ## Motion
 
-- `--motion-fast` (120ms) for hover and colour changes. `--motion-base` (200ms) for the drawer and backdrop.
+- `--motion-fast` (120ms) for hover and colour changes. `--motion-base` (200ms) for the drawer, backdrop
+  and card hover. `--motion-slow` (320ms) for gentle emphasis only.
 - `--ease-standard` is `cubic-bezier(0.2, 0, 0, 1)`.
+- Anchor scrolling is smooth only under `prefers-reduced-motion: no-preference`.
 - `prefers-reduced-motion: reduce` shortens every transition and animation to effectively zero.
 
 ## Direction
@@ -88,15 +97,18 @@ A status is never shown by colour alone: badges always carry text.
 
 ## Components
 
-| Component           | File                               | Notes                                                                                                                                           |
-| ------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Button`            | `ui/button.tsx`                    | `primary`, `secondary` and `ghost` variants. Defaults to `type="button"`. `buttonClassName` gives the same look to links.                       |
-| `Badge`             | `ui/badge.tsx`                     | Tones: `neutral`, `info`, `success`, `warning`, `danger`. Always contains text.                                                                 |
-| `Card`              | `ui/card.tsx`                      | Surface with border and radius. Can render as `div`, `section` or `article`.                                                                    |
-| Icons               | `ui/icons.tsx`                     | Inline, stroke-based, `aria-hidden`. The label beside each icon carries the meaning.                                                            |
-| `AppShell`          | `app-shell/app-shell.tsx`          | Header, navigation, language switcher and main landmark.                                                                                        |
-| `PrimaryNavigation` | `app-shell/primary-navigation.tsx` | Sidebar on desktop, drawer on mobile. Planned sections are not links.                                                                           |
-| `LanguageSwitcher`  | `app-shell/language-switcher.tsx`  | Links to the same page in each language. Marks the current language with `aria-current="true"`. `fill` stretches the options across the drawer. |
+| Component                                                             | File                               | Notes                                                                                                                                           |
+| --------------------------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Button`                                                              | `ui/button.tsx`                    | `primary`, `secondary` and `ghost` variants. Defaults to `type="button"`. `buttonClassName` gives the same look to links.                       |
+| `Badge`                                                               | `ui/badge.tsx`                     | Tones: `neutral`, `info`, `success`, `warning`, `danger`. Always contains text.                                                                 |
+| `Card`                                                                | `ui/card.tsx`                      | Surface with border and radius. Can render as `div`, `section` or `article`.                                                                    |
+| Icons                                                                 | `ui/icons.tsx`                     | Inline, stroke-based, `aria-hidden`. The label beside each icon carries the meaning.                                                            |
+| `AppShell`                                                            | `app-shell/app-shell.tsx`          | Header, navigation, language switcher and main landmark.                                                                                        |
+| `PrimaryNavigation`                                                   | `app-shell/primary-navigation.tsx` | Sidebar on desktop, drawer on mobile. Planned sections are not links.                                                                           |
+| `LanguageSwitcher`                                                    | `app-shell/language-switcher.tsx`  | Links to the same page in each language. Marks the current language with `aria-current="true"`. `fill` stretches the options across the drawer. |
+| `SignPreviewDemo`                                                     | `workflow/sign-preview-demo.tsx`   | The working local demo: text fields, style radios and a live style preview. Its copy states that it is not AI output or a fabrication model.    |
+| `Hero`, `ExamplesGallery`, `WorkflowSummary`, `ProTeaser`, `HomeView` | `home/`                            | The landing page sections. Imagery is labelled as illustrative.                                                                                 |
+| `WorkflowSteps`                                                       | `workflow/workflow-steps.tsx`      | The four customer steps with status badges. The planned step has no controls.                                                                   |
 
 ## Accessibility rules
 

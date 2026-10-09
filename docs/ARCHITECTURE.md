@@ -6,13 +6,23 @@ what exists today and what is planned. Planned items are labelled as such.
 
 ## 1. Scope
 
-**Foundation build (implemented):** application shell, responsive navigation, design tokens, a
-small set of UI primitives, French/English/Arabic (RTL) localisation, automated checks, and CI.
+**Product interface milestone (implemented):** the product landing page (headline, calls to action,
+example gallery labelled as illustrative), the customer flow at `/[locale]/create` with a **working
+local demonstration** (sign text, four visual directions, live style preview) that states its limits in
+plain language, the professional entry point at `/[locale]/pro` with every tool labelled "Planned", the
+application shell, responsive navigation, design tokens, UI primitives, French/English/Arabic (RTL)
+localisation, automated checks, and CI.
 
-**Not implemented (planned):** editable 2D design, genuine 3D geometry, AI-assisted mockups,
-project persistence, exports, and any deployment configuration.
+**Not implemented (planned):** reference-photo input, AI generation and revision requests; editable 2D
+design, genuine 3D geometry, materials, LED layout, mounting, technical drawings; AI-assisted mockups;
+project persistence; fabrication exports; and any deployment configuration.
 
 No payment features, no API keys, no external services, and no Vercel configuration exist yet.
+
+**Demonstration honesty:** the live preview is a deterministic style composition of the typed text,
+rendered locally in the browser. It is not AI-generated imagery and must never be described as a
+technically accurate fabrication model. Controls appear only where they work: the planned step 4 of the
+customer workflow and the professional tools have labels, not buttons.
 
 ## 2. Stack
 
@@ -62,12 +72,16 @@ src/
   app/
     [locale]/            Locale routes. The layout validates the locale and renders AppDocument.
       layout.tsx         Static params, metadata, and AppDocument for each locale.
-      page.tsx           Home: foundation status page.
+      page.tsx           Home: the product landing page.
+      create/page.tsx    Customer flow: the working local style demo (steps 1–3).
+      pro/page.tsx       Professional entry point: planned tools, labelled.
     global-not-found.tsx The 404 page for every URL that no route matches. Renders its own document.
     icon.svg             Favicon.
   components/
     app-shell/           AppDocument (html, body, shell), header, navigation, language switcher.
-    home/                Foundation status page content.
+    home/                Landing page sections: hero, examples gallery, workflow summary, pro teaser.
+    workflow/            Customer journey: workflow steps, the live style demo, the create view.
+    pro/                 Professional entry point view.
     not-found/           Content of the 404 page.
     ui/                  Button, Badge, Card, icons.
   i18n/                  Locale config, typed message dictionaries, path helpers, display locale.
@@ -75,6 +89,7 @@ src/
   proxy.ts               Stores the display locale of each request for the 404 page (section 4).
   styles/                Design tokens, global CSS, and tests that enforce tokens and RTL rules.
   test/                  Vitest setup.
+public/images/           Illustrative signage photography for the landing page.
 e2e/                     Browser tests (Playwright) against the production build.
 scripts/smoke-test.mjs   Starts `next start` and checks real HTTP responses.
 playwright.config.ts     Browser test projects at 360, 768 and 1280 px.
@@ -220,8 +235,8 @@ to change in `src/i18n/config.ts`.
    `tsc --noEmit`.
 4. `test`: Vitest. Covers i18n parity and rules, the display-locale rules, contrast of every text colour
    pair against WCAG AA (4.5:1 text, 3:1 for focus and control boundaries), the RTL physical-property
-   guard, component behaviour (shell, drawer, language switching, the home status page without fake
-   controls, the 404 view), and UI primitives.
+   guard, component behaviour (shell, drawer, language switching, the landing page, the working demo and
+   the professional entry point — each without fake controls — and the 404 view), and UI primitives.
 5. `build`: `next build`.
 6. `test:smoke`: runs the production server and checks the redirects, `lang` and `dir` on each locale,
    one `<h1>`, the skip link, security headers, no `X-Powered-By`, no links to unbuilt sections, Arabic

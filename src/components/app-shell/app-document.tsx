@@ -8,7 +8,7 @@ import { AppShell } from "./app-shell";
 
 /** Viewport settings shared by every document, so the locale pages and the 404 page match. */
 export const appViewport: Viewport = {
-  themeColor: "#c2410c",
+  themeColor: "#0b0f14",
 };
 
 /**

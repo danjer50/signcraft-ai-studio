@@ -1,11 +1,26 @@
 # SignCraft AI Studio
 
-Professional AI-assisted sign design studio. This repository currently holds the **foundation build**:
-the application shell, responsive navigation, design system, French/English/Arabic (RTL)
-localisation, automated checks and CI.
+Professional AI-assisted sign design studio. This repository holds the **product interface milestone**:
+a bilingual (FR/EN/AR, RTL) landing page for the product, a working local customer demonstration, a
+clearly labelled entry point for the professional workspace, the application shell, design system,
+automated checks and CI.
 
-Not built yet: editable 2D design, 3D geometry, AI-assisted mockups, project persistence, exports and
-deployment. The home page lists these as planned, and no control on the page does anything yet.
+**What genuinely works today**
+
+- The landing page: product headline, calls to action, and a gallery of example sign styles labelled as
+  illustrations.
+- The customer flow at `/{locale}/create`: type your sign text, pick a visual direction (neon glow,
+  illuminated letters, 3D metal lettering, minimal), and see a live style preview update as you type.
+  The page states in plain language that this preview is a local style composition — not AI-generated
+  imagery and not a technically accurate fabrication model.
+- Localisation and RTL for French (default), English and Arabic, including keyboard navigation,
+  responsive navigation and a 404 page with the right language and direction.
+
+**Planned, labelled as such, with no controls that pretend otherwise:** reference-photo input and AI
+generation, revision requests, the professional 2D/3D design and fabrication tools (exact dimensions,
+3D geometry, materials, LED layout, technical drawings, fabrication exports), project persistence and
+deployment. The professional entry point at `/{locale}/pro` describes these tools and marks each one
+"Planned"; it contains no fake editor.
 
 Architecture decisions and known limitations: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 Design tokens and component rules: [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md).
@@ -27,7 +42,7 @@ npm run dev     # development server at http://localhost:3000 (redirects to /fr)
 | Script                 | What it does                                                                                                     |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `npm run dev`          | Development server with hot reload.                                                                              |
-| `npm run build`        | Production build. Prerenders `/fr`, `/en` and `/ar`.                                                             |
+| `npm run build`        | Production build. Prerenders `/fr`, `/en`, `/ar`, `/create` and `/pro` variants.                                 |
 | `npm start`            | Serves the production build. Run `npm run build` first.                                                          |
 | `npm run lint`         | ESLint over the whole repository.                                                                                |
 | `npm run typecheck`    | Generates route types, then runs `tsc --noEmit`.                                                                 |
@@ -61,12 +76,15 @@ Next.js feature it uses, are in `docs/ARCHITECTURE.md`, section 4.
 ## Project layout
 
 ```
-src/app/[locale]/       Locale routes: layout (html lang/dir, app shell) and the home page
+src/app/[locale]/       Locale routes: layout (html lang/dir, app shell), landing page,
+                        /create (customer demo) and /pro (professional entry point)
 src/app/global-not-found.tsx  The 404 page for every URL no route matches
 src/proxy.ts            Stores the display locale of each request for the 404 page
-src/components/         app-shell (incl. AppDocument), home, not-found, ui primitives
+src/components/         app-shell (incl. AppDocument), home, workflow (incl. the demo),
+                        pro, not-found, ui primitives
 src/i18n/               locale configuration, typed dictionaries, path helpers
 src/styles/             design tokens, global styles, token and RTL tests
+public/images/          illustrative signage photography for the landing page
 e2e/                    browser tests (Playwright)
 scripts/smoke-test.mjs  production HTTP smoke test
 docs/                   architecture and design system
@@ -82,8 +100,9 @@ docs/                   architecture and design system
 - `npm audit` reports five high-severity findings in the dev-only linting chain (`braces` 3.0.3, no patched
   release yet). `npm audit --omit=dev` reports none. See `docs/ARCHITECTURE.md`, section 8.
 - Browser tests run in CI, not in `npm run check`, because they need a Chromium binary. They cover the
-  locale pages and the 404 pages at 360, 768 and 1280 px. They do not replace a review by a native speaker
-  of the French and Arabic copy, which is still a draft. See `docs/ARCHITECTURE.md`, section 8.
+  locale pages, the product surface (landing page, the live demo, the professional entry point) and the
+  404 pages at 360, 768 and 1280 px. They do not replace a review by a native speaker of the French and
+  Arabic copy, which is still a draft. See `docs/ARCHITECTURE.md`, section 8.
 
 ## Deployment
 

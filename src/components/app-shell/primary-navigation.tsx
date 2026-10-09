@@ -4,11 +4,13 @@ import type { Ref } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   CanvasIcon,
+  CaseIcon,
   CubeIcon,
   DownloadIcon,
   FolderIcon,
   HomeIcon,
   SparkleIcon,
+  WandIcon,
 } from "@/components/ui/icons";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/messages/en";
@@ -20,6 +22,8 @@ import styles from "./primary-navigation.module.css";
 
 const icons = {
   home: HomeIcon,
+  create: WandIcon,
+  pro: CaseIcon,
   projects: FolderIcon,
   design2d: CanvasIcon,
   geometry3d: CubeIcon,

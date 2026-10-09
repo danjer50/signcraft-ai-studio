@@ -88,6 +88,24 @@ export function DownloadIcon(props: IconProps) {
   );
 }
 
+export function WandIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 20 14.5 9.5M16 4.5l.9 2.6 2.6.9-2.6.9L16 11.5l-.9-2.6-2.6-.9 2.6-.9zM6.5 4l.6 1.6 1.6.6-1.6.6L6.5 8.4l-.6-1.6-1.6-.6 1.6-.6z" />
+      <path d="M13.2 14.2 17 18a1.2 1.2 0 0 1-1.7 1.7l-3.8-3.8" />
+    </Icon>
+  );
+}
+
+export function CaseIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3.5" y="7.5" width="17" height="12" rx="1.5" />
+      <path d="M9 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 6v1.5M3.5 12.5h17" />
+    </Icon>
+  );
+}
+
 /** Brand mark: a rounded tile with sign-like lines. Filled, not stroked. */
 export function BrandMark(props: IconProps) {
   return (

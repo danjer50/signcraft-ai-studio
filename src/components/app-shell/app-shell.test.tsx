@@ -87,6 +87,11 @@ describe("AppShell", () => {
     expect(home).toHaveAttribute("href", "/fr");
     expect(home).toHaveAttribute("aria-current", "page");
 
+    const create = within(nav).getByRole("link", { name: "Créer mon enseigne" });
+    expect(create).toHaveAttribute("href", "/fr/create");
+    const pro = within(nav).getByRole("link", { name: "Espace professionnel" });
+    expect(pro).toHaveAttribute("href", "/fr/pro");
+
     for (const planned of ["Projets", "Conception 2D", "Géométrie 3D", "Maquettes IA", "Exports"]) {
       expect(within(nav).queryByRole("link", { name: planned })).not.toBeInTheDocument();
       expect(within(nav).getByText(planned)).toBeInTheDocument();

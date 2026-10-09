@@ -180,6 +180,58 @@ async function runChecks(base) {
     arabicHeading,
   );
 
+  // Product surface: the landing page calls to action and the two real product routes.
+  const productPages = [
+    {
+      path: "create",
+      headings: { fr: "Créer mon enseigne", en: "Create my sign", ar: "أنشئ لافتتي" },
+      demoMarker: 'data-style="channel"',
+      plannedLabels: { fr: "Prévu", en: "Planned", ar: "مخطط" },
+    },
+    {
+      path: "pro",
+      headings: {
+        fr: "Espace professionnel",
+        en: "Professional workspace",
+        ar: "مساحة العمل الاحترافية",
+      },
+      demoMarker: null,
+      plannedLabels: { fr: "Prévu", en: "Planned", ar: "مخطط" },
+    },
+  ];
+  for (const { locale } of localePages) {
+    const home = await get(base, `/${locale}`);
+    check(`/${locale} links to /${locale}/create`, home.body.includes(`href="/${locale}/create"`));
+    check(`/${locale} links to /${locale}/pro`, home.body.includes(`href="/${locale}/pro"`));
+    check(`/${locale} links to the example gallery`, home.body.includes('href="#examples"'));
+  }
+  for (const { locale } of localePages) {
+    for (const page of productPages) {
+      const response = await get(base, `/${locale}/${page.path}`);
+      const heading = h1Text(response.body);
+      const prerendered = (response.headers.get("x-nextjs-prerender") ?? "")
+        .split(",")
+        .map((v) => v.trim())
+        .includes("1");
+      check(
+        `/${locale}/${page.path} renders the product heading`,
+        response.status === 200 && heading === page.headings[locale],
+        `status ${response.status}, h1 ${heading || "<none>"}`,
+      );
+      check(`/${locale}/${page.path} is statically prerendered`, prerendered);
+      if (page.demoMarker) {
+        check(
+          `/${locale}/${page.path} includes the live style demo`,
+          response.body.includes(page.demoMarker),
+        );
+      }
+      check(
+        `/${locale}/${page.path} labels planned capabilities`,
+        response.body.includes(page.plannedLabels[locale]),
+      );
+    }
+  }
+
   // The proxy sets the display locale itself, so a locale header sent by the client is ignored.
   for (const { path: unknown, header, expected } of [
     { path: "/fr/does-not-exist", header: "en", expected: "fr" },
