@@ -60,4 +60,10 @@ export const fr: Messages = {
         "Plans et fichiers 3D qui indiquent précisément leur contenu et leur niveau de précision.",
     },
   },
+  notFound: {
+    title: "Page introuvable",
+    heading: "Cette page n'existe pas",
+    body: "L'adresse contient peut-être une faute de frappe, ou la page a été déplacée. Utilisez le menu ou revenez à la page d'accueil.",
+    homeLink: "Retour à la page d'accueil",
+  },
 };

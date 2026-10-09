@@ -35,6 +35,9 @@ export function LanguageSwitcher({ currentLocale, label, fill = false }: Languag
                 lang={locale}
                 aria-current={isCurrent ? "true" : undefined}
                 className={styles.option}
+                // Not prefetched: the other locales of a page are rarely needed, and on a
+                // not-found page they do not exist either, so prefetching them logs errors.
+                prefetch={false}
               >
                 {localeNames[locale]}
               </Link>

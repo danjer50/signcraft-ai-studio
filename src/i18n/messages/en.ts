@@ -62,6 +62,12 @@ export const en = {
         "Drawings and 3D files that state exactly what they contain and how accurate they are.",
     },
   },
+  notFound: {
+    title: "Page not found",
+    heading: "This page does not exist",
+    body: "The address may contain a typing mistake, or the page may have moved. Use the menu or go back to the home page.",
+    homeLink: "Back to the home page",
+  },
 };
 
 export type Messages = typeof en;

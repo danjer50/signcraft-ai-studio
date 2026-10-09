@@ -1,0 +1,23 @@
+.panel {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 60ch;
+  padding-block: var(--space-6);
+}
+
+.code {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+}
+
+.title {
+  font-size: var(--text-2xl);
+}
+
+.body {
+  margin: 0;
+  color: var(--color-text-muted);
+}

@@ -35,9 +35,10 @@ function findFreePort() {
   });
 }
 
-async function get(base, pathname) {
+async function get(base, pathname, headers = {}) {
   const response = await fetch(new URL(pathname, base), {
     redirect: "manual",
+    headers,
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   return { status: response.status, headers: response.headers, body: await response.text() };
@@ -97,6 +98,35 @@ const localePages = [
   { locale: "ar", lang: "ar", dir: "rtl" },
 ];
 
+const arabicScript = /[\u0600-\u06FF]/;
+
+/**
+ * Unknown URLs. Each one must return 404 with a complete document in the language its URL
+ * implies. An unknown locale such as /de falls back to French, the default locale.
+ * `englishHref` is where the language switcher should point for English.
+ */
+const unknownPages = [
+  { path: "/fr/does-not-exist", lang: "fr", dir: "ltr", englishHref: "/en/does-not-exist" },
+  { path: "/en/a/b", lang: "en", dir: "ltr", englishHref: "/en/a/b" },
+  { path: "/ar/x", lang: "ar", dir: "rtl", englishHref: "/en/x" },
+  { path: "/de", lang: "fr", dir: "ltr", englishHref: null },
+  { path: "/de/x/y", lang: "fr", dir: "ltr", englishHref: null },
+  { path: "/nope", lang: "fr", dir: "ltr", englishHref: null },
+  { path: "/FR", lang: "fr", dir: "ltr", englishHref: null },
+  { path: "/fr/projects", lang: "fr", dir: "ltr", englishHref: "/en/projects" },
+];
+
+/** The href of the first anchor with the given hreflang, or null. Attribute order is not assumed. */
+function anchorHref(html, hreflang) {
+  for (const [tag] of html.matchAll(/<a\b[^>]*>/gi)) {
+    // Attribute names are case-insensitive in HTML, and React writes this one as hrefLang.
+    if (new RegExp(`\\bhreflang="${hreflang}"`, "i").test(tag)) {
+      return tag.match(/\bhref="([^"]*)"/)?.[1] ?? null;
+    }
+  }
+  return null;
+}
+
 async function runChecks(base) {
   // Root redirects to the default locale.
   const root = await get(base, "/");
@@ -132,6 +162,15 @@ async function runChecks(base) {
       page.headers.get("x-content-type-options") === "nosniff",
     );
     check(`/${locale} does not expose X-Powered-By`, !page.headers.has("x-powered-by"));
+    // Prerendered at build time, so the response is cached as static output.
+    check(
+      `/${locale} is statically prerendered`,
+      (page.headers.get("x-nextjs-prerender") ?? "")
+        .split(",")
+        .map((v) => v.trim())
+        .includes("1") && (page.headers.get("cache-control") ?? "").includes("s-maxage"),
+      `prerender ${page.headers.get("x-nextjs-prerender")}, cache-control ${page.headers.get("cache-control")}`,
+    );
   }
 
   const arabicHeading = h1Text((await get(base, "/ar")).body);
@@ -141,9 +180,50 @@ async function runChecks(base) {
     arabicHeading,
   );
 
-  for (const unknown of ["/fr/does-not-exist", "/en/a/b", "/de"]) {
+  // The proxy sets the display locale itself, so a locale header sent by the client is ignored.
+  for (const { path: unknown, header, expected } of [
+    { path: "/fr/does-not-exist", header: "en", expected: "fr" },
+    { path: "/de", header: "ar", expected: "fr" },
+  ]) {
+    const response = await get(base, unknown, { "x-signcraft-locale": header });
+    const htmlTag = response.body.match(/<html\b[^>]*>/i)?.[0] ?? "";
+    check(
+      `GET ${unknown} ignores a client-sent x-signcraft-locale: ${header}`,
+      response.status === 404 && new RegExp(`\\blang="${expected}"`).test(htmlTag),
+      `status ${response.status}, ${htmlTag || "no <html> tag"}`,
+    );
+  }
+
+  for (const { path: unknown, lang, dir, englishHref } of unknownPages) {
     const response = await get(base, unknown);
+    const htmlTag = response.body.match(/<html\b[^>]*>/i)?.[0] ?? "";
+    const heading = h1Text(response.body);
+    const headingCount = (response.body.match(/<h1\b/gi) ?? []).length;
+
     check(`GET ${unknown} returns 404`, response.status === 404, `status ${response.status}`);
+    check(
+      `GET ${unknown} sets lang="${lang}" and dir="${dir}" on <html>`,
+      new RegExp(`\\blang="${lang}"`).test(htmlTag) && new RegExp(`\\bdir="${dir}"`).test(htmlTag),
+      htmlTag || "no <html> tag",
+    );
+    check(
+      `GET ${unknown} is marked noindex`,
+      /<meta name="robots" content="noindex"\/?>/.test(response.body),
+    );
+    check(
+      `GET ${unknown} has one non-empty <h1> in ${lang}`,
+      headingCount === 1 &&
+        heading !== "" &&
+        (lang === "ar" ? arabicScript.test(heading) : !arabicScript.test(heading)),
+      `${headingCount} heading(s): ${heading}`,
+    );
+    if (englishHref !== null) {
+      check(
+        `GET ${unknown} keeps the same path in the English switcher link`,
+        anchorHref(response.body, "en") === englishHref,
+        `href ${anchorHref(response.body, "en")}`,
+      );
+    }
   }
 }
 

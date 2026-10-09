@@ -31,3 +31,29 @@ jobs:
 
       - name: Run all checks
         run: npm run check
+
+  browser:
+    name: Browser tests (Playwright, Chromium)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js from .nvmrc
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies from the lockfile
+        run: npm ci
+
+      - name: Install Chromium and its system libraries
+        run: npx playwright install --with-deps chromium
+
+      - name: Build the production app
+        run: npm run build
+
+      - name: Run browser tests
+        run: npm run test:e2e
