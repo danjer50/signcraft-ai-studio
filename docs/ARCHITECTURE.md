@@ -142,15 +142,25 @@ Measured on localhost with `next start`, 100 sequential requests per URL. These 
 
 **Approaches compared**
 
-| Approach                                                                          | What happened                                                                                             | Decision   |
-| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------- |
-| Root `app/not-found.tsx` with its own `<html lang>`                               | Next.js drops the attributes. The 404 has no `lang`.                                                      | Rejected   |
-| Localised `not-found.tsx` in `[locale]`, with a catch-all that calls `notFound()` | Empty `__next_error__` shell in the server response. The UI is drawn on the client only.                  | Rejected   |
-| Same, with `loading.tsx` on the segment                                           | The server response contains only the loading fallback text.                                              | Rejected   |
-| One root layout per locale (route groups)                                         | Unmatched URLs get the default document with no `lang`.                                                   | Rejected   |
-| Proxy rewrite of unknown URLs to a not-found route                                | The rewritten response keeps the target's 200 status. The proxy cannot set 404 on a rewrite.              | Rejected   |
-| Read the locale from request headers in the root layout                           | Reading request headers opts the route into dynamic rendering, so every locale page would become dynamic. | Rejected   |
-| `experimental.globalNotFound` with a proxy header                                 | Server-rendered 404 with the right `lang`, `dir` and copy. Locale pages stay static.                      | **Chosen** |
+| Approach                                                                          | What happened                                                                                                                      | Decision                      |
+| --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| Root `app/not-found.tsx` with its own `<html lang>`                               | Next.js drops the attributes. The 404 has no `lang`.                                                                               | Rejected                      |
+| Localised `not-found.tsx` in `[locale]`, with a catch-all that calls `notFound()` | Empty `__next_error__` shell in the server response. The UI is drawn on the client only.                                           | Rejected                      |
+| Same, with `loading.tsx` on the segment                                           | The server response contains only the loading fallback text.                                                                       | Rejected                      |
+| One root layout per locale (route groups)                                         | Unmatched URLs get the default document with no `lang`.                                                                            | Rejected                      |
+| Proxy rewrite of unknown URLs to a not-found route                                | Works; see the note below. The rewrite sets the 404 status and the target page is server-rendered with the right `lang` and `dir`. | Rejected (validated fallback) |
+| Read the locale from request headers in the root layout                           | Reading request headers opts the route into dynamic rendering, so every locale page would become dynamic.                          | Rejected                      |
+| `experimental.globalNotFound` with a proxy header                                 | Server-rendered 404 with the right `lang`, `dir` and copy. Locale pages stay static.                                               | **Chosen**                    |
+
+**Note on the rewrite alternative.** Tests on Next.js 16.4.0 show that
+`NextResponse.rewrite(url, { status: 404 })` does set the 404 status on the rewritten response. The
+rewritten page is server-rendered with the right `lang` and `dir`, `/fr`, `/en` and `/ar` stay
+static, a client-supplied `x-signcraft-locale` header is ignored, and client-side navigation keeps
+the requested URL. The approach is still rejected because the proxy must then keep its own list of
+known routes: a forgotten entry turns a live route, including the `/` redirect, into a 404, and a
+removed route falls back to Next.js's default document with no `lang`. The rewrite target also needs
+its own root layout, and `noindex` must be added by hand. It is the validated fallback if
+`experimental.globalNotFound` ever changes.
 
 **Limitations of this approach**
 
