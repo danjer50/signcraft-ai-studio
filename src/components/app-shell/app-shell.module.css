@@ -1,0 +1,166 @@
+/*
+ * App shell layout. Mobile-first: one column with a sticky header, and the navigation
+ * as a drawer. From 64rem (1024px) the navigation becomes a sidebar in the grid.
+ */
+
+.shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "header"
+    "main";
+  min-height: 100dvh;
+}
+
+.skipLink {
+  position: absolute;
+  inset-block-start: var(--space-2);
+  inset-inline-start: var(--space-2);
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(calc(-100% - var(--space-4)));
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+/* The shadow belongs to the visible state only. Parked off-screen, it would bleed into the page. */
+.skipLink:focus {
+  transform: none;
+  box-shadow: var(--shadow-lg);
+}
+
+.header {
+  grid-area: header;
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: var(--header-height);
+  padding-inline: var(--space-4);
+  background: var(--color-surface);
+  border-block-end: 1px solid var(--color-border);
+}
+
+.menuButton {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.menuButton:hover {
+  background: var(--color-surface-muted);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  color: var(--color-text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brandName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.buildLabel {
+  display: none;
+  flex: none;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-soft);
+  color: var(--color-on-neutral-soft);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* On phones the language switcher lives in the drawer, where there is room for it. */
+.switcherSlot {
+  display: none;
+  flex: none;
+  margin-inline-start: auto;
+}
+
+/* Backdrop behind the open drawer. It starts below the header so the menu button still works. */
+.scrim {
+  position: fixed;
+  inset-block-start: var(--header-height);
+  inset-block-end: 0;
+  inset-inline: 0;
+  z-index: 30;
+  background: var(--color-scrim);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-base) var(--ease-standard);
+}
+
+.scrim[data-open="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.main {
+  grid-area: main;
+  min-width: 0;
+  padding: var(--space-5) var(--space-4) var(--space-12);
+}
+
+/* Main receives focus when the skip link is used. It is not interactive, so no ring. */
+.main:focus {
+  outline: none;
+}
+
+.content {
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+}
+
+@media (min-width: 40rem) {
+  .switcherSlot {
+    display: block;
+  }
+
+  .main {
+    padding: var(--space-8) var(--space-6) var(--space-12);
+  }
+}
+
+@media (min-width: 64rem) {
+  .buildLabel {
+    display: inline-flex;
+  }
+
+  .shell {
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+    grid-template-areas:
+      "header header"
+      "nav main";
+  }
+
+  .menuButton,
+  .scrim {
+    display: none;
+  }
+}

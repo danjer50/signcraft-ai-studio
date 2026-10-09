@@ -1,0 +1,22 @@
+.icon {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.brandMark {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+}
+
+.brandTile {
+  fill: var(--color-accent);
+}
+
+.brandLine {
+  fill: none;
+  stroke: var(--color-on-accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}

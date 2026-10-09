@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Tests and coverage
+coverage/
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Environment files (may hold secrets; never commit)
+.env
+.env*.local
+
+# Vercel local config (added when the project is linked to Vercel)
+.vercel
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs
+npm-debug.log*
