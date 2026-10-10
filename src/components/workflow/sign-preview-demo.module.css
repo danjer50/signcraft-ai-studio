@@ -18,14 +18,6 @@
   gap: var(--space-2);
 }
 
-.fieldset {
-  display: grid;
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
 .label {
   font-weight: 600;
 }
@@ -45,151 +37,9 @@
   opacity: 0.7;
 }
 
-.styleOptions {
-  display: grid;
-  gap: var(--space-2);
-}
-
-.styleOption {
-  display: flex;
-  gap: var(--space-3);
-  align-items: flex-start;
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition:
-    border-color var(--motion-fast) var(--ease-standard),
-    background-color var(--motion-fast) var(--ease-standard);
-}
-
-.styleOption:hover {
-  border-color: var(--color-border-strong);
-}
-
-.styleOption[data-selected="true"] {
-  background: var(--color-accent-soft);
-  border-color: var(--color-accent);
-}
-
-.radio {
-  margin-block-start: 0.2rem;
-  accent-color: var(--color-accent);
-}
-
-.styleText {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.styleLabel {
-  font-weight: 600;
-}
-
-.styleHint {
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-}
-
-.previewFrame {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-}
-
-.previewTitle {
-  font-weight: 600;
-}
-
-.preview {
-  overflow: clip;
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-}
-
-.signScene {
-  display: grid;
-  place-content: center;
-  gap: var(--space-2);
-  min-height: 12rem;
-  padding: var(--space-8) var(--space-4);
-  text-align: center;
-  background: radial-gradient(120% 120% at 50% 20%, #1c2733, var(--color-bg) 75%);
-}
-
-.signText {
-  font-size: clamp(var(--text-2xl), 4.5vw, var(--text-4xl));
-  font-weight: 700;
-  overflow-wrap: anywhere;
-}
-
-.signTagline {
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-}
-
-.previewCaption {
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-}
-
-/* Style treatments: each direction composes the typed text differently. */
-
-.preview[data-style="neon"] .signText {
-  color: #d7fbff;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-shadow:
-    0 0 6px #22d3ee,
-    0 0 18px rgb(34 211 238 / 0.85),
-    0 0 42px rgb(34 211 238 / 0.5);
-}
-
-.preview[data-style="neon"] .signScene {
-  background: radial-gradient(120% 120% at 50% 20%, #10222b, var(--color-bg) 78%);
-}
-
-.preview[data-style="channel"] .signText {
-  color: #f2f7fa;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-shadow:
-    0 1px 0 #7dd3fc,
-    0 -1px 0 #0b4a5a,
-    0 0 16px rgb(125 211 252 / 0.7);
-}
-
-.preview[data-style="dimensional"] .signText {
-  background: linear-gradient(180deg, #eef3f8, #93a5b6 55%, #46545f);
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(2px 3px 0 rgb(0 0 0 / 0.55));
-  font-weight: 800;
-  letter-spacing: 0.04em;
-}
-
-.preview[data-style="dimensional"] .signScene {
-  background: radial-gradient(120% 120% at 50% 20%, #222c36, var(--color-bg) 78%);
-}
-
-.preview[data-style="minimal"] .signText {
-  color: #cfe0ea;
-  font-weight: 300;
-  letter-spacing: 0.32em;
-}
-
 @media (min-width: 48rem) {
   .demo {
-    grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 24rem) minmax(0, 1fr);
     gap: var(--space-8);
-  }
-
-  .signScene {
-    min-height: 18rem;
-    padding: var(--space-12) var(--space-8);
   }
 }

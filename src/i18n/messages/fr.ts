@@ -69,11 +69,11 @@ export const fr: Messages = {
     },
     step2: {
       title: "Choisir une direction visuelle",
-      body: "Choisissez une ambiance : néon, lettres lumineuses, métal 3D ou élégance minimale.",
+      body: "Choisissez parmi dix modèles — éclat néon, lettres lumineuses, métal 3D, élégance minimale et plus — et ajustez les couleurs.",
     },
     step3: {
       title: "Examiner un aperçu",
-      body: "Visualisez votre texte dans la direction choisie, modifiez-le en direct et comparez les directions.",
+      body: "Visualisez votre texte dans le modèle choisi, modifiez-le en direct et changez de modèle pour comparer.",
     },
     step4: {
       title: "Demander des modifications ou continuer",
@@ -83,41 +83,92 @@ export const fr: Messages = {
   },
   create: {
     title: "Créer mon enseigne",
-    lead: "Essayez les premières étapes : décrivez votre enseigne, choisissez une direction et examinez un aperçu en direct.",
+    lead: "Essayez les premières étapes : décrivez votre enseigne, choisissez un modèle et examinez un aperçu en direct.",
     demoTitle: "Aperçu de style en direct",
     demoLead:
-      "Saisissez le texte de votre enseigne et choisissez une direction visuelle. L'aperçu se met à jour pendant que vous tapez.",
-    textLabel: "Texte de l'enseigne",
+      "Saisissez le nom de votre commerce, choisissez un modèle et ajustez les couleurs. L'aperçu se met à jour instantanément.",
+    textLabel: "Nom du commerce",
     textPlaceholder: "p. ex. Studio",
     taglineLabel: "Slogan (facultatif)",
     taglinePlaceholder: "p. ex. Boulangerie · Café · Pâtisserie",
-    styleLegend: "Direction visuelle",
-    styles: {
-      neon: {
-        label: "Éclat néon",
-        hint: "Des tubes lumineux et un halo doux pour une ambiance nocturne vivante.",
-      },
-      channel: {
-        label: "Lettres lumineuses",
-        hint: "Des lettres rétroéclairées classiques, lisibles de loin.",
-      },
-      dimensional: {
-        label: "Lettres métal 3D",
-        hint: "Des lettres épaisses en relief avec un fini métal brossé.",
-      },
-      minimal: {
-        label: "Élégance minimale",
-        hint: "Des lignes fines et un interlettrage généreux pour un look moderne et discret.",
-      },
-    },
+    colourLegend: "Couleurs",
     previewLabel: "Aperçu de l'enseigne",
-    previewCaption: "Aperçu en direct de votre texte dans la direction choisie.",
+    previewCaption: "Aperçu en direct de votre texte dans le modèle choisi.",
     previewFallback: "Votre enseigne",
     limitationsTitle: "Ce qu'est cet aperçu",
     limitationsBody:
       "L'aperçu met en forme votre texte localement dans votre navigateur. Il ne s'agit ni d'une création générée par IA, ni d'un modèle de fabrication : couleurs, dimensions et construction ne sont pas techniquement exacts.",
     referenceNote:
       "Les photos de référence et la génération par IA sont prévues. Cet aperçu n'analyse aucune image et ne produit aucune donnée de fabrication.",
+  },
+  templates: {
+    pickerLegend: "Modèle",
+    pickerHint: "Choisissez un modèle — l'aperçu se met à jour instantanément.",
+    items: {
+      neonScript: {
+        name: "Éclat néon",
+        hint: "Des lettres lumineuses avec un halo doux pour une ambiance nocturne vivante.",
+      },
+      channelLetters: {
+        name: "Lettres lumineuses",
+        hint: "Des lettres rétroéclairées classiques, lisibles de loin.",
+      },
+      dimensionalMetal: {
+        name: "Lettres métal 3D",
+        hint: "Des lettres épaisses en relief avec un fini métal brossé.",
+      },
+      minimalLetters: {
+        name: "Élégance minimale",
+        hint: "Des lignes fines et un interlettrage généreux pour un look moderne et discret.",
+      },
+      projectingBlade: {
+        name: "Enseigne en saillie",
+        hint: "Un panneau qui se détache de la façade et se lit le long de la rue.",
+      },
+      awningBand: {
+        name: "Store d'enseigne",
+        hint: "Une large bande au-dessus de l'entrée avec des lettres lisibles et affirmées.",
+      },
+      windowVinyl: {
+        name: "Adhésif vitrine",
+        hint: "Des lettres nettes appliquées directement sur la vitre.",
+      },
+      lightboxPlaque: {
+        name: "Caisson lumineux",
+        hint: "Un panneau éclairé en douceur, lumineux de jour comme de nuit.",
+      },
+      marqueeBulbs: {
+        name: "Enseigne à ampoules",
+        hint: "Des lettres affirmées encadrées par une bordure de petites lumières.",
+      },
+      totemPanel: {
+        name: "Totem au sol",
+        hint: "Un haut panneau autoportant, lisible de loin.",
+      },
+    },
+  },
+  colours: {
+    slots: {
+      face: "Couleur des lettres",
+      glow: "Couleur de la lumière",
+      accent: "Couleur d'accent",
+    },
+    names: {
+      cyan: "Cyan",
+      azure: "Azur",
+      teal: "Sarcelle",
+      emerald: "Émeraude",
+      amber: "Ambre",
+      gold: "Or",
+      coral: "Corail",
+      rose: "Rose",
+      violet: "Violet",
+      ice: "Glace",
+      warmWhite: "Blanc chaud",
+      graphite: "Graphite",
+      silver: "Argent",
+      copper: "Cuivre",
+    },
   },
   pro: {
     title: "Espace professionnel",

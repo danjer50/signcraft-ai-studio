@@ -185,7 +185,14 @@ async function runChecks(base) {
     {
       path: "create",
       headings: { fr: "Créer mon enseigne", en: "Create my sign", ar: "أنشئ لافتتي" },
-      demoMarker: 'data-style="channel"',
+      demoMarker: 'data-template="channelLetters"',
+      // The template catalogue ships with the page: picker legend, default template
+      // name and the default template's colour names are all in the prerendered HTML.
+      catalogueMarkers: {
+        fr: ["Modèle", "Lettres lumineuses", "Couleurs", "Blanc chaud"],
+        en: ["Template", "Illuminated letters", "Colours", "Warm white"],
+        ar: ["القالب", "حروف مضيئة", "الألوان", "أبيض دافئ"],
+      },
       plannedLabels: { fr: "Prévu", en: "Planned", ar: "مخطط" },
     },
     {
@@ -196,6 +203,7 @@ async function runChecks(base) {
         ar: "مساحة العمل الاحترافية",
       },
       demoMarker: null,
+      catalogueMarkers: null,
       plannedLabels: { fr: "Prévu", en: "Planned", ar: "مخطط" },
     },
   ];
@@ -221,8 +229,14 @@ async function runChecks(base) {
       check(`/${locale}/${page.path} is statically prerendered`, prerendered);
       if (page.demoMarker) {
         check(
-          `/${locale}/${page.path} includes the live style demo`,
+          `/${locale}/${page.path} includes the live template demo`,
           response.body.includes(page.demoMarker),
+        );
+      }
+      for (const marker of page.catalogueMarkers?.[locale] ?? []) {
+        check(
+          `/${locale}/${page.path} ships catalogue copy "${marker}"`,
+          response.body.includes(marker),
         );
       }
       check(

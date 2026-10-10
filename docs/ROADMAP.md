@@ -1,8 +1,21 @@
 # Roadmap and product requirements
 
 This document records the binding product requirements for all future work and the agreed order of
-milestones. Milestone 1 is implemented (pull request #1). Later milestones are **proposals**: none of
-them is started until explicitly approved.
+milestones. Milestones 1 and 2 are implemented (pull request #1). Later milestones are **proposals**:
+none of them is started until explicitly approved.
+
+## Milestone 2 — what shipped
+
+- `src/templates/`: a structured catalogue of **ten** sign templates (neon glow, illuminated letters,
+  3D metal lettering, minimal, projecting blade, awning band, window vinyl, lightbox plaque, marquee
+  bulbs, floor totem), each with one or two named colour slots drawn from a WCAG-AA-checked palette.
+- `/[locale]/create` now offers template selection and named colour swatches; the business name, the
+  selected template's name and the colours all update the preview **instantly** (client state, CSS
+  custom properties, `data-layout` treatments). Full fr/en/ar with RTL.
+- A serialisable, versioned `CustomerDraft` (template + text + colours) with a strict parser — the
+  seam for the future transfer into the Professional Studio. No persistence UI yet.
+- The demo's honesty copy is unchanged: the preview is a local composition, not AI output and not a
+  fabrication model; photo input, AI generation, revisions and all pro tools stay labelled Planned.
 
 ## Product requirements (constraints for every milestone)
 
@@ -40,14 +53,14 @@ them is started until explicitly approved.
 
 ## Milestone order
 
-| #   | Milestone                                                                      | Status                 |
-| --- | ------------------------------------------------------------------------------ | ---------------------- |
-| 1   | Product interface: landing page, working customer demo, pro workspace entry    | Implemented (PR #1)    |
-| 2   | Customer template and customisation foundation (local, free, instant previews) | Proposed — not started |
-| 3   | Storefront photo upload and sign-area selection (client-side)                  | Later                  |
-| 4   | Mockup generation with enforceable free-usage limits (no paid fallback)        | Later                  |
-| 5   | Shared Admin/Pro authentication with server-enforced roles                     | Later                  |
-| 6   | Project transfer into the Professional Studio; pro editing tools               | Later                  |
+| #   | Milestone                                                                      | Status              |
+| --- | ------------------------------------------------------------------------------ | ------------------- |
+| 1   | Product interface: landing page, working customer demo, pro workspace entry    | Implemented (PR #1) |
+| 2   | Customer template and customisation foundation (local, free, instant previews) | Implemented (PR #1) |
+| 3   | Storefront photo upload and sign-area selection (client-side)                  | Later               |
+| 4   | Mockup generation with enforceable free-usage limits (no paid fallback)        | Later               |
+| 5   | Shared Admin/Pro authentication with server-enforced roles                     | Later               |
+| 6   | Project transfer into the Professional Studio; pro editing tools               | Later               |
 
 Each later milestone keeps every earlier capability working and keeps the honesty rules of the
 architecture: only working controls are interactive, planned capabilities are labelled, and nothing

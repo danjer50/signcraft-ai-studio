@@ -71,11 +71,11 @@ export const en = {
     },
     step2: {
       title: "Choose a visual direction",
-      body: "Pick a mood: neon glow, illuminated letters, 3D metal or minimal elegance.",
+      body: "Choose from ten templates — neon glow, illuminated letters, 3D metal, minimal and more — and fine-tune the colours.",
     },
     step3: {
       title: "Review a design preview",
-      body: "See your text in the chosen direction, adjust it live, and compare directions side by side.",
+      body: "See your text in the chosen template, adjust it live, and switch templates to compare them.",
     },
     step4: {
       title: "Request changes or continue",
@@ -85,40 +85,92 @@ export const en = {
   },
   create: {
     title: "Create my sign",
-    lead: "Try the first steps now: describe your sign, choose a direction and review a live preview.",
+    lead: "Try the first steps now: describe your sign, choose a template and review a live preview.",
     demoTitle: "Live style preview",
-    demoLead: "Type your sign text and pick a visual direction. The preview updates as you type.",
-    textLabel: "Sign text",
+    demoLead:
+      "Type your business name, pick a template and adjust the colours. The preview updates instantly.",
+    textLabel: "Business name",
     textPlaceholder: "e.g. Studio",
     taglineLabel: "Tagline (optional)",
     taglinePlaceholder: "e.g. Bakery · Coffee · Pastry",
-    styleLegend: "Visual direction",
-    styles: {
-      neon: {
-        label: "Neon glow",
-        hint: "Bright tubes and a soft halo for a lively night-time look.",
-      },
-      channel: {
-        label: "Illuminated letters",
-        hint: "Classic halo-lit letters, readable from far away.",
-      },
-      dimensional: {
-        label: "3D metal lettering",
-        hint: "Solid dimensional letters with a brushed-metal feel.",
-      },
-      minimal: {
-        label: "Minimal elegance",
-        hint: "Fine lines and generous spacing for a quiet, modern look.",
-      },
-    },
+    colourLegend: "Colours",
     previewLabel: "Sign preview",
-    previewCaption: "Live preview of your text in the selected direction.",
+    previewCaption: "Live preview of your text in the selected template.",
     previewFallback: "Your sign",
     limitationsTitle: "What this preview is",
     limitationsBody:
       "The preview styles your text locally in your browser. It is not an AI-generated design and not a fabrication model: colours, dimensions and construction are not technically accurate.",
     referenceNote:
       "Reference photos and AI design generation are planned. This preview does not analyse images and produces no fabrication data.",
+  },
+  templates: {
+    pickerLegend: "Template",
+    pickerHint: "Pick a template — the preview updates instantly.",
+    items: {
+      neonScript: {
+        name: "Neon glow",
+        hint: "Bright glowing letters with a soft halo for a lively night-time look.",
+      },
+      channelLetters: {
+        name: "Illuminated letters",
+        hint: "Classic halo-lit letters, readable from far away.",
+      },
+      dimensionalMetal: {
+        name: "3D metal lettering",
+        hint: "Solid dimensional letters with a brushed-metal feel.",
+      },
+      minimalLetters: {
+        name: "Minimal elegance",
+        hint: "Fine lines and generous spacing for a quiet, modern look.",
+      },
+      projectingBlade: {
+        name: "Projecting blade sign",
+        hint: "A panel that stands out from the facade and reads along the street.",
+      },
+      awningBand: {
+        name: "Awning band",
+        hint: "A wide band above the entrance with bold, readable lettering.",
+      },
+      windowVinyl: {
+        name: "Window vinyl",
+        hint: "Crisp lettering applied directly on the glass.",
+      },
+      lightboxPlaque: {
+        name: "Lightbox plaque",
+        hint: "A softly lit panel that glows evenly day and night.",
+      },
+      marqueeBulbs: {
+        name: "Marquee bulbs",
+        hint: "Bold letters framed by a border of little lights.",
+      },
+      totemPanel: {
+        name: "Floor totem",
+        hint: "A tall freestanding panel that reads from far away.",
+      },
+    },
+  },
+  colours: {
+    slots: {
+      face: "Letter colour",
+      glow: "Light colour",
+      accent: "Accent colour",
+    },
+    names: {
+      cyan: "Cyan",
+      azure: "Azure",
+      teal: "Teal",
+      emerald: "Emerald",
+      amber: "Amber",
+      gold: "Gold",
+      coral: "Coral",
+      rose: "Rose",
+      violet: "Violet",
+      ice: "Ice",
+      warmWhite: "Warm white",
+      graphite: "Graphite",
+      silver: "Silver",
+      copper: "Copper",
+    },
   },
   pro: {
     title: "Professional workspace",

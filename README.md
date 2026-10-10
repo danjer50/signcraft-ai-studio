@@ -1,17 +1,19 @@
 # SignCraft AI Studio
 
-Professional AI-assisted sign design studio. This repository holds the **product interface milestone**:
-a bilingual (FR/EN/AR, RTL) landing page for the product, a working local customer demonstration, a
-clearly labelled entry point for the professional workspace, the application shell, design system,
-automated checks and CI.
+Professional AI-assisted sign design studio. This repository holds the **product interface** and
+**customer template & customisation** milestones: a bilingual (FR/EN/AR, RTL) landing page for the
+product, a working local customer demonstration with a template catalogue, a clearly labelled entry
+point for the professional workspace, the application shell, design system, automated checks and CI.
 
 **What genuinely works today**
 
 - The landing page: product headline, calls to action, and a gallery of example sign styles labelled as
   illustrations.
-- The customer flow at `/{locale}/create`: type your sign text, pick a visual direction (neon glow,
-  illuminated letters, 3D metal lettering, minimal), and see a live style preview update as you type.
-  The page states in plain language that this preview is a local style composition — not AI-generated
+- The customer flow at `/{locale}/create`: type your business name, pick one of ten sign templates
+  (neon glow, illuminated letters, 3D metal lettering, minimal, blade sign, awning band, window vinyl,
+  lightbox plaque, marquee bulbs, floor totem) and customise its colours with named swatches. The
+  preview — including the selected template's name — updates instantly on every change. The page
+  states in plain language that this preview is a local style composition — not AI-generated
   imagery and not a technically accurate fabrication model.
 - Localisation and RTL for French (default), English and Arabic, including keyboard navigation,
   responsive navigation and a 404 page with the right language and direction.

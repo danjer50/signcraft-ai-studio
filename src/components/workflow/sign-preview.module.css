@@ -1,0 +1,210 @@
+.previewFrame {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.previewTitle {
+  font-weight: 600;
+}
+
+.preview {
+  overflow: clip;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+}
+
+.previewCaption {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.previewTemplateName {
+  padding: var(--space-2) var(--space-4);
+  border-block-end: 1px solid var(--glass-border);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.signScene {
+  display: grid;
+  place-content: center;
+  min-height: 12rem;
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  background: radial-gradient(120% 120% at 50% 20%, #1c2733, var(--color-bg) 75%);
+}
+
+.signBoard {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: center;
+}
+
+.signText {
+  color: var(--sign-face);
+  font-size: clamp(var(--text-2xl), 4.5vw, var(--text-4xl));
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.signTagline {
+  color: var(--sign-accent);
+  font-size: var(--text-sm);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+/* Layout treatments. Colours always come from --sign-face / --sign-glow / --sign-accent. */
+
+.preview[data-layout="neon"] .signText {
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-shadow:
+    0 0 6px var(--sign-glow),
+    0 0 18px var(--sign-glow),
+    0 0 42px color-mix(in srgb, var(--sign-glow) 55%, transparent);
+}
+
+.preview[data-layout="neon"] .signScene {
+  background: radial-gradient(120% 120% at 50% 20%, #10222b, var(--color-bg) 78%);
+}
+
+.preview[data-layout="channel"] .signText {
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-shadow:
+    0 1px 0 var(--sign-glow),
+    0 -1px 0 rgb(0 0 0 / 0.45),
+    0 0 16px color-mix(in srgb, var(--sign-glow) 70%, transparent);
+}
+
+.preview[data-layout="dimensional"] .signText {
+  background: linear-gradient(
+    180deg,
+    var(--sign-face),
+    color-mix(in srgb, var(--sign-face) 55%, #1a222b)
+  );
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(2px 3px 0 rgb(0 0 0 / 0.55));
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.preview[data-layout="dimensional"] .signScene {
+  background: radial-gradient(120% 120% at 50% 20%, #222c36, var(--color-bg) 78%);
+}
+
+.preview[data-layout="minimal"] .signText {
+  font-weight: 300;
+  letter-spacing: 0.32em;
+}
+
+.preview[data-layout="blade"] .signBoard {
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-6);
+  border: 2px solid color-mix(in srgb, var(--sign-accent) 75%, transparent);
+  border-radius: var(--radius-md);
+  background: rgb(15 21 28 / 0.85);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--sign-accent) 25%, transparent);
+}
+
+.preview[data-layout="blade"] .signText {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.preview[data-layout="band"] .signScene {
+  background: linear-gradient(180deg, #18222c, var(--color-bg));
+  padding-block: var(--space-10);
+}
+
+.preview[data-layout="band"] .signBoard {
+  width: min(100%, 34rem);
+  padding: var(--space-4) var(--space-6);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--sign-accent) 22%, transparent) 0 14px,
+      transparent 14px 28px
+    ),
+    rgb(15 21 28 / 0.9);
+  border-block: 3px solid var(--sign-accent);
+}
+
+.preview[data-layout="band"] .signText {
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.preview[data-layout="vinyl"] .signText {
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-shadow: 0 0 1px color-mix(in srgb, var(--sign-face) 80%, transparent);
+}
+
+.preview[data-layout="vinyl"] .signScene {
+  background:
+    linear-gradient(115deg, transparent 40%, rgb(125 211 252 / 0.08) 45%, transparent 55%),
+    radial-gradient(120% 120% at 50% 20%, #16202a, var(--color-bg) 78%);
+}
+
+.preview[data-layout="plaque"] .signBoard {
+  padding: var(--space-6) var(--space-8);
+  border-radius: var(--radius-xl);
+  background: rgb(15 21 28 / 0.9);
+  box-shadow:
+    inset 0 0 32px color-mix(in srgb, var(--sign-glow) 30%, transparent),
+    0 0 28px color-mix(in srgb, var(--sign-glow) 25%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sign-glow) 45%, transparent);
+}
+
+.preview[data-layout="plaque"] .signText {
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.preview[data-layout="marquee"] .signBoard {
+  padding: var(--space-5) var(--space-7);
+  border: 3px dotted color-mix(in srgb, var(--sign-glow) 80%, transparent);
+  border-radius: var(--radius-lg);
+  background: rgb(15 21 28 / 0.85);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--sign-glow) 30%, transparent);
+}
+
+.preview[data-layout="marquee"] .signText {
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.preview[data-layout="totem"] .signBoard {
+  width: min(100%, 16rem);
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5);
+  border-block-start: 4px solid var(--sign-accent);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  background: linear-gradient(180deg, rgb(19 26 34 / 0.95), rgb(15 21 28 / 0.9));
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.45);
+}
+
+.preview[data-layout="totem"] .signText {
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 48rem) {
+  .signScene {
+    min-height: 18rem;
+    padding: var(--space-12) var(--space-8);
+  }
+}

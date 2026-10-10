@@ -22,6 +22,19 @@ const headings = {
   },
 } as const;
 
+const templateNames = {
+  fr: { channel: "Lettres lumineuses", neon: "Éclat néon" },
+  en: { channel: "Illuminated letters", neon: "Neon glow" },
+  ar: { channel: "حروف مضيئة", neon: "وهج النيون" },
+} as const;
+
+/** Colour names unique to one slot of the default template (channelLetters). */
+const colourNames = {
+  fr: { face: "Glace", glow: "Émeraude" },
+  en: { face: "Ice", glow: "Emerald" },
+  ar: { face: "أبيض مثلجي", glow: "زمردي" },
+} as const;
+
 test.describe("product surface", () => {
   test("the landing page leads with the product and real calls to action", async ({ page }) => {
     const unexpected = trackUnexpectedErrors(page);
@@ -41,7 +54,7 @@ test.describe("product surface", () => {
   });
 
   for (const locale of locales) {
-    test(`the ${locale} create page runs the live style demo`, async ({ page }) => {
+    test(`the ${locale} create page runs the live template demo`, async ({ page }) => {
       const unexpected = trackUnexpectedErrors(page);
 
       await page.goto(`/${locale}/create`);
@@ -54,11 +67,41 @@ test.describe("product surface", () => {
       await textInput.fill("Éclat");
       await expect(page.locator('p[class*="signText"]')).toHaveText("Éclat");
 
-      // Choosing a visual direction changes the preview composition.
-      const preview = page.locator("div[data-style]");
-      await expect(preview).toHaveAttribute("data-style", "channel");
-      await page.getByRole("radio").first().check();
-      await expect(preview).toHaveAttribute("data-style", "neon");
+      // The preview starts on the default template and shows its name.
+      const preview = page.locator("div[data-template]");
+      await expect(preview).toHaveAttribute("data-template", "channelLetters");
+      await expect(preview.getByText(templateNames[locale].channel)).toBeVisible();
+
+      // Choosing a template updates the preview and its name instantly. Matches are
+      // anchored because a radio's accessible name also contains its hint, and hints
+      // can mention other template names.
+      await page.getByRole("radio", { name: new RegExp(`^${templateNames[locale].neon}`) }).check();
+      await expect(preview).toHaveAttribute("data-template", "neonScript");
+      await expect(preview).toHaveAttribute("data-layout", "neon");
+      await expect(preview.getByText(templateNames[locale].neon)).toBeVisible();
+
+      // Back to the default template: choosing a colour updates the preview instantly.
+      await page
+        .getByRole("radio", { name: new RegExp(`^${templateNames[locale].channel}`) })
+        .check();
+      await expect(preview).toHaveAttribute("data-template", "channelLetters");
+      await expect(preview.getByText(templateNames[locale].channel)).toBeVisible();
+
+      const faceColour = () =>
+        preview.evaluate((element) =>
+          (element as HTMLElement).style.getPropertyValue("--sign-face"),
+        );
+      await expect.poll(faceColour).toBe("#fdeecf");
+      await page.getByRole("radio", { name: colourNames[locale].face, exact: true }).check();
+      await expect.poll(faceColour).toBe("#dff4ff");
+
+      const glowColour = () =>
+        preview.evaluate((element) =>
+          (element as HTMLElement).style.getPropertyValue("--sign-glow"),
+        );
+      await expect.poll(glowColour).toBe("#7dd3fc");
+      await page.getByRole("radio", { name: colourNames[locale].glow, exact: true }).check();
+      await expect.poll(glowColour).toBe("#34d399");
 
       // The limitations of the demonstration are stated on the page.
       await expect(

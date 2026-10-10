@@ -8,10 +8,17 @@ what exists today and what is planned. Planned items are labelled as such.
 
 **Product interface milestone (implemented):** the product landing page (headline, calls to action,
 example gallery labelled as illustrative), the customer flow at `/[locale]/create` with a **working
-local demonstration** (sign text, four visual directions, live style preview) that states its limits in
-plain language, the professional entry point at `/[locale]/pro` with every tool labelled "Planned", the
-application shell, responsive navigation, design tokens, UI primitives, French/English/Arabic (RTL)
-localisation, automated checks, and CI.
+local demonstration** (sign text, ten templates, colour customisation, live style preview) that states
+its limits in plain language, the professional entry point at `/[locale]/pro` with every tool labelled
+"Planned", the application shell, responsive navigation, design tokens, UI primitives,
+French/English/Arabic (RTL) localisation, automated checks, and CI.
+
+**Customer template & customisation milestone (implemented):** a structured template catalogue
+(`src/templates/`) of ten sign templates with named colour slots, an instant local preview driven by
+CSS custom properties, and a serialisable, versioned customer draft (`CustomerDraft`) that is the
+deliberate seam for the future transfer into the Professional Studio. The catalogue is covered by
+schema, localisation-parity and WCAG contrast tests; the draft by round-trip and malformed-input
+tests. Everything runs locally in the browser: no accounts, no network calls, no AI.
 
 **Not implemented (planned):** reference-photo input, AI generation and revision requests; editable 2D
 design, genuine 3D geometry, materials, LED layout, mounting, technical drawings; AI-assisted mockups;
