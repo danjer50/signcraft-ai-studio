@@ -1,14 +1,16 @@
 import { defineConfig } from "@playwright/test";
 
 /*
- * Browser tests. They run against the production build, so run `npm run build` first. Playwright
- * starts `next start` itself and always starts a fresh server, so a stale build cannot pass.
+ * Browser tests. They run against the production build, so run `npm run build` first.
+ * Playwright starts `npm run test:server` itself (wrangler pages dev over the static
+ * export, with a fresh local D1 seeded from e2e/fixtures/seed.sql), so a stale build or
+ * a stale database cannot pass.
  *
  * Browsers: `npx playwright install chromium` downloads the matching Chromium. Set
  * E2E_CHROMIUM_PATH to use a Chromium binary that is already installed, for machines where that
  * download is blocked.
  */
-const port = Number(process.env.E2E_PORT ?? 3123);
+const port = Number(process.env.E2E_PORT ?? 8788);
 const baseURL = `http://127.0.0.1:${port}`;
 const chromiumPath = process.env.E2E_CHROMIUM_PATH;
 
@@ -35,9 +37,9 @@ export default defineConfig({
     { name: "desktop", use: { viewport: { width: 1280, height: 800 } } },
   ],
   webServer: {
-    command: `npm run start -- --hostname 127.0.0.1 --port ${port}`,
+    command: "npm run test:server",
     url: baseURL,
     reuseExistingServer: false,
-    timeout: 120_000,
+    timeout: 180_000,
   },
 });

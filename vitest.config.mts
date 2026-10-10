@@ -16,6 +16,8 @@ export default defineConfig({
     // dependency resolver in this environment. See docs/ARCHITECTURE.md.
     environment: "happy-dom",
     setupFiles: ["./src/test/setup.ts"],
-    include: ["src/**/*.test.{ts,tsx}"],
+    // functions/**/*.test.ts run in Node (node:sqlite D1 adapter); the pragma at the top
+    // of each file switches the environment, the default stays happy-dom for the UI.
+    include: ["src/**/*.test.{ts,tsx}", "functions/**/*.test.ts"],
   },
 });

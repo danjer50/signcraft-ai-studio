@@ -5,7 +5,15 @@ import prettier from "eslint-config-prettier/flat";
 import globals from "globals";
 
 export default defineConfig([
-  globalIgnores([".next/**", "out/**", "coverage/**", "node_modules/**", "next-env.d.ts"]),
+  // .wrangler/ is wrangler's local dev state (bundled Functions), not source.
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "coverage/**",
+    "node_modules/**",
+    "next-env.d.ts",
+    ".wrangler/**",
+  ]),
   ...nextVitals,
   ...nextTypeScript,
   {

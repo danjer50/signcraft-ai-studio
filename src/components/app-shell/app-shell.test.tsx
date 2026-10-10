@@ -6,10 +6,15 @@ import { getMessages } from "@/i18n/get-messages";
 
 import { AppShell } from "./app-shell";
 
-const routing = vi.hoisted(() => ({ pathname: "/fr" }));
+const routing = vi.hoisted(() => ({
+  pathname: "/fr",
+  router: { replace: vi.fn(), push: vi.fn() },
+}));
 
 vi.mock("next/navigation", () => ({
   usePathname: () => routing.pathname,
+  // NavAuth uses the router to leave a gated page after signing out.
+  useRouter: () => routing.router,
 }));
 
 /**

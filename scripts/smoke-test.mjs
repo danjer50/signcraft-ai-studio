@@ -2,11 +2,15 @@
 /**
  * Smoke test for the production build.
  *
- * It starts `next start` on a free local port, requests the important routes, checks the
- * HTML and HTTP behaviour, then stops the server. Run `npm run build` first.
+ * The app is a static export (`output: "export"`) served by Cloudflare Pages, with the
+ * auth API as Pages Functions. The smoke test therefore starts `npm run test:server`
+ * (wrangler pages dev over `out/`, with a fresh local D1 seeded from
+ * e2e/fixtures/seed.sql), requests the important routes, checks the HTML, the HTTP
+ * behaviour and the auth API, then stops the server. Run `npm run build` first.
  * Requires a POSIX system (uses process groups to stop the server).
  */
 import { spawn } from "node:child_process";
+import { pbkdf2Sync } from "node:crypto";
 import { existsSync } from "node:fs";
 import { createServer } from "node:net";
 import path from "node:path";
@@ -14,9 +18,8 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const nextBin = path.join(projectRoot, "node_modules", "next", "dist", "bin", "next");
-const STARTUP_TIMEOUT_MS = 60_000;
-const REQUEST_TIMEOUT_MS = 10_000;
+const STARTUP_TIMEOUT_MS = 90_000;
+const REQUEST_TIMEOUT_MS = 15_000;
 
 const results = [];
 function check(name, passed, detail = "") {
@@ -44,11 +47,26 @@ async function get(base, pathname, headers = {}) {
   return { status: response.status, headers: response.headers, body: await response.text() };
 }
 
+async function postJson(base, pathname, body, headers = {}) {
+  const response = await fetch(new URL(pathname, base), {
+    method: "POST",
+    headers: { "content-type": "application/json", ...headers },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  });
+  return { status: response.status, headers: response.headers, body: await response.text() };
+}
+
+function setCookieOf(headers) {
+  const cookies = typeof headers.getSetCookie === "function" ? headers.getSetCookie() : [];
+  return cookies[0] ?? headers.get("set-cookie") ?? "";
+}
+
 async function waitUntilReady(base, server) {
   const deadline = Date.now() + STARTUP_TIMEOUT_MS;
   while (Date.now() < deadline) {
     if (server.exitCode !== null) {
-      throw new Error(`next start exited early with code ${server.exitCode}`);
+      throw new Error(`test server exited early with code ${server.exitCode}`);
     }
     try {
       await get(base, "/fr");
@@ -57,7 +75,7 @@ async function waitUntilReady(base, server) {
       await new Promise((resolve) => setTimeout(resolve, 250));
     }
   }
-  throw new Error(`next start did not respond within ${STARTUP_TIMEOUT_MS} ms`);
+  throw new Error(`test server did not respond within ${STARTUP_TIMEOUT_MS} ms`);
 }
 
 function stopServer(server) {
@@ -78,7 +96,7 @@ function stopServer(server) {
       resolve();
     });
     try {
-      // Negative pid signals the whole process group, including Next's worker process.
+      // Negative pid signals the whole process group, including wrangler's workerd.
       process.kill(-server.pid, "SIGTERM");
     } catch {
       clearTimeout(forceTimer);
@@ -101,34 +119,64 @@ const localePages = [
 const arabicScript = /[\u0600-\u06FF]/;
 
 /**
- * Unknown URLs. Each one must return 404 with a complete document in the language its URL
- * implies. An unknown locale such as /de falls back to French, the default locale.
- * `englishHref` is where the language switcher should point for English.
+ * Unknown URLs. Each one must return 404. Static hosting serves one exported 404.html
+ * for all of them, so the per-locale language checks live in the browser tests
+ * (e2e/not-found.spec.ts); here the document-level contract is checked once.
  */
-const unknownPages = [
-  { path: "/fr/does-not-exist", lang: "fr", dir: "ltr", englishHref: "/en/does-not-exist" },
-  { path: "/en/a/b", lang: "en", dir: "ltr", englishHref: "/en/a/b" },
-  { path: "/ar/x", lang: "ar", dir: "rtl", englishHref: "/en/x" },
-  { path: "/de", lang: "fr", dir: "ltr", englishHref: null },
-  { path: "/de/x/y", lang: "fr", dir: "ltr", englishHref: null },
-  { path: "/nope", lang: "fr", dir: "ltr", englishHref: null },
-  { path: "/FR", lang: "fr", dir: "ltr", englishHref: null },
-  { path: "/fr/projects", lang: "fr", dir: "ltr", englishHref: "/en/projects" },
+const unknownPaths = [
+  "/fr/does-not-exist",
+  "/en/a/b",
+  "/ar/x",
+  "/de",
+  "/de/x/y",
+  "/nope",
+  "/FR",
+  "/fr/projects",
 ];
 
-/** The href of the first anchor with the given hreflang, or null. Attribute order is not assumed. */
-function anchorHref(html, hreflang) {
-  for (const [tag] of html.matchAll(/<a\b[^>]*>/gi)) {
-    // Attribute names are case-insensitive in HTML, and React writes this one as hrefLang.
-    if (new RegExp(`\\bhreflang="${hreflang}"`, "i").test(tag)) {
-      return tag.match(/\bhref="([^"]*)"/)?.[1] ?? null;
-    }
-  }
-  return null;
+/** The static export is the prerender: these files must exist after `next build`. */
+const expectedStaticFiles = [
+  "fr.html",
+  "en.html",
+  "ar.html",
+  "fr/create.html",
+  "en/create.html",
+  "ar/create.html",
+  "fr/pro.html",
+  "en/pro.html",
+  "ar/pro.html",
+  "fr/login.html",
+  "en/login.html",
+  "ar/login.html",
+  "fr/admin.html",
+  "fr/studio.html",
+  "fr/setup.html",
+  "fr/set-password.html",
+  "404.html",
+  "not-found-locale.js",
+  "_headers",
+  "_redirects",
+  "_routes.json",
+];
+
+// Test-only values, matching scripts/test-env.mjs and e2e/fixtures/seed.sql.
+const TEST_SETUP_SECRET = "test-only-setup-secret-0f1e2d3c";
+const SEED_ADMIN_EMAIL = "admin@studio.test";
+const SEED_ADMIN_PASSWORD = "StudioTest!Passw0rd";
+const SEED_ADMIN_SALT = "a1b2c3d4e5f60718293a4b5c6d7e8f90";
+
+function clientHashFor(password, saltHex) {
+  return pbkdf2Sync(
+    Buffer.from(password.normalize("NFKC"), "utf8"),
+    Buffer.from(saltHex, "hex"),
+    600_000,
+    32,
+    "sha256",
+  ).toString("base64url");
 }
 
 async function runChecks(base) {
-  // Root redirects to the default locale.
+  // Root redirects to the default locale (public/_redirects on Pages).
   const root = await get(base, "/");
   const rootTarget = root.headers.get("location");
   check(
@@ -161,24 +209,20 @@ async function runChecks(base) {
       `/${locale} sends X-Content-Type-Options: nosniff`,
       page.headers.get("x-content-type-options") === "nosniff",
     );
-    check(`/${locale} does not expose X-Powered-By`, !page.headers.has("x-powered-by"));
-    // Prerendered at build time, so the response is cached as static output.
     check(
-      `/${locale} is statically prerendered`,
-      (page.headers.get("x-nextjs-prerender") ?? "")
-        .split(",")
-        .map((v) => v.trim())
-        .includes("1") && (page.headers.get("cache-control") ?? "").includes("s-maxage"),
-      `prerender ${page.headers.get("x-nextjs-prerender")}, cache-control ${page.headers.get("cache-control")}`,
+      `/${locale} sends Referrer-Policy`,
+      page.headers.get("referrer-policy") === "strict-origin-when-cross-origin",
+    );
+    check(`/${locale} does not expose X-Powered-By`, !page.headers.has("x-powered-by"));
+    // The export is fully static: the prerendered file must exist in out/.
+    check(
+      `/${locale} is a static export file (${locale}.html)`,
+      existsSync(path.join(projectRoot, "out", `${locale}.html`)),
     );
   }
 
   const arabicHeading = h1Text((await get(base, "/ar")).body);
-  check(
-    "/ar heading is written in Arabic script",
-    /[\u0600-\u06FF]/.test(arabicHeading),
-    arabicHeading,
-  );
+  check("/ar heading is written in Arabic script", arabicScript.test(arabicHeading), arabicHeading);
 
   // Product surface: the landing page calls to action and the two real product routes.
   const productPages = [
@@ -250,16 +294,15 @@ async function runChecks(base) {
     for (const page of productPages) {
       const response = await get(base, `/${locale}/${page.path}`);
       const heading = h1Text(response.body);
-      const prerendered = (response.headers.get("x-nextjs-prerender") ?? "")
-        .split(",")
-        .map((v) => v.trim())
-        .includes("1");
       check(
         `/${locale}/${page.path} renders the product heading`,
         response.status === 200 && heading === page.headings[locale],
         `status ${response.status}, h1 ${heading || "<none>"}`,
       );
-      check(`/${locale}/${page.path} is statically prerendered`, prerendered);
+      check(
+        `/${locale}/${page.path} is a static export file`,
+        existsSync(path.join(projectRoot, "out", locale, `${page.path}.html`)),
+      );
       if (page.demoMarker) {
         check(
           `/${locale}/${page.path} includes the live template demo`,
@@ -283,70 +326,193 @@ async function runChecks(base) {
     }
   }
 
-  // The proxy sets the display locale itself, so a locale header sent by the client is ignored.
-  for (const { path: unknown, header, expected } of [
-    { path: "/fr/does-not-exist", header: "en", expected: "fr" },
-    { path: "/de", header: "ar", expected: "fr" },
+  // Nothing reads a client-sent locale header any more (the old proxy is gone): the
+  // rendered language always follows the URL.
+  for (const { path: requested, header, expected } of [
+    { path: "/fr", header: "ar", expected: "fr" },
+    { path: "/en", header: "fr", expected: "en" },
   ]) {
-    const response = await get(base, unknown, { "x-signcraft-locale": header });
+    const response = await get(base, requested, { "x-signcraft-locale": header });
     const htmlTag = response.body.match(/<html\b[^>]*>/i)?.[0] ?? "";
     check(
-      `GET ${unknown} ignores a client-sent x-signcraft-locale: ${header}`,
-      response.status === 404 && new RegExp(`\\blang="${expected}"`).test(htmlTag),
+      `GET ${requested} ignores a client-sent x-signcraft-locale: ${header}`,
+      response.status === 200 && new RegExp(`\\blang="${expected}"`).test(htmlTag),
       `status ${response.status}, ${htmlTag || "no <html> tag"}`,
     );
   }
 
-  for (const { path: unknown, lang, dir, englishHref } of unknownPages) {
+  // The exported 404 document: one file, three locale variants, detection script.
+  for (const unknown of unknownPaths) {
     const response = await get(base, unknown);
-    const htmlTag = response.body.match(/<html\b[^>]*>/i)?.[0] ?? "";
-    const heading = h1Text(response.body);
-    const headingCount = (response.body.match(/<h1\b/gi) ?? []).length;
-
     check(`GET ${unknown} returns 404`, response.status === 404, `status ${response.status}`);
+  }
+  const notFound = await get(base, "/fr/does-not-exist");
+  const nfHtmlTag = notFound.body.match(/<html\b[^>]*>/i)?.[0] ?? "";
+  check(
+    "the 404 document renders in the default locale at build time",
+    /\blang="fr"/.test(nfHtmlTag) && /\bdir="ltr"/.test(nfHtmlTag),
+    nfHtmlTag || "no <html> tag",
+  );
+  check(
+    "the 404 document embeds all three locale variants",
+    ['data-notfound-locale="fr"', 'data-notfound-locale="en"', 'data-notfound-locale="ar"'].every(
+      (marker) => notFound.body.includes(marker),
+    ),
+  );
+  const variantTag = (locale) =>
+    notFound.body.match(new RegExp(`<div[^>]*data-notfound-locale="${locale}"[^>]*>`))?.[0] ?? "";
+  check(
+    "the 404 document shows the default variant and hides the other two",
+    !variantTag("fr").includes("hidden") &&
+      variantTag("en").includes('hidden=""') &&
+      variantTag("ar").includes('hidden=""'),
+    `fr: ${variantTag("fr").slice(0, 80)}`,
+  );
+  check(
+    "the 404 document carries a per-locale title for each variant",
+    (notFound.body.match(/data-notfound-title=/g) ?? []).length === 3,
+  );
+  check(
+    "the 404 document loads the locale-detection script",
+    notFound.body.includes('<script src="/not-found-locale.js"'),
+  );
+  check(
+    "the 404 document is marked noindex (exactly once)",
+    (notFound.body.match(/<meta name="robots" content="noindex"\/?>/g) ?? []).length === 1,
+  );
+  check(
+    "the 404 document sends nosniff",
+    notFound.headers.get("x-content-type-options") === "nosniff",
+  );
+
+  // The auth API (Pages Functions + local D1 seeded with one admin).
+  const meAnonymous = await get(base, "/api/auth/me");
+  check(
+    "GET /api/auth/me answers 200 unauthenticated and is never cached",
+    meAnonymous.status === 200 &&
+      meAnonymous.body.includes('"authenticated":false') &&
+      meAnonymous.headers.get("cache-control") === "no-store",
+    `status ${meAnonymous.status}`,
+  );
+  check(
+    "GET /api/auth/me sends nosniff",
+    meAnonymous.headers.get("x-content-type-options") === "nosniff",
+  );
+
+  const setupWrong = await postJson(base, "/api/auth/setup", { setupSecret: "wrong" });
+  check("POST /api/auth/setup rejects a wrong secret (401)", setupWrong.status === 401);
+
+  const setupSalt = await postJson(base, "/api/auth/setup", { setupSecret: TEST_SETUP_SECRET });
+  check(
+    "POST /api/auth/setup hands out a salt with the right secret (200)",
+    setupSalt.status === 200 && /"salt":"[0-9a-f]{32}"/.test(setupSalt.body),
+    `status ${setupSalt.status}`,
+  );
+  const setupAgain = await postJson(base, "/api/auth/setup", {
+    setupSecret: TEST_SETUP_SECRET,
+    email: "second@studio.test",
+    salt: SEED_ADMIN_SALT,
+    clientHash: clientHashFor("another-password-123", SEED_ADMIN_SALT),
+  });
+  check(
+    "POST /api/auth/setup refuses a second admin (409, seed already has one)",
+    setupAgain.status === 409 && setupAgain.body.includes("admin_already_exists"),
+    `status ${setupAgain.status}`,
+  );
+
+  const prelogin = await postJson(base, "/api/auth/prelogin", { email: SEED_ADMIN_EMAIL });
+  check(
+    "POST /api/auth/prelogin returns the seeded admin's salt",
+    prelogin.status === 200 && prelogin.body.includes(SEED_ADMIN_SALT),
+    `status ${prelogin.status}`,
+  );
+
+  const badLogin = await postJson(base, "/api/auth/login", {
+    email: SEED_ADMIN_EMAIL,
+    clientHash: clientHashFor("wrong-password-999", SEED_ADMIN_SALT),
+  });
+  check("POST /api/auth/login rejects a wrong password (401)", badLogin.status === 401);
+
+  const login = await postJson(base, "/api/auth/login", {
+    email: SEED_ADMIN_EMAIL,
+    clientHash: clientHashFor(SEED_ADMIN_PASSWORD, SEED_ADMIN_SALT),
+  });
+  const loginCookie = setCookieOf(login.headers);
+  check(
+    "POST /api/auth/login accepts the seeded admin and sets a __Host- session cookie",
+    login.status === 200 &&
+      login.body.includes('"role":"admin"') &&
+      loginCookie.includes("__Host-sc_session=") &&
+      loginCookie.includes("HttpOnly") &&
+      loginCookie.includes("Secure") &&
+      loginCookie.includes("SameSite=Lax"),
+    `status ${login.status}, cookie ${loginCookie.slice(0, 60)}`,
+  );
+
+  const sessionId = loginCookie.match(/__Host-sc_session=([^;]+)/)?.[1] ?? "";
+  const cookieHeader = { cookie: `__Host-sc_session=${sessionId}` };
+
+  const meAuthed = await get(base, "/api/auth/me", cookieHeader);
+  check(
+    "GET /api/auth/me with the session cookie is authenticated as admin",
+    meAuthed.status === 200 &&
+      meAuthed.body.includes('"authenticated":true') &&
+      meAuthed.body.includes('"role":"admin"'),
+    `status ${meAuthed.status}`,
+  );
+
+  const accountsAnon = await get(base, "/api/auth/accounts");
+  check("GET /api/auth/accounts without a session is refused (401)", accountsAnon.status === 401);
+
+  const accounts = await get(base, "/api/auth/accounts", cookieHeader);
+  check(
+    "GET /api/auth/accounts lists the seeded admin for the admin session",
+    accounts.status === 200 && accounts.body.includes(SEED_ADMIN_EMAIL),
+    `status ${accounts.status}`,
+  );
+
+  const logout = await postJson(base, "/api/auth/logout", {}, cookieHeader);
+  check(
+    "POST /api/auth/logout clears the session cookie",
+    logout.status === 200 && setCookieOf(logout.headers).includes("__Host-sc_session=;"),
+    `status ${logout.status}`,
+  );
+  const meAfterLogout = await get(base, "/api/auth/me", cookieHeader);
+  check(
+    "GET /api/auth/me after logout is unauthenticated (session deleted server-side)",
+    meAfterLogout.body.includes('"authenticated":false'),
+  );
+
+  // The new auth pages are real, exported routes.
+  for (const page of ["login", "admin", "studio", "setup", "set-password"]) {
+    const response = await get(base, `/fr/${page}`);
     check(
-      `GET ${unknown} sets lang="${lang}" and dir="${dir}" on <html>`,
-      new RegExp(`\\blang="${lang}"`).test(htmlTag) && new RegExp(`\\bdir="${dir}"`).test(htmlTag),
-      htmlTag || "no <html> tag",
+      `GET /fr/${page} returns 200 (exported auth route)`,
+      response.status === 200 && existsSync(path.join(projectRoot, "out", "fr", `${page}.html`)),
+      `status ${response.status}`,
     );
-    check(
-      `GET ${unknown} is marked noindex`,
-      /<meta name="robots" content="noindex"\/?>/.test(response.body),
-    );
-    check(
-      `GET ${unknown} has one non-empty <h1> in ${lang}`,
-      headingCount === 1 &&
-        heading !== "" &&
-        (lang === "ar" ? arabicScript.test(heading) : !arabicScript.test(heading)),
-      `${headingCount} heading(s): ${heading}`,
-    );
-    if (englishHref !== null) {
-      check(
-        `GET ${unknown} keeps the same path in the English switcher link`,
-        anchorHref(response.body, "en") === englishHref,
-        `href ${anchorHref(response.body, "en")}`,
-      );
-    }
   }
 }
 
 async function main() {
-  if (!existsSync(path.join(projectRoot, ".next", "BUILD_ID"))) {
-    console.error("No production build found. Run `npm run build` before the smoke test.");
+  const missing = expectedStaticFiles.filter(
+    (file) => !existsSync(path.join(projectRoot, "out", file)),
+  );
+  if (missing.length > 0) {
+    console.error(
+      `No complete static export found in out/ (missing: ${missing.join(", ")}). Run \`npm run build\` first.`,
+    );
     process.exit(1);
   }
 
   const port = await findFreePort();
   const base = `http://127.0.0.1:${port}`;
-  const server = spawn(
-    process.execPath,
-    [nextBin, "start", "-H", "127.0.0.1", "-p", String(port)],
-    {
-      cwd: projectRoot,
-      stdio: ["ignore", "pipe", "pipe"],
-      detached: true,
-    },
-  );
+  const server = spawn("npm", ["run", "test:server"], {
+    cwd: projectRoot,
+    stdio: ["ignore", "pipe", "pipe"],
+    detached: true,
+    env: { ...process.env, PORT: String(port) },
+  });
 
   let serverLog = "";
   server.stdout.on("data", (chunk) => (serverLog += chunk));

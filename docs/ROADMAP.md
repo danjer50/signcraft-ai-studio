@@ -53,14 +53,19 @@ none of them is started until explicitly approved.
 
 ## Milestone order
 
-| #   | Milestone                                                                          | Status                      |
-| --- | ---------------------------------------------------------------------------------- | --------------------------- |
-| 1   | Product interface: landing page, working customer demo, pro workspace entry        | Implemented (PR #1)         |
-| 2   | Customer template and customisation foundation (local, free, instant previews)     | Implemented (PR #1)         |
-| 3   | Storefront photo upload and sign-area selection (client-side)                      | Implemented (PR #1)         |
-| 4   | Mockup generation: free client-side visual mockup (AI approach gated)              | Implemented (PR #1)         |
-| 5   | Shared Admin/Pro authentication with server-enforced roles (Cloudflare Pages + D1) | Proposed — pending approval |
-| 6   | Project transfer into the Professional Studio; pro editing tools                   | Later                       |
+| #   | Milestone                                                                          | Status              |
+| --- | ---------------------------------------------------------------------------------- | ------------------- |
+| 1   | Product interface: landing page, working customer demo, pro workspace entry        | Implemented (PR #1) |
+| 2   | Customer template and customisation foundation (local, free, instant previews)     | Implemented (PR #1) |
+| 3   | Storefront photo upload and sign-area selection (client-side)                      | Implemented (PR #1) |
+| 4   | Mockup generation: free client-side visual mockup (AI approach gated)              | Implemented (PR #1) |
+| 5   | Shared Admin/Pro authentication with server-enforced roles (Cloudflare Pages + D1) | Implemented (PR #1) |
+| 6   | Project transfer into the Professional Studio; pro editing tools (dimensions, 2D)  | Next                |
+| 7   | 3D geometry, materials and LED lighting for signs                                  | Planned             |
+| 8   | Mounting systems and installation details                                          | Planned             |
+| 9   | Technical drawings and fabrication exports (honest accuracy labels)                | Planned             |
+| 10  | Gated AI mockups (enforceable free-usage limits, no automatic paid fallback)       | Planned             |
+| 11  | Admin Space beyond account management (usage, audit review, project oversight)     | Planned             |
 
 Each later milestone keeps every earlier capability working and keeps the honesty rules of the
 architecture: only working controls are interactive, planned capabilities are labelled, and nothing
@@ -273,7 +278,7 @@ copy. Approach B is a separate future milestone; Milestone 4 ships only Approach
   smoke markers; e2e per locale × 3 viewports including a real download; the existing 182 unit,
   121 smoke and 87 e2e checks stay green.
 
-## Milestone 5 — detailed proposal (pending approval, not started)
+## Milestone 5 — implemented: shared Admin/Pro authentication (Cloudflare Pages + D1)
 
 **Shared Admin/Pro authentication.** One login page for both roles; the role decides the
 destination. Server-enforced permissions. Customers keep the free, account-free Customer Space.
@@ -544,3 +549,105 @@ out` (static + Functions + local D1 in one process — the real target environme
 12. Honesty rules hold: the studio shell labels its tools Planned; the login/admin UI never implies
     more than it does; the docs state the no-email, free-tier-ceiling, no-JS-404 and pre-hashing
     limitations.
+
+### Implementation record (what shipped, and how it was verified)
+
+Approved and implemented on `arena/530efee9-signcraft-ai-studio` (PR #1). The reviewed design and
+all security-review amendments were implemented as specified; the deviations below are additions
+or corrections found during implementation, each with its reason.
+
+**Architecture (as reviewed).** The app is now a static export (`output: "export"`,
+`images.unoptimized`) served by Cloudflare Pages, with the auth API as Pages Functions
+(`functions/api/auth/**`) backed by D1 only (KV rejected). Security headers and the `/` → `/fr`
+redirect moved to `public/_headers` / `public/_redirects`; `public/_routes.json` includes only
+`/api/*` so page views never consume the Workers request quota. The locale-header proxy
+(`src/proxy.ts`) and `src/i18n/display-locale.ts` are deleted. The 404 contract evolved exactly
+as approved: one exported `404.html` embeds all three locale variants plus
+`public/not-found-locale.js` (sets `lang`/`dir`, shows the matching variant, swaps the title);
+the e2e rendered-404 contract is preserved, only the smoke raw-HTML check changed, and the no-JS
+default-locale 404 remains the flagged, approved regression.
+
+**Auth API (server-enforced).** `prelogin` (per-account salt, dummy salt for unknown emails),
+`login` (timing-safe compare, dummy compare for unknown emails, rate-limited per IP and per
+email-hash, `Cache-Control: no-store`), `logout` (server-side session deletion), `me`,
+`setup` (secret-gated by constant-time compare, two-step so the raw password never travels,
+atomic first-admin insert, 409 afterwards), `set-password` (single-use hashed tokens, 1 h,
+atomic consumption, auto-login), and admin-only `accounts` (list / invite pro / suspend /
+restore / revoke, with self- and admin-protection). Sessions are `__Host-sc_session`
+cookies (HttpOnly, Secure, SameSite=Lax, Path=/), 7-day sliding expiry with a 1-day renewal
+threshold and a 30-day hard cap; suspend/revoke delete sessions and tokens server-side.
+Mutations are POST-only with `Sec-Fetch-Site`/Origin checks. Rate limiting uses an in-isolate
+memory fast-path plus the D1 `rate_limits` backstop (5 failures / 15 min per email or token,
+20 per IP by default, env-configurable). Every security-relevant action is written to
+`audit_log`. Passwords use the reviewed scheme: browser PBKDF2-SHA256 at 600,000 iterations
+with a per-account salt, server stores `SHA-256(clientHash + PASSWORD_PEPPER)`; the work factor
+was NOT weakened for the 10 ms CPU limit. Admin recovery is the documented break-glass
+procedure (D1 access), since there is no email delivery.
+
+**Pages and components.** `/{locale}/login` (one shared form), `/{locale}/admin` (Admin Space:
+account table, invite with copyable one-time link, suspend/restore/revoke with two-click
+confirm), `/{locale}/studio` (Pro Studio shell with an honestly labelled Planned tools panel),
+`/{locale}/setup` (unlinked, noindex, one-time), `/{locale}/set-password?token=…` (invitation
+landing, validates the token on mount). `NavAuth` in the header shows Sign in / the role's
+space + Sign out and re-probes on navigation. All copy is in fr/en/ar including correct RTL.
+The customer space is untouched: no accounts, no login, `/` and `/create` work anonymously.
+
+**Deviations from the proposal, with reasons.**
+
+- `/{locale}/set-password` is a separate page (the proposal listed the token flow without a
+  route; the invitation link needs one). It is noindex like setup.
+- `_routes.json` is `include: ["/api/*"], exclude: []`. The proposal's `exclude: ["/*"]` would
+  have disabled the Functions entirely (exclude takes precedence over include) — caught by the
+  smoke test's auth API checks, fixed, documented in the file.
+- The Admin Space redirects a signed-in non-admin to the Pro Studio (their own space) instead
+  of showing an error panel; anonymous visitors go to the login page. Both are covered by e2e.
+- The Admin dashboard loads the session before the account list, so an anonymous visitor is
+  redirected before any admin API call is attempted.
+- Functions unit tests run against the REAL `functions/schema.sql` through a `node:sqlite`
+  D1 adapter (not a mock), so the SQL itself is tested.
+- The smoke test now also exercises the auth API end-to-end over HTTP (setup refusal, seeded
+  admin login with a real PBKDF2 client hash, session cookie attributes, `me`, admin account
+  list, logout) and checks the exported 404 document's three variants and detection script.
+
+**Verified results (all on this branch).** `npm run check` green: prettier, eslint,
+typecheck (app + functions programs), 240/240 unit tests (35 Functions tests incl. the full
+handler-level flows against the real schema, 13 new client tests, all pre-existing tests),
+`next build` (static export incl. all new routes), 130/130 smoke checks. Browser suite:
+159 passed / 3 skipped / 0 failed (mobile, tablet, desktop) — the pre-existing product, photo,
+mockup and not-found specs unchanged and green, plus the new `e2e/auth.spec.ts` (API-level
+flows and browser flows per locale incl. AR RTL). The 3 skips are the pre-existing
+browser-conditional skips, unchanged.
+
+**Known limitations (honest, documented).** No-JS 404 shows the default locale. Invitation and
+reset links are copied manually (no email service). Free-tier ceilings apply (100k Function
+requests/day, 10 ms CPU/request, D1 5M reads / 100k writes per day; exhaustion → Error 1027 /
+D1 errors until the 00:00 UTC reset — only the auth API is affected, the static site keeps
+serving). The client hash is replayable but site-specific (per-account salt + server pepper,
+TLS-protected). The single free WAF edge rate-limiting rule on `/api/auth/*` applies only when
+serving from a Cloudflare-proxied custom domain, not on `*.pages.dev`. No cron on Pages
+Functions: expired sessions/tokens/rate-limit rows are purged lazily on access (and deleted
+eagerly on logout/suspend/revoke). CSP is deferred: Next's hydration requires inline
+`__next_f.push` scripts, so a strict CSP would need `unsafe-inline`; real mitigations are the
+HttpOnly cookie, no `dangerouslySetInnerHTML`, and the static reviewed detection script in
+`public/`. Nothing is deployed; deployment remains a separate owner-approved step.
+
+## Milestone 6 and beyond — the remaining product vision
+
+Milestone 5 delivered the access system. The full SignCraft AI Studio vision still has major
+features to build, in this order (each keeps every earlier capability working and keeps the
+honesty rules):
+
+| #   | Feature                                                                                                                                                                                                      | Notes                                                                                                                                             |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 6   | **Project transfer + pro editing tools.** A customer finishes a draft in the free space and transfers it into the Pro Studio, where a professional edits it manually (dimensions, 2D layout, text, colours). | Customer drafts are currently device-local only (not persisted); transfer needs draft persistence first. Genuine manual editing — no fake editor. |
+| 7   | **3D geometry, materials and LED lighting.** Extruded letters/panels with true dimensions, material and lighting previews.                                                                                   | Honest labelling: previews are illustrative, never fabrication-accurate.                                                                          |
+| 8   | **Mounting and installation.** Mount types, standoffs, fixings, installation details derived from the design.                                                                                                | Feeds the technical drawings.                                                                                                                     |
+| 9   | **Technical drawings and fabrication exports.** Dimensioned drawings and export files that state exactly what they contain and how accurate they are.                                                        | Never implies fabrication readiness beyond what the data supports.                                                                                |
+| 10  | **Gated AI mockups.** Realistic on-site mockups behind enforceable free-usage limits, with no automatic paid fallback and no keys in the client.                                                             | The free client-side flat mockup (M4) stays as the no-AI path.                                                                                    |
+| 11  | **Admin Space beyond accounts.** Usage overview, audit-log review, project oversight for the studio.                                                                                                         | Builds on the M5 audit log and account APIs.                                                                                                      |
+
+Milestone 6 is the natural next step: it is the first feature that needs the M5 accounts (a
+professional signs in and works on a customer's transferred project), and it turns the Pro
+Studio from a labelled shell into a real workspace. The plan for it will follow the same
+workflow: inspect, propose, security-review where relevant, implement with tests, verify the
+full suite, update the docs.

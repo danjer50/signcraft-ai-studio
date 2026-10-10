@@ -7,6 +7,8 @@ import { BrandMark, MenuIcon } from "@/components/ui/icons";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/messages/en";
 
+import { NavAuth } from "@/components/auth/nav-auth";
+
 import { useCurrentPathname } from "./current-pathname";
 import { LanguageSwitcher } from "./language-switcher";
 import { PrimaryNavigation } from "./primary-navigation";
@@ -98,6 +100,8 @@ export function AppShell({ locale, messages, children }: AppShellProps) {
         </Link>
 
         <span className={styles.buildLabel}>{messages.app.buildLabel}</span>
+
+        <NavAuth locale={locale} messages={messages} />
 
         <div className={styles.switcherSlot}>
           <LanguageSwitcher currentLocale={locale} label={messages.common.language} />

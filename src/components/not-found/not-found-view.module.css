@@ -21,3 +21,9 @@
   margin: 0;
   color: var(--color-text-muted);
 }
+
+/* One of the per-locale variants of the exported 404 document; the locale-detection
+   script shows the matching one. */
+.variant[hidden] {
+  display: none;
+}

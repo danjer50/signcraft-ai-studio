@@ -9,7 +9,10 @@ import { expect, type Page } from "@playwright/test";
 function isExpectedNotFound(location: string, text: string, paths: readonly string[]): boolean {
   if (!text.includes("status of 404")) return false;
   try {
-    return paths.includes(new URL(location).pathname);
+    const pathname = new URL(location).pathname;
+    // The RSC payload of a route is requested as `<path>.txt`; on the static export
+    // an unknown route's payload is the 404 document, which is the same expected 404.
+    return paths.some((path) => pathname === path || pathname === `${path}.txt`);
   } catch {
     return false;
   }

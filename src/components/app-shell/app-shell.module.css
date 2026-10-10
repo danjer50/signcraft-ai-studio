@@ -96,11 +96,12 @@
   white-space: nowrap;
 }
 
-/* On phones the language switcher lives in the drawer, where there is room for it. */
+/* On phones the language switcher lives in the drawer, where there is room for it.
+   The auth controls (NavAuth) carry the header's auto margin, so the switcher simply
+   follows them on wider screens. */
 .switcherSlot {
   display: none;
   flex: none;
-  margin-inline-start: auto;
 }
 
 /* Backdrop behind the open drawer. It starts below the header so the menu button still works. */
