@@ -106,10 +106,12 @@ describe("SignPreviewDemo", () => {
     expect(preview()).toHaveTextContent("Bakery · Coffee");
   });
 
-  it("has no submit button: there is nothing to submit yet", () => {
+  it("has no submit control: there is nothing to submit yet", () => {
     render(<SignPreviewDemo messages={getMessages("fr")} />);
-    expect(screen.queryAllByRole("button")).toHaveLength(0);
+    // The demo has working controls (upload, clear, …) but no form and no submit.
     expect(document.querySelector("form")).toBeNull();
+    expect(document.querySelector('button[type="submit"]')).toBeNull();
+    expect(screen.queryByRole("button", { name: /envoyer|valider|submit/i })).toBeNull();
   });
 
   it("renders the customisation in French and Arabic", async () => {

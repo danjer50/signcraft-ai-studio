@@ -1,0 +1,73 @@
+.root {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+
+.fileInput {
+  display: none;
+}
+
+.button {
+  min-height: var(--touch-target);
+  padding-inline: var(--space-4);
+  background: var(--color-accent);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--color-on-accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    filter var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}
+
+.button:hover {
+  filter: brightness(1.08);
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.current {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.currentName {
+  overflow-wrap: anywhere;
+  font-size: var(--text-sm);
+}
+
+.currentLabel {
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.actions .button {
+  min-height: var(--touch-target);
+  padding-inline: var(--space-3);
+  background: transparent;
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.error {
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-danger-soft);
+  border-radius: var(--radius-md);
+  color: var(--color-on-danger-soft);
+  font-size: var(--text-sm);
+}

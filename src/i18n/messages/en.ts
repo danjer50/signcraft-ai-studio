@@ -67,7 +67,7 @@ export const en = {
     stepsLabel: "Creation steps",
     step1: {
       title: "Describe the sign",
-      body: "Tell us the name and the kind of place: a café, a shop, a practice. A reference photo will be possible later.",
+      body: "Tell us the name and the kind of place, upload a photo of your storefront, and mark where the sign should appear.",
     },
     step2: {
       title: "Choose a visual direction",
@@ -85,15 +85,45 @@ export const en = {
   },
   create: {
     title: "Create my sign",
-    lead: "Try the first steps now: describe your sign, choose a template and review a live preview.",
+    lead: "Try the first steps now: describe your sign, upload a storefront photo, choose a template and review a live preview.",
     demoTitle: "Live style preview",
     demoLead:
-      "Type your business name, pick a template and adjust the colours. The preview updates instantly.",
+      "Type your business name, pick a template and adjust the colours. Upload a photo of your storefront and mark the sign area. Everything updates instantly.",
     textLabel: "Business name",
     textPlaceholder: "e.g. Studio",
     taglineLabel: "Tagline (optional)",
     taglinePlaceholder: "e.g. Bakery · Coffee · Pastry",
     colourLegend: "Colours",
+    photo: {
+      title: "Your storefront photo",
+      lead: "Upload a photo of your storefront and mark where the sign should appear. The photo stays in your browser — it is never uploaded.",
+      photoAlt: "Photo of your storefront",
+      uploadCta: "Upload a photo",
+      changeCta: "Change photo",
+      removeCta: "Remove photo",
+      currentLabel: "Current photo",
+      errors: {
+        type: "This file is not a supported photo. Please choose a JPEG, PNG or WebP image.",
+        size: "This photo is too large. The maximum size is 12 MB.",
+        dimensions: "This photo is too large to process. The maximum is 4096 × 4096 pixels.",
+        unreadable: "This photo could not be read. Please try another image.",
+      },
+    },
+    selection: {
+      title: "Sign area",
+      hint: "Drag on the photo to mark where the sign should appear.",
+      adjustHint: "Drag the handles to resize, drag inside the area to move it.",
+      emptyHint: "No area marked yet. Drag on the photo, or mark a default area.",
+      defaultCta: "Mark a default area",
+      clearCta: "Clear selection",
+      redrawCta: "Redraw selection",
+      schematicNote:
+        "The marked area is a schematic placement — not a realistic mockup and not a fabrication drawing.",
+      groupLabel: "Sign placement area",
+      groupLabelWithSize: "Sign placement area, {width} by {height} percent of the photo",
+      keyboardHint:
+        "Arrow keys move the selection, Shift and an arrow key resize it, Delete clears it. Press Enter to mark a default area.",
+    },
     previewLabel: "Sign preview",
     previewCaption: "Live preview of your text in the selected template.",
     previewFallback: "Your sign",
@@ -101,7 +131,7 @@ export const en = {
     limitationsBody:
       "The preview styles your text locally in your browser. It is not an AI-generated design and not a fabrication model: colours, dimensions and construction are not technically accurate.",
     referenceNote:
-      "Reference photos and AI design generation are planned. This preview does not analyse images and produces no fabrication data.",
+      "Your photo and the marked area stay in your browser and are never uploaded. AI design generation is planned. The preview does not analyse images, does not composite the sign onto your photo, and produces no fabrication data.",
   },
   templates: {
     pickerLegend: "Template",

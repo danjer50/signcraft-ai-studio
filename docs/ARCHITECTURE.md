@@ -20,7 +20,16 @@ deliberate seam for the future transfer into the Professional Studio. The catalo
 schema, localisation-parity and WCAG contrast tests; the draft by round-trip and malformed-input
 tests. Everything runs locally in the browser: no accounts, no network calls, no AI.
 
-**Not implemented (planned):** reference-photo input, AI generation and revision requests; editable 2D
+**Storefront photo milestone (implemented):** client-side storefront photo upload with magic-byte
+validation and size/pixel caps (`src/projects/photo-validation.ts`), an in-memory photo store that
+preserves the original Blob byte-for-byte and manages object-URL lifecycle
+(`src/projects/photo-store.ts`), and an adjustable rectangular sign-area selection with mouse, touch
+and keyboard support (`src/components/workflow/sign-area-picker.tsx`). The selection is stored
+normalised (fractions of the natural image size) in the customer draft, which moved to version 2
+(version 1 drafts are migrated on parse). The photo never leaves the browser; the placement shown is
+schematic and labelled as such — no AI compositing and no fabrication accuracy is claimed.
+
+**Not implemented (planned):** AI generation and revision requests; editable 2D
 design, genuine 3D geometry, materials, LED layout, mounting, technical drawings; AI-assisted mockups;
 project persistence; fabrication exports; and any deployment configuration.
 
@@ -87,14 +96,24 @@ src/
   components/
     app-shell/           AppDocument (html, body, shell), header, navigation, language switcher.
     home/                Landing page sections: hero, examples gallery, workflow summary, pro teaser.
-    workflow/            Customer journey: workflow steps, the live style demo, the create view.
+    workflow/            Customer journey: workflow steps, the live template demo (template picker,
+                         colour picker, storefront photo panel, sign preview), the create view.
     pro/                 Professional entry point view.
     not-found/           Content of the 404 page.
     ui/                  Button, Badge, Card, icons.
   i18n/                  Locale config, typed message dictionaries, path helpers, display locale.
   lib/                   Small shared helpers (cx).
+  projects/
+    photo-validation.ts  Magic-byte and cap checks for uploaded photos.
+    photo-store.ts       In-memory original-photo store, object-URL lifecycle, intake pipeline.
   proxy.ts               Stores the display locale of each request for the 404 page (section 4).
   styles/                Design tokens, global CSS, and tests that enforce tokens and RTL rules.
+  templates/
+    catalogue.ts         The ten sign templates: ids, layouts, colour slots, defaults.
+    palette.ts           The named colour palette (WCAG-checked) and slot helpers.
+    draft.ts             The serialisable CustomerDraft (v2): versioning with v1 migration, photo
+                         metadata and normalised selection.
+    types.ts             Template, layout, colour, photo and selection types.
   test/                  Vitest setup.
 public/images/           Illustrative signage photography for the landing page.
 e2e/                     Browser tests (Playwright) against the production build.

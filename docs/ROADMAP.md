@@ -57,7 +57,7 @@ none of them is started until explicitly approved.
 | --- | ------------------------------------------------------------------------------ | ------------------- |
 | 1   | Product interface: landing page, working customer demo, pro workspace entry    | Implemented (PR #1) |
 | 2   | Customer template and customisation foundation (local, free, instant previews) | Implemented (PR #1) |
-| 3   | Storefront photo upload and sign-area selection (client-side)                  | Later               |
+| 3   | Storefront photo upload and sign-area selection (client-side)                  | Implemented (PR #1) |
 | 4   | Mockup generation with enforceable free-usage limits (no paid fallback)        | Later               |
 | 5   | Shared Admin/Pro authentication with server-enforced roles                     | Later               |
 | 6   | Project transfer into the Professional Studio; pro editing tools               | Later               |
@@ -66,9 +66,11 @@ Each later milestone keeps every earlier capability working and keeps the honest
 architecture: only working controls are interactive, planned capabilities are labelled, and nothing
 implies AI output is fabrication-accurate.
 
-## Milestone 3 — detailed proposal (pending approval, not started)
+## Milestone 3 — implemented: storefront photo upload and sign-area selection
 
-**Storefront photo upload and sign-area selection (client-side).**
+**Storefront photo upload and sign-area selection (client-side).** Shipped as proposed below;
+the design decisions, scope, acceptance criteria, security considerations and tests recorded in
+this section are the ones implemented.
 
 ### Safest approach (decided after inspecting the current architecture)
 
@@ -122,8 +124,8 @@ implies AI output is fabrication-accurate.
 9. `e2e/photo.spec.ts` (new) — full flow per locale at 360/768/1280 px: upload a generated JPEG,
    draw/adjust/clear/redraw, keyboard nudge, RTL, no horizontal overflow, and an assertion that no
    request leaves the origin.
-10. Docs: this section flips to "Implemented" on approval; `ARCHITECTURE.md`, `DESIGN_SYSTEM.md`,
-    `README.md` and the PR body are updated with the milestone.
+10. Docs: `ARCHITECTURE.md`, `DESIGN_SYSTEM.md`, `README.md` and the PR body updated with the
+    milestone.
 
 ### Acceptance criteria
 

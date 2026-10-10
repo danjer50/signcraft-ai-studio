@@ -12,14 +12,19 @@ point for the professional workspace, the application shell, design system, auto
 - The customer flow at `/{locale}/create`: type your business name, pick one of ten sign templates
   (neon glow, illuminated letters, 3D metal lettering, minimal, blade sign, awning band, window vinyl,
   lightbox plaque, marquee bulbs, floor totem) and customise its colours with named swatches. The
-  preview — including the selected template's name — updates instantly on every change. The page
-  states in plain language that this preview is a local style composition — not AI-generated
-  imagery and not a technically accurate fabrication model.
+  preview — including the selected template's name — updates instantly on every change.
+- Storefront photo and sign area, fully client-side: upload a photo of your storefront (validated by
+  magic bytes, capped at 12 MB and 4096×4096 px), then drag to mark where the sign should appear.
+  The selection is adjustable (handles, mouse, touch and keyboard), can be cleared and redrawn, and
+  is stored as normalised coordinates in the serialisable customer draft. The original photo is kept
+  unmodified in memory and is never uploaded; the marked area is labelled as a schematic placement.
+  The page states in plain language that the preview is a local style composition — not AI-generated
+  imagery, not a composite on the photo, and not a technically accurate fabrication model.
 - Localisation and RTL for French (default), English and Arabic, including keyboard navigation,
   responsive navigation and a 404 page with the right language and direction.
 
-**Planned, labelled as such, with no controls that pretend otherwise:** reference-photo input and AI
-generation, revision requests, the professional 2D/3D design and fabrication tools (exact dimensions,
+**Planned, labelled as such, with no controls that pretend otherwise:** AI generation,
+revision requests, the professional 2D/3D design and fabrication tools (exact dimensions,
 3D geometry, materials, LED layout, technical drawings, fabrication exports), project persistence and
 deployment. The professional entry point at `/{locale}/pro` describes these tools and marks each one
 "Planned"; it contains no fake editor.
@@ -86,6 +91,9 @@ src/components/         app-shell (incl. AppDocument), home, workflow (incl. the
                         pro, not-found, ui primitives
 src/i18n/               locale configuration, typed dictionaries, path helpers
 src/styles/             design tokens, global styles, token and RTL tests
+src/templates/          the customer template catalogue, colour palette and the
+                        serialisable customer draft (v2: photo metadata + selection)
+src/projects/           client-side photo validation and the in-memory photo store
 public/images/          illustrative signage photography for the landing page
 e2e/                    browser tests (Playwright)
 scripts/smoke-test.mjs  production HTTP smoke test
@@ -102,8 +110,8 @@ docs/                   architecture and design system
 - `npm audit` reports five high-severity findings in the dev-only linting chain (`braces` 3.0.3, no patched
   release yet). `npm audit --omit=dev` reports none. See `docs/ARCHITECTURE.md`, section 8.
 - Browser tests run in CI, not in `npm run check`, because they need a Chromium binary. They cover the
-  locale pages, the product surface (landing page, the live demo, the professional entry point) and the
-  404 pages at 360, 768 and 1280 px. They do not replace a review by a native speaker of the French and
+  locale pages, the product surface (landing page, the live demo, the storefront photo flow, the
+  professional entry point) and the 404 pages at 360, 768 and 1280 px. They do not replace a review by a native speaker of the French and
   Arabic copy, which is still a draft. See `docs/ARCHITECTURE.md`, section 8.
 
 ## Deployment

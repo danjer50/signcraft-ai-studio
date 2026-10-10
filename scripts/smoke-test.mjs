@@ -189,10 +189,26 @@ async function runChecks(base) {
       // The template catalogue ships with the page: picker legend, default template
       // name and the default template's colour names are all in the prerendered HTML.
       catalogueMarkers: {
-        fr: ["Modèle", "Lettres lumineuses", "Couleurs", "Blanc chaud"],
-        en: ["Template", "Illuminated letters", "Colours", "Warm white"],
-        ar: ["القالب", "حروف مضيئة", "الألوان", "أبيض دافئ"],
+        fr: [
+          "Modèle",
+          "Lettres lumineuses",
+          "Couleurs",
+          "Blanc chaud",
+          "La photo de votre devanture",
+          "Téléverser une photo",
+        ],
+        en: [
+          "Template",
+          "Illuminated letters",
+          "Colours",
+          "Warm white",
+          "Your storefront photo",
+          "Upload a photo",
+        ],
+        ar: ["القالب", "حروف مضيئة", "الألوان", "أبيض دافئ", "صورة واجهة محلك", "رفع صورة"],
       },
+      // The customer flow is the only place a file input exists.
+      fileInput: true,
       plannedLabels: { fr: "Prévu", en: "Planned", ar: "مخطط" },
     },
     {
@@ -204,6 +220,7 @@ async function runChecks(base) {
       },
       demoMarker: null,
       catalogueMarkers: null,
+      fileInput: false,
       plannedLabels: { fr: "Prévu", en: "Planned", ar: "مخطط" },
     },
   ];
@@ -239,6 +256,10 @@ async function runChecks(base) {
           response.body.includes(marker),
         );
       }
+      check(
+        `/${locale}/${page.path} ${page.fileInput ? "offers" : "does not offer"} a photo file input`,
+        response.body.includes('type="file"') === page.fileInput,
+      );
       check(
         `/${locale}/${page.path} labels planned capabilities`,
         response.body.includes(page.plannedLabels[locale]),

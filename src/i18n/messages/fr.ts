@@ -65,7 +65,7 @@ export const fr: Messages = {
     stepsLabel: "Étapes de création",
     step1: {
       title: "Décrire l'enseigne",
-      body: "Indiquez le nom et le type de lieu : café, commerce, cabinet. Une photo de référence sera possible plus tard.",
+      body: "Indiquez le nom et le type de lieu, téléversez une photo de votre devanture et indiquez où l'enseigne doit apparaître.",
     },
     step2: {
       title: "Choisir une direction visuelle",
@@ -83,15 +83,49 @@ export const fr: Messages = {
   },
   create: {
     title: "Créer mon enseigne",
-    lead: "Essayez les premières étapes : décrivez votre enseigne, choisissez un modèle et examinez un aperçu en direct.",
+    lead: "Essayez les premières étapes : décrivez votre enseigne, téléversez une photo de votre devanture, choisissez un modèle et examinez un aperçu en direct.",
     demoTitle: "Aperçu de style en direct",
     demoLead:
-      "Saisissez le nom de votre commerce, choisissez un modèle et ajustez les couleurs. L'aperçu se met à jour instantanément.",
+      "Saisissez le nom de votre commerce, choisissez un modèle et ajustez les couleurs. Téléversez une photo de votre devanture et indiquez la zone de l'enseigne. Tout se met à jour instantanément.",
     textLabel: "Nom du commerce",
     textPlaceholder: "p. ex. Studio",
     taglineLabel: "Slogan (facultatif)",
     taglinePlaceholder: "p. ex. Boulangerie · Café · Pâtisserie",
     colourLegend: "Couleurs",
+    photo: {
+      title: "La photo de votre devanture",
+      lead: "Téléversez une photo de votre devanture et indiquez où l'enseigne doit apparaître. La photo reste dans votre navigateur — elle n'est jamais envoyée.",
+      photoAlt: "Photo de votre devanture",
+      uploadCta: "Téléverser une photo",
+      changeCta: "Changer de photo",
+      removeCta: "Retirer la photo",
+      currentLabel: "Photo actuelle",
+      errors: {
+        type: "Ce fichier n'est pas une photo prise en charge. Choisissez une image JPEG, PNG ou WebP.",
+        size: "Cette photo est trop lourde. La taille maximale est de 12 Mo.",
+        dimensions:
+          "Cette photo est trop grande pour être traitée. Le maximum est de 4096 × 4096 pixels.",
+        unreadable: "Cette photo n'a pas pu être lue. Essayez une autre image.",
+      },
+    },
+    selection: {
+      title: "Zone de l'enseigne",
+      hint: "Glissez sur la photo pour indiquer où l'enseigne doit apparaître.",
+      adjustHint:
+        "Glissez les poignées pour redimensionner, glissez à l'intérieur de la zone pour la déplacer.",
+      emptyHint:
+        "Aucune zone marquée pour le moment. Glissez sur la photo ou marquez une zone par défaut.",
+      defaultCta: "Marquer une zone par défaut",
+      clearCta: "Effacer la sélection",
+      redrawCta: "Retracer la sélection",
+      schematicNote:
+        "La zone marquée est un positionnement schématique — ni une maquette réaliste, ni un plan de fabrication.",
+      groupLabel: "Zone de positionnement de l'enseigne",
+      groupLabelWithSize:
+        "Zone de positionnement de l'enseigne, {width} × {height} pour cent de la photo",
+      keyboardHint:
+        "Les flèches déplacent la sélection, Maj et une flèche la redimensionnent, Suppr l'efface. Entrée marque une zone par défaut.",
+    },
     previewLabel: "Aperçu de l'enseigne",
     previewCaption: "Aperçu en direct de votre texte dans le modèle choisi.",
     previewFallback: "Votre enseigne",
@@ -99,7 +133,7 @@ export const fr: Messages = {
     limitationsBody:
       "L'aperçu met en forme votre texte localement dans votre navigateur. Il ne s'agit ni d'une création générée par IA, ni d'un modèle de fabrication : couleurs, dimensions et construction ne sont pas techniquement exacts.",
     referenceNote:
-      "Les photos de référence et la génération par IA sont prévues. Cet aperçu n'analyse aucune image et ne produit aucune donnée de fabrication.",
+      "Votre photo et la zone marquée restent dans votre navigateur et ne sont jamais envoyées. La génération par IA est prévue. Cet aperçu n'analyse aucune image, ne place pas l'enseigne sur votre photo, et ne produit aucune donnée de fabrication.",
   },
   templates: {
     pickerLegend: "Modèle",

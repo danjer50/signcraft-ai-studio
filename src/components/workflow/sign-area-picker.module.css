@@ -1,0 +1,145 @@
+.panel {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  align-content: start;
+}
+
+.title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.lead {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.stage {
+  position: relative;
+  overflow: clip;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  cursor: crosshair;
+  /* Drawing happens on touch screens too: never let the gesture scroll the page. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.stage:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* The stage handles every pointer event; the image must not drag or intercept. */
+  pointer-events: none;
+  user-select: none;
+}
+
+/*
+ * The overlay is a coordinate system over the photo, not page content: it is forced
+ * to left-to-right so the selection always aligns with the photo pixels in every
+ * locale, including RTL Arabic. All offsets use logical properties, which the RTL
+ * guard accepts, and resolve to the same physical side inside this ltr box.
+ */
+.overlay {
+  position: absolute;
+  inset: 0;
+  direction: ltr;
+  pointer-events: none;
+}
+
+.selectionRect {
+  position: absolute;
+  border: 2px dashed var(--color-accent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  cursor: move;
+  pointer-events: none;
+}
+
+.handle {
+  position: absolute;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: var(--color-surface);
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.handle[data-handle="nw"],
+.handle[data-handle="se"] {
+  cursor: nwse-resize;
+}
+
+.handle[data-handle="ne"],
+.handle[data-handle="sw"] {
+  cursor: nesw-resize;
+}
+
+.handle[data-handle="n"],
+.handle[data-handle="s"] {
+  cursor: ns-resize;
+}
+
+.handle[data-handle="e"],
+.handle[data-handle="w"] {
+  cursor: ew-resize;
+}
+
+.hint {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.schematicNote {
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-info-soft);
+  border-radius: var(--radius-md);
+  color: var(--color-on-info-soft);
+  font-size: var(--text-sm);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.button {
+  min-height: var(--touch-target);
+  padding-inline: var(--space-3);
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard);
+}
+
+.button:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+@media (min-width: 48rem) {
+  .panel {
+    padding: var(--space-6);
+  }
+}

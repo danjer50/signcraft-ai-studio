@@ -32,10 +32,14 @@ describe("CreateView", () => {
   it("offers no controls for the planned step 4", () => {
     render(<CreateView messages={getMessages("en")} />);
 
-    // The only interactive controls belong to the demo (text fields and radios).
-    expect(screen.queryAllByRole("button")).toHaveLength(0);
-    expect(screen.queryAllByRole("link")).toHaveLength(0);
+    // The planned step 4 card is description only: no button, link or field in it.
+    const plannedStep = document.querySelector('li[data-planned="true"]') as HTMLElement;
+    expect(plannedStep).not.toBeNull();
+    expect(plannedStep.querySelectorAll("button, a, input, select, textarea")).toHaveLength(0);
+
+    // Nothing on the page submits: there is no form and no submit control.
     expect(document.querySelector("form")).toBeNull();
+    expect(document.querySelector('button[type="submit"]')).toBeNull();
   });
 
   it("renders in French and Arabic", () => {
