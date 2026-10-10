@@ -88,7 +88,7 @@ export const en = {
     lead: "Try the first steps now: describe your sign, upload a storefront photo, choose a template and review a live preview.",
     demoTitle: "Live style preview",
     demoLead:
-      "Type your business name, pick a template and adjust the colours. Upload a photo of your storefront and mark the sign area. Everything updates instantly.",
+      "Type your business name, pick a template and adjust the colours — the preview updates instantly. Upload a photo of your storefront, mark the sign area and generate a basic visual mockup of your sign on it.",
     textLabel: "Business name",
     textPlaceholder: "e.g. Studio",
     taglineLabel: "Tagline (optional)",
@@ -124,6 +124,21 @@ export const en = {
       keyboardHint:
         "Arrow keys move the selection, Shift and an arrow key resize it, Delete clears it. Press Enter to mark a default area.",
     },
+    mockup: {
+      title: "Visual mockup",
+      lead: "Generate a basic visual mockup: your sign placed flat in the marked area, rendered in your browser.",
+      generateCta: "Generate mockup preview",
+      regenerateCta: "Update the mockup",
+      downloadCta: "Download PNG",
+      rendering: "Rendering the mockup…",
+      mockupAlt: "Basic visual mockup of your sign on your storefront photo",
+      honestyNote:
+        "A basic visual mockup: the sign is placed flat in the marked area, without perspective correction, environmental lighting or cast shadows. It is not a realistic rendering and not fabrication-ready.",
+      disabledNoPhoto: "Upload a photo of your storefront first.",
+      disabledNoSelection: "Mark the sign area on the photo first.",
+      error: "The mockup could not be generated. Please try again.",
+      unsupported: "Mockup generation is not supported by this browser.",
+    },
     previewLabel: "Sign preview",
     previewCaption: "Live preview of your text in the selected template.",
     previewFallback: "Your sign",
@@ -131,7 +146,7 @@ export const en = {
     limitationsBody:
       "The preview styles your text locally in your browser. It is not an AI-generated design and not a fabrication model: colours, dimensions and construction are not technically accurate.",
     referenceNote:
-      "Your photo and the marked area stay in your browser and are never uploaded. AI design generation is planned. The preview does not analyse images, does not composite the sign onto your photo, and produces no fabrication data.",
+      "Your photo and the marked area stay in your browser and are never uploaded. AI design generation is planned. The style preview does not analyse images; the visual mockup places your sign flat in the marked area — no perspective, lighting or shadows — and produces no fabrication data.",
   },
   templates: {
     pickerLegend: "Template",

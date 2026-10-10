@@ -116,8 +116,9 @@ function formatTemplate(template: string, params: Record<string, string>): strin
  * rectangular sign-area selection, and the honesty notes. The selection is drawn,
  * moved and resized with pointer events (mouse and touch) and adjusted with the
  * keyboard on the stage's single tab stop. Coordinates are normalised fractions of
- * the photo, so they are resolution-independent. The placement shown is schematic:
- * nothing is composited onto the photo.
+ * the photo, so they are resolution-independent. The placement shown here is
+ * schematic (a dashed rectangle only); the mockup panel composites a basic flat
+ * preview and labels it as such.
  */
 export function SignAreaPicker({
   messages,

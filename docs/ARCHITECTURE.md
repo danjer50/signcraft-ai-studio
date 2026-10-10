@@ -29,8 +29,21 @@ normalised (fractions of the natural image size) in the customer draft, which mo
 (version 1 drafts are migrated on parse). The photo never leaves the browser; the placement shown is
 schematic and labelled as such — no AI compositing and no fabrication accuracy is claimed.
 
+**Visual mockup milestone (implemented):** a basic visual mockup rendered entirely in the browser
+(`src/projects/mockup-render.ts`): the sign — business name and tagline — painted in the selected
+template's style and colours (`mockup` descriptors on the catalogue entries) and placed flat,
+axis-aligned inside the marked area on the photo. There is no perspective transform, no
+environmental lighting and no cast shadows; the panel (`src/components/workflow/mockup-panel.tsx`)
+labels the result as a basic visual mockup that is not fabrication-ready, and offers a PNG download
+(the `blob:` canvas is same-origin, so it is not tainted). Rendering is user-initiated and throttled
+(one render per second, output capped at 1600 px) — performance limits, not quotas: browsing
+templates and editing text and colours keep working at all times. The photo and the mockup never
+leave the browser; no AI provider is involved (see `docs/ROADMAP.md` for the gated AI approach and
+the enforceable-limits framework defined before any provider).
+
 **Not implemented (planned):** AI generation and revision requests; editable 2D
-design, genuine 3D geometry, materials, LED layout, mounting, technical drawings; AI-assisted mockups;
+design, genuine 3D geometry, materials, LED layout, mounting, technical drawings; AI-powered
+realistic mockups (perspective, lighting, shadows — gated, see the roadmap);
 project persistence; fabrication exports; and any deployment configuration.
 
 No payment features, no API keys, no external services, and no Vercel configuration exist yet.
@@ -97,7 +110,8 @@ src/
     app-shell/           AppDocument (html, body, shell), header, navigation, language switcher.
     home/                Landing page sections: hero, examples gallery, workflow summary, pro teaser.
     workflow/            Customer journey: workflow steps, the live template demo (template picker,
-                         colour picker, storefront photo panel, sign preview), the create view.
+                         colour picker, storefront photo panel, sign preview, visual mockup
+                         panel), the create view.
     pro/                 Professional entry point view.
     not-found/           Content of the 404 page.
     ui/                  Button, Badge, Card, icons.
@@ -106,14 +120,15 @@ src/
   projects/
     photo-validation.ts  Magic-byte and cap checks for uploaded photos.
     photo-store.ts       In-memory original-photo store, object-URL lifecycle, intake pipeline.
+    mockup-render.ts     Client-side flat visual-mockup renderer (canvas) and PNG export.
   proxy.ts               Stores the display locale of each request for the 404 page (section 4).
   styles/                Design tokens, global CSS, and tests that enforce tokens and RTL rules.
   templates/
-    catalogue.ts         The ten sign templates: ids, layouts, colour slots, defaults.
+    catalogue.ts         The ten sign templates: ids, layouts, colour slots, mockup styles.
     palette.ts           The named colour palette (WCAG-checked) and slot helpers.
     draft.ts             The serialisable CustomerDraft (v2): versioning with v1 migration, photo
                          metadata and normalised selection.
-    types.ts             Template, layout, colour, photo and selection types.
+    types.ts             Template, layout, colour, photo, selection and mockup-style types.
   test/                  Vitest setup.
 public/images/           Illustrative signage photography for the landing page.
 e2e/                     Browser tests (Playwright) against the production build.
@@ -348,6 +363,5 @@ These are design intentions. None of them is implemented yet.
 
 ## 10. Next milestone
 
-Build the projects shell: a local project list, create and open, and IndexedDB storage behind a
-versioned repository interface, with tests for the migration path. Keep the unbuilt modules marked
-"Planned" until each one works and has been tested.
+Milestone 5 (see `docs/ROADMAP.md`): shared Admin/Pro authentication with server-enforced roles.
+Keep the unbuilt modules marked "Planned" until each one works and has been tested.

@@ -18,13 +18,19 @@ point for the professional workspace, the application shell, design system, auto
   The selection is adjustable (handles, mouse, touch and keyboard), can be cleared and redrawn, and
   is stored as normalised coordinates in the serialisable customer draft. The original photo is kept
   unmodified in memory and is never uploaded; the marked area is labelled as a schematic placement.
+- Basic visual mockup, fully client-side: a real button renders a flat, axis-aligned placement of your
+  sign — text, tagline, template style and colours — inside the marked area, directly on your photo,
+  and offers a PNG download. It is clearly labelled: no perspective correction, no environmental
+  lighting, no cast shadows, not fabrication-ready. Rendering is user-initiated and throttled; the
+  photo and the mockup never leave the browser.
   The page states in plain language that the preview is a local style composition — not AI-generated
-  imagery, not a composite on the photo, and not a technically accurate fabrication model.
+  imagery and not a technically accurate fabrication model.
 - Localisation and RTL for French (default), English and Arabic, including keyboard navigation,
   responsive navigation and a 404 page with the right language and direction.
 
 **Planned, labelled as such, with no controls that pretend otherwise:** AI generation,
-revision requests, the professional 2D/3D design and fabrication tools (exact dimensions,
+revision requests, realistic AI mockups (perspective, lighting, shadows), the professional 2D/3D
+design and fabrication tools (exact dimensions,
 3D geometry, materials, LED layout, technical drawings, fabrication exports), project persistence and
 deployment. The professional entry point at `/{locale}/pro` describes these tools and marks each one
 "Planned"; it contains no fake editor.
@@ -93,7 +99,8 @@ src/i18n/               locale configuration, typed dictionaries, path helpers
 src/styles/             design tokens, global styles, token and RTL tests
 src/templates/          the customer template catalogue, colour palette and the
                         serialisable customer draft (v2: photo metadata + selection)
-src/projects/           client-side photo validation and the in-memory photo store
+src/projects/           client-side photo validation, the in-memory photo store and the
+                        flat visual-mockup renderer (canvas + PNG export)
 public/images/          illustrative signage photography for the landing page
 e2e/                    browser tests (Playwright)
 scripts/smoke-test.mjs  production HTTP smoke test
@@ -111,7 +118,7 @@ docs/                   architecture and design system
   release yet). `npm audit --omit=dev` reports none. See `docs/ARCHITECTURE.md`, section 8.
 - Browser tests run in CI, not in `npm run check`, because they need a Chromium binary. They cover the
   locale pages, the product surface (landing page, the live demo, the storefront photo flow, the
-  professional entry point) and the 404 pages at 360, 768 and 1280 px. They do not replace a review by a native speaker of the French and
+  visual mockup flow, the professional entry point) and the 404 pages at 360, 768 and 1280 px. They do not replace a review by a native speaker of the French and
   Arabic copy, which is still a draft. See `docs/ARCHITECTURE.md`, section 8.
 
 ## Deployment

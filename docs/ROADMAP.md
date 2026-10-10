@@ -53,14 +53,14 @@ none of them is started until explicitly approved.
 
 ## Milestone order
 
-| #   | Milestone                                                                      | Status                      |
-| --- | ------------------------------------------------------------------------------ | --------------------------- |
-| 1   | Product interface: landing page, working customer demo, pro workspace entry    | Implemented (PR #1)         |
-| 2   | Customer template and customisation foundation (local, free, instant previews) | Implemented (PR #1)         |
-| 3   | Storefront photo upload and sign-area selection (client-side)                  | Implemented (PR #1)         |
-| 4   | Mockup generation: free client-side visual mockup (AI approach gated)          | Proposed — pending approval |
-| 5   | Shared Admin/Pro authentication with server-enforced roles                     | Later                       |
-| 6   | Project transfer into the Professional Studio; pro editing tools               | Later                       |
+| #   | Milestone                                                                      | Status              |
+| --- | ------------------------------------------------------------------------------ | ------------------- |
+| 1   | Product interface: landing page, working customer demo, pro workspace entry    | Implemented (PR #1) |
+| 2   | Customer template and customisation foundation (local, free, instant previews) | Implemented (PR #1) |
+| 3   | Storefront photo upload and sign-area selection (client-side)                  | Implemented (PR #1) |
+| 4   | Mockup generation: free client-side visual mockup (AI approach gated)          | Implemented (PR #1) |
+| 5   | Shared Admin/Pro authentication with server-enforced roles                     | Later               |
+| 6   | Project transfer into the Professional Studio; pro editing tools               | Later               |
 
 Each later milestone keeps every earlier capability working and keeps the honesty rules of the
 architecture: only working controls are interactive, planned capabilities are labelled, and nothing
@@ -165,7 +165,11 @@ Pages (static hosting, free tier) at zero cost, with no serverless functions. Wh
 (Milestone 5) arrives, Cloudflare (Workers, D1/KV) becomes the candidate platform; that decision is
 out of scope here.
 
-## Milestone 4 — detailed proposal (pending approval, not started)
+## Milestone 4 — implemented: free client-side visual mockup (AI approach gated)
+
+The proposal below was approved as written and implemented as Approach A. The section is kept as
+the record of the decision: the two approaches, the enforceable-limits framework defined before
+any AI provider, and the gate that still applies to any future AI-powered mockup.
 
 **Mockup generation.** Two approaches were evaluated separately; only the first is proposed for
 implementation.

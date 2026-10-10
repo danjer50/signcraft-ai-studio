@@ -45,6 +45,15 @@ describe("template catalogue", () => {
     }
   });
 
+  it("carries a valid visual-mockup treatment for every template", () => {
+    const boards = new Set(["none", "panel", "glowPanel"]);
+    const texts = new Set(["flat", "glow", "gradient", "band"]);
+    for (const template of signTemplates) {
+      expect(boards.has(template.mockup.board)).toBe(true);
+      expect(texts.has(template.mockup.text)).toBe(true);
+    }
+  });
+
   it("offers known colours only, with the slot default inside the options", () => {
     for (const template of signTemplates) {
       for (const slot of template.slots) {

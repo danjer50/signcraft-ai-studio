@@ -86,7 +86,7 @@ export const fr: Messages = {
     lead: "Essayez les premières étapes : décrivez votre enseigne, téléversez une photo de votre devanture, choisissez un modèle et examinez un aperçu en direct.",
     demoTitle: "Aperçu de style en direct",
     demoLead:
-      "Saisissez le nom de votre commerce, choisissez un modèle et ajustez les couleurs. Téléversez une photo de votre devanture et indiquez la zone de l'enseigne. Tout se met à jour instantanément.",
+      "Saisissez le nom de votre commerce, choisissez un modèle et ajustez les couleurs — l'aperçu se met à jour instantanément. Téléversez une photo de votre devanture, indiquez la zone de l'enseigne et générez une maquette visuelle simple de votre enseigne.",
     textLabel: "Nom du commerce",
     textPlaceholder: "p. ex. Studio",
     taglineLabel: "Slogan (facultatif)",
@@ -126,6 +126,21 @@ export const fr: Messages = {
       keyboardHint:
         "Les flèches déplacent la sélection, Maj et une flèche la redimensionnent, Suppr l'efface. Entrée marque une zone par défaut.",
     },
+    mockup: {
+      title: "Maquette visuelle",
+      lead: "Générez une maquette visuelle simple : votre enseigne placée à plat dans la zone marquée, calculée dans votre navigateur.",
+      generateCta: "Générer l'aperçu de la maquette",
+      regenerateCta: "Mettre à jour la maquette",
+      downloadCta: "Télécharger le PNG",
+      rendering: "Génération de la maquette…",
+      mockupAlt: "Maquette visuelle simple de votre enseigne sur la photo de votre devanture",
+      honestyNote:
+        "Une maquette visuelle simple : l'enseigne est placée à plat dans la zone marquée, sans correction de perspective, sans éclairage ambiant et sans ombres portées. Ce n'est pas un rendu réaliste et ce n'est pas un document de fabrication.",
+      disabledNoPhoto: "Téléversez d'abord une photo de votre devanture.",
+      disabledNoSelection: "Marquez d'abord la zone de l'enseigne sur la photo.",
+      error: "La maquette n'a pas pu être générée. Veuillez réessayer.",
+      unsupported: "La génération de maquette n'est pas prise en charge par ce navigateur.",
+    },
     previewLabel: "Aperçu de l'enseigne",
     previewCaption: "Aperçu en direct de votre texte dans le modèle choisi.",
     previewFallback: "Votre enseigne",
@@ -133,7 +148,7 @@ export const fr: Messages = {
     limitationsBody:
       "L'aperçu met en forme votre texte localement dans votre navigateur. Il ne s'agit ni d'une création générée par IA, ni d'un modèle de fabrication : couleurs, dimensions et construction ne sont pas techniquement exacts.",
     referenceNote:
-      "Votre photo et la zone marquée restent dans votre navigateur et ne sont jamais envoyées. La génération par IA est prévue. Cet aperçu n'analyse aucune image, ne place pas l'enseigne sur votre photo, et ne produit aucune donnée de fabrication.",
+      "Votre photo et la zone marquée restent dans votre navigateur et ne sont jamais envoyées. La génération par IA est prévue. L'aperçu de style n'analyse aucune image ; la maquette visuelle place votre enseigne à plat dans la zone marquée — sans perspective, éclairage ni ombres — et ne produit aucune donnée de fabrication.",
   },
   templates: {
     pickerLegend: "Modèle",

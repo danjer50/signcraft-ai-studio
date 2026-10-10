@@ -20,6 +20,7 @@ import {
 import type { ColourId, ColourRole, NormalizedRect, TemplateId } from "@/templates/types";
 
 import { ColourPicker } from "./colour-picker";
+import { MockupPanel } from "./mockup-panel";
 import { SignAreaPicker } from "./sign-area-picker";
 import { SignPreview } from "./sign-preview";
 import { TemplatePicker } from "./template-picker";
@@ -31,13 +32,19 @@ import styles from "./sign-preview-demo.module.css";
  * the sign area, choosing a template and customising its colours. The photo is
  * validated, measured and stored locally — it is never uploaded — and the preview
  * is a deterministic style composition of the typed text: not an AI-generated
- * design, not a composite on the photo, and not a fabrication model; the panel
+ * design and not a composite on the photo (the mockup panel below composites a
+ * basic flat mockup, labelled as such), and not a fabrication model; the panel
  * below says so explicitly. Every change updates instantly. It has no submit
  * action: requesting changes and continuing are planned (step 4 of the workflow).
  *
  * The state is a serialisable CustomerDraft (template, text, colours, photo
  * metadata, normalised selection), the seam for the future transfer of a
  * customer's customisation into the Professional Studio.
+ *
+ * The mockup panel composites a basic visual mockup entirely in the browser: the
+ * sign placed flat in the marked area — no perspective, lighting or shadows — and
+ * labelled as such. Rendering is user-initiated and throttled; the photo and the
+ * mockup never leave the device.
  */
 export function SignPreviewDemo({ messages }: { messages: Messages }) {
   const copy = messages.create;
@@ -152,6 +159,16 @@ export function SignPreviewDemo({ messages }: { messages: Messages }) {
           colours={colours}
           text={draft.text}
           tagline={draft.tagline}
+        />
+
+        <MockupPanel
+          messages={messages}
+          photo={storedPhoto}
+          selection={draft.selection}
+          template={template}
+          text={draft.text}
+          tagline={draft.tagline}
+          colours={colours}
         />
       </div>
     </div>

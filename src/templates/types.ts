@@ -61,11 +61,30 @@ export type ColourSlot = {
   options: readonly ColourOption[];
 };
 
+/**
+ * How a template paints the sign in the client-side visual mockup. The mockup is
+ * a flat, axis-aligned placement: the board sits behind the letters and the text
+ * treatment gives the template its character, with no perspective, environmental
+ * lighting or cast shadows.
+ */
+export type MockupBoard = "none" | "panel" | "glowPanel";
+
+export type MockupText = "flat" | "glow" | "gradient" | "band";
+
+export type MockupStyle = {
+  /** The board drawn behind the letters, fitted into the marked area. */
+  board: MockupBoard;
+  /** How the letters themselves are painted. */
+  text: MockupText;
+};
+
 export type SignTemplate = {
   id: TemplateId;
   layout: LayoutId;
   /** Customisable colour slots. Display name and hint live in messages.templates.items. */
   slots: readonly ColourSlot[];
+  /** Visual-mockup treatment, kept in step with the preview layout. */
+  mockup: MockupStyle;
 };
 
 /**
