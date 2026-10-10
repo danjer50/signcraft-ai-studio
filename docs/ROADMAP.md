@@ -53,14 +53,14 @@ none of them is started until explicitly approved.
 
 ## Milestone order
 
-| #   | Milestone                                                                      | Status              |
-| --- | ------------------------------------------------------------------------------ | ------------------- |
-| 1   | Product interface: landing page, working customer demo, pro workspace entry    | Implemented (PR #1) |
-| 2   | Customer template and customisation foundation (local, free, instant previews) | Implemented (PR #1) |
-| 3   | Storefront photo upload and sign-area selection (client-side)                  | Implemented (PR #1) |
-| 4   | Mockup generation: free client-side visual mockup (AI approach gated)          | Implemented (PR #1) |
-| 5   | Shared Admin/Pro authentication with server-enforced roles                     | Later               |
-| 6   | Project transfer into the Professional Studio; pro editing tools               | Later               |
+| #   | Milestone                                                                          | Status                      |
+| --- | ---------------------------------------------------------------------------------- | --------------------------- |
+| 1   | Product interface: landing page, working customer demo, pro workspace entry        | Implemented (PR #1)         |
+| 2   | Customer template and customisation foundation (local, free, instant previews)     | Implemented (PR #1)         |
+| 3   | Storefront photo upload and sign-area selection (client-side)                      | Implemented (PR #1)         |
+| 4   | Mockup generation: free client-side visual mockup (AI approach gated)              | Implemented (PR #1)         |
+| 5   | Shared Admin/Pro authentication with server-enforced roles (Cloudflare Pages + D1) | Proposed — pending approval |
+| 6   | Project transfer into the Professional Studio; pro editing tools                   | Later                       |
 
 Each later milestone keeps every earlier capability working and keeps the honesty rules of the
 architecture: only working controls are interactive, planned capabilities are labelled, and nothing
@@ -272,3 +272,188 @@ copy. Approach B is a separate future milestone; Milestone 4 ships only Approach
   font shrinking, transforms); component tests (disabled states, throttle, error state, RTL);
   smoke markers; e2e per locale × 3 viewports including a real download; the existing 182 unit,
   121 smoke and 87 e2e checks stay green.
+
+## Milestone 5 — detailed proposal (pending approval, not started)
+
+**Shared Admin/Pro authentication.** One login page for both roles; the role decides the
+destination. Server-enforced permissions. Customers keep the free, account-free Customer Space.
+
+### Architecture evaluation (done before choosing)
+
+Current state: the app is 100 % statically prerendered Next.js (16.4.0) run by `next start`; there
+is no hosting configuration and no server code anywhere. Authentication is the first server-side
+code this project needs, so the hosting decision is part of this milestone.
+
+Verified free-tier facts (Cloudflare official limits, October 2026):
+
+| Service                     | Free tier                                                       | Consequence for this design                                                    |
+| --------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Pages static hosting        | unlimited requests & bandwidth, 500 builds/month                | all pages stay static and free                                                 |
+| Pages Functions (= Workers) | 100,000 requests/day, **10 ms CPU per request**, 50 subrequests | only `/api/*` runs server code; page views never burn quota                    |
+| D1 (SQLite)                 | 5 M rows read/day, 100 k rows written/day, 5 GB                 | accounts, sessions, rate limits, audit log fit easily                          |
+| Workers KV                  | 100 k reads/day, **1,000 writes/day**, 1 GB                     | **rejected**: session writes + rate-limit counters could exhaust 1k writes/day |
+| Workers Paid                | $5/month                                                        | **rejected**: zero mandatory operating costs is a hard requirement             |
+
+Options considered:
+
+1. **Cloudflare Pages (static export) + Pages Functions + D1 — RECOMMENDED.** The app is already
+   fully static, so `output: "export"` fits. Only `/api/auth/*` runs as Functions; every page view
+   stays on the unlimited static tier. D1 holds accounts/sessions/rate-limits/audit. KV is not
+   needed (its 1,000 writes/day is the trap; D1's 100k writes/day is the headroom we want).
+   Zero mandatory cost; `wrangler pages dev` reproduces the whole stack locally (workerd + local
+   D1) for tests. Risks and their mitigations are listed below.
+2. **Full Next.js on Workers (`@opennextjs/cloudflare`, nodejs_compat).** Rejected: every page render
+   would become a Worker invocation (100k/day cap) and Next SSR routinely exceeds the 10 ms free
+   CPU ceiling. The app needs no SSR.
+3. **Self-hosted Node (`next start` on a VPS).** Rejected: not free.
+4. **Vercel or other paid hosts.** Rejected: paid, and out of scope by standing constraint.
+
+**Key design consequence of the 10 ms free CPU limit:** strong password hashing (PBKDF2 at
+OWASP-recommended 600,000 iterations) costs hundreds of ms of CPU — far over 10 ms. So the browser
+does the expensive work (it has no CPU quota): the login form fetches the account's salt, runs
+PBKDF2-SHA256 (600,000 iterations) locally, and sends only the resulting hash; the server stores
+`SHA-256(clientHash + PEPPER)` with `PEPPER` as a wrangler secret. The server never sees the raw
+password, and an offline attacker with the database still pays 600,000 iterations per guess — the
+same cost as server-side hashing. Tradeoffs are documented in ARCHITECTURE.md at implementation
+time. No paid fallback ever exists: if a free-tier ceiling is ever hit, the honest behaviour is a
+localised "try again later" state, never an automatic upgrade.
+
+### Routes and roles
+
+- `/{locale}/login` — **one shared login page** for Admin and Pro (fr/en/ar, RTL). On success the
+  server sets the session cookie and returns the role; the client redirects **admin →
+  `/{locale}/admin`** (Admin Space), **pro → `/{locale}/studio`** (Professional Studio).
+- `/{locale}/admin` — Admin Space: account management (list, invite, suspend, restore, revoke).
+  Static shell; every action calls admin-only APIs.
+- `/{locale}/studio` — Pro Studio: authenticated shell for professionals (tools stay labelled
+  Planned — they are Milestone 6). **Admin always has access** (the studio APIs accept the admin
+  role too).
+- `/{locale}/pro` — unchanged public entry page; it links to the login page.
+- `/{locale}/setup` — one-time initial-admin setup, unlinked, see below.
+- **Customers:** `/` and `/{locale}/create` stay free, account-free and login-free. The nav gains a
+  "Sign in" link for anonymous visitors and a role-aware link + "Sign out" when signed in
+  (progressive enhancement; the default render is the signed-out state).
+
+**Enforcement honesty:** page shells are client-side gates for UX only; the security boundary is the
+API — every endpoint verifies the session and role server-side, and no admin data is ever in the
+static HTML. This is stated in the UI copy and the docs.
+
+### Security controls
+
+- **Sessions:** random 256-bit id in D1; cookie `sc_session` is `HttpOnly`, `Secure`,
+  `SameSite=Lax`, `Path=/`; 7-day absolute expiry with 1-day sliding renewal; logout deletes the
+  row server-side and clears the cookie. Suspend/revoke deletes the account's sessions.
+- **Passwords:** client-side PBKDF2-SHA256 (600,000 iterations, per-account salt) + server-side
+  `SHA-256(clientHash + PEPPER)`; minimum length 12 enforced on both sides; raw passwords and
+  client hashes are never stored, logged or returned; constant-time comparison.
+- **CSRF:** `SameSite=Lax` plus an `Origin` check on every state-changing endpoint.
+- **Enumeration resistance:** login returns one generic "invalid credentials" message; the prelogin
+  endpoint returns a dummy salt for unknown emails.
+- **Rate limiting (D1-backed):** 5 failed logins per 15 minutes per IP **and** per email; the setup
+  endpoint is rate-limited per IP. IP comes from `CF-Connecting-IP` (best-effort, documented).
+- **Initial admin setup:** `POST /api/auth/setup` succeeds **only** while zero admin accounts exist
+  **and** the request carries the `SETUP_SECRET` wrangler secret (owner-generated, never committed).
+  After the first admin exists the endpoint permanently refuses. The setup page is unlinked and
+  shows "unavailable" once used.
+- **Account management (admin-only, server-enforced):** create/invite a pro (the server generates a
+  single-use, 1-hour invite token; the admin copies a one-time link and shares it — **no email
+  service exists on the free tier**, so invite delivery is manual, stated honestly), suspend,
+  restore, revoke. Roles are a fixed set (`admin`, `pro`); no endpoint lets a pro create accounts or
+  grant admin; the only admin account is created by the one-time setup.
+- **Account recovery:** pros are recovered by an admin-issued single-use reset link (same token
+  mechanism). Admin recovery is a documented break-glass procedure (owner runs a `wrangler d1`
+  command, or re-opens setup with a new `SETUP_SECRET` after removing the admin row) — no email
+  dependency, stated honestly.
+- **Audit log:** every account-management action is recorded (actor, action, target, IP, time).
+- **Headers/secrets:** existing `nosniff` + `Referrer-Policy` stay; a CSP allowing `blob:` images is
+  added (mockup export needs it); all secrets (`SETUP_SECRET`, `PASSWORD_PEPPER`) live only in
+  wrangler secrets, never in the repo.
+
+### Database schema (D1, SQLite)
+
+```sql
+accounts(id TEXT PRIMARY KEY, email TEXT UNIQUE NOT NULL, role TEXT NOT NULL
+  CHECK (role IN ('admin','pro')), name TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('active','suspended','pending')),
+  password_hash TEXT, salt TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+sessions(id TEXT PRIMARY KEY, account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  expires_at TEXT NOT NULL, created_at TEXT NOT NULL, renewed_at TEXT NOT NULL);
+account_tokens(token_hash TEXT PRIMARY KEY, account_id TEXT NOT NULL
+  REFERENCES accounts(id) ON DELETE CASCADE, purpose TEXT NOT NULL CHECK (purpose IN ('invite','reset')),
+  expires_at TEXT NOT NULL, used_at TEXT);
+rate_limits(key TEXT NOT NULL, window_start TEXT NOT NULL, count INTEGER NOT NULL,
+  PRIMARY KEY (key, window_start));
+audit_log(id INTEGER PRIMARY KEY AUTOINCREMENT, actor_id TEXT, action TEXT NOT NULL,
+  target_id TEXT, detail TEXT, ip TEXT, created_at TEXT NOT NULL);
+```
+
+### Migration notes and risks (explicit, for approval)
+
+1. **Static export.** `next.config.ts` gains `output: "export"`; `src/proxy.ts` (the locale header
+   for 404s) cannot run on static hosting and is removed. **404 contract evolution:** Pages serves a
+   single static `404.html` for unknown URLs, so a server-rendered per-locale `<html lang>` is no
+   longer possible without per-request Functions (which would burn the 100k/day quota — rejected).
+   The exported `404.html` instead embeds a tiny locale-detection script (written into
+   `global-not-found.tsx` so the export carries it) that sets the correct `lang`/`dir` and shows the
+   right language's text and links. The user-visible behaviour is preserved (right language, right
+   direction, correct links); the **smoke assertions change** from "raw HTML contains `<html
+lang=…>`" to "404.html embeds the three locale variants and the detection logic", and e2e
+   asserts the rendered `lang`/`dir`. `/fr/projects` stays 404; the reserved-segment list is updated
+   (`login`, `admin`, `studio`, `setup` become real routes).
+2. **Test infrastructure.** `npm run build` produces `out/`; `next start` no longer exists. The smoke
+   test serves `out/` with a small dependency-free static server; e2e runs against `wrangler pages dev
+out` (static + Functions + local D1 in one process — the real target environment). CI installs
+   `wrangler` (devDependency, free) and the browser job runs against `wrangler pages dev`.
+3. **Free-tier ceilings** are documented (100k Function requests/day, 10 ms CPU/request, D1 5M
+   reads/100k writes/day): comfortable for a small studio; monitored via the Cloudflare dashboard;
+   no paid fallback ever.
+4. **No email delivery.** Invite/reset links are copied by the admin and shared manually.
+5. **Deployment is a separate, owner-approved step.** This milestone adds `wrangler.toml` (no
+   secrets), the Functions, and the local/CI test path. Nothing is deployed; no Cloudflare account,
+   domain or secret is touched until the owner explicitly approves deployment.
+
+### Scope (files, on approval)
+
+- `wrangler.toml` (Pages project + D1 binding; no secrets), `functions/api/auth/**` (`prelogin`,
+  `login`, `logout`, `me`, `setup`, `accounts` CRUD + suspend/restore/revoke),
+  `functions/lib/**` (db, password, session, ratelimit, guard, responses), `functions/schema.sql`.
+- `next.config.ts` (`output: "export"`), removal of `src/proxy.ts`, locale-aware `404.html` via
+  `global-not-found.tsx`.
+- Pages: `login`, `admin`, `studio`, `setup` (+ views, CSS modules); components `auth/`
+  (login form, set-password form, gates, nav auth items); i18n namespaces `auth`, `admin`, `studio`
+  in fr/en/ar.
+- Tests: Functions unit tests with a mocked D1 (password vectors, timing-safe compare, session
+  lifecycle, role guards, 403s for pro on admin APIs, rate-limit lockout, setup guard, token
+  single-use/expiry, cookie attributes); component tests (login form pre-hash flow, set-password
+  state, gates); `e2e/auth.spec.ts` per locale × 3 viewports (setup → admin login → admin space →
+  invite pro → pro first login → studio; pro 403 on admin APIs; suspend/restore/revoke; logout;
+  lockout; customers stay free; RTL; no overflow; no console errors).
+- Existing suites stay green with the updated contracts: 210 unit, smoke (updated 404 matrix +
+  new route markers), 99 e2e + the new auth spec.
+- Docs: this section flips to "Implemented"; ARCHITECTURE (auth architecture, schema, security
+  controls, break-glass recovery, CPU-limit rationale); DESIGN_SYSTEM (auth components); README.
+
+### Acceptance criteria
+
+1. One shared login page serves Admin and Pro, in French, English and Arabic with correct RTL.
+2. Admin login redirects to Admin Space; Pro login redirects to Professional Studio.
+3. Every API verifies the session and role server-side; no admin data appears in static HTML; the
+   client-side gate is UX only and the docs say so.
+4. Only Admin can create/invite, suspend, restore or revoke Professional accounts; a pro calling
+   those APIs gets 403 and can never create accounts or grant admin.
+5. Admin always retains Professional Studio access.
+6. Customers use the free Customer Space with no accounts and no login; `/` and `/create` are
+   unchanged.
+7. Initial admin setup is one-time, secret-gated and permanently disabled afterwards; passwords
+   use the pre-hash + pepper scheme with a 12-character minimum; sessions are HttpOnly/Secure/
+   SameSite with absolute + sliding expiry; logout is server-side; login and setup are rate-limited;
+   pro recovery is admin-issued reset links and admin recovery is the documented break-glass.
+8. The architecture runs entirely on the Cloudflare free tier (verified limits above) with zero
+   mandatory operating costs, no paid services and no automatic paid fallback.
+9. No deployment, no Cloudflare account changes and no secrets are made by this milestone;
+   deployment is a separate owner-approved step.
+10. The complete suite passes: format, lint, typecheck, unit (existing + new Functions/component
+    tests), build, smoke (updated 404 contract), browser tests (existing + auth e2e) — with the
+    404 contract evolution explicitly reported.
+11. Honesty rules hold: the studio shell labels its tools Planned; the login/admin UI never implies
+    more than it does; the docs state the no-email and free-tier-ceiling limitations.
