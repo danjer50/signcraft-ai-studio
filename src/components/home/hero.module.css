@@ -21,8 +21,8 @@
   inset: 0;
   z-index: -1;
   background:
-    linear-gradient(rgb(11 15 20 / 0.3), rgb(11 15 20 / 0.88)),
-    radial-gradient(130% 100% at 50% 35%, transparent 25%, rgb(11 15 20 / 0.5) 100%);
+    linear-gradient(rgb(16 11 28 / 0.3), rgb(16 11 28 / 0.88)),
+    radial-gradient(130% 100% at 50% 35%, transparent 25%, rgb(16 11 28 / 0.5) 100%);
 }
 
 .content {
@@ -46,7 +46,7 @@
   font-weight: 800;
   letter-spacing: var(--tracking-display);
   line-height: var(--leading-display);
-  text-shadow: 0 0 48px rgb(34 211 238 / 0.22);
+  text-shadow: 0 0 48px rgb(22 245 255 / 0.22);
 }
 
 .lead {

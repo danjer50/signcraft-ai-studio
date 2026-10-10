@@ -11,12 +11,21 @@
 }
 
 .brandTile {
-  fill: var(--color-accent);
+  fill: var(--color-bg);
+  stroke: var(--color-porcelain);
+  stroke-opacity: 0.16;
+  stroke-width: 1.5;
 }
 
-.brandLine {
-  fill: none;
-  stroke: var(--color-on-accent);
-  stroke-width: 2.5;
-  stroke-linecap: round;
+.brandDepth {
+  fill: var(--color-ultraviolet);
+  opacity: 0.55;
+}
+
+.brandSlabTop {
+  fill: var(--color-magenta);
+}
+
+.brandSlabBottom {
+  fill: var(--color-accent);
 }

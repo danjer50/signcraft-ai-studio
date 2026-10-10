@@ -64,6 +64,15 @@ const requiredPairs: Array<[string, string, number]> = [
   ["color-focus", "color-bg", 3],
   ["color-focus", "color-surface", 3],
   ["color-border-strong", "color-surface", 3],
+  // Quantum Candy brand accents
+  ["color-porcelain", "color-bg", 4.5],
+  ["color-magenta", "color-bg", 4.5],
+  ["color-magenta", "color-surface", 4.5],
+  ["color-on-magenta-soft", "color-magenta-soft", 4.5],
+  ["color-ultraviolet", "color-bg", 3],
+  ["color-ultraviolet-strong", "color-bg", 3],
+  ["color-ultraviolet-strong", "color-surface", 3],
+  ["color-on-ultraviolet-soft", "color-ultraviolet-soft", 4.5],
 ];
 
 describe("design tokens", () => {

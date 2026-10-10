@@ -3,51 +3,64 @@
  * Components read these variables and never hard-code values.
  * Colour pairs used for text are checked against WCAG AA in design-tokens.test.ts.
  *
- * Direction: deep charcoal and graphite surfaces, restrained electric-cyan highlights.
+ * Direction: Quantum Candy — a deep ultraviolet-dark studio surface (porcelain text) with
+ * laser-cyan as the primary action accent and hot magenta / ultraviolet as selective
+ * brand accents. Vivid colour is used sparingly; legibility always wins.
  */
 
 :root {
   color-scheme: dark;
 
   /* Surfaces and text */
-  --color-bg: #0b0f14;
-  --color-surface: #131a22;
-  --color-surface-muted: #1b242e;
+  --color-bg: #100b1c;
+  --color-surface: #191233;
+  --color-surface-muted: #231a47;
   /* Decorative dividers only. Not used to identify controls. */
-  --color-border: #2a3542;
+  --color-border: #2f2660;
   /* Control outlines. Meets the 3:1 non-text contrast requirement on surfaces. */
-  --color-border-strong: #5b6b7d;
-  --color-text: #eef2f6;
-  --color-text-muted: #9aa8b6;
+  --color-border-strong: #6f5fb0;
+  --color-text: #f7f5ff;
+  --color-text-muted: #b6abd9;
 
-  /* Brand accent: electric cyan */
-  --color-accent: #22d3ee;
-  --color-accent-strong: #67e8f9;
-  --color-on-accent: #04141b;
-  --color-accent-soft: #0e3a46;
+  /* Brand palette: Quantum Candy */
+  --color-porcelain: #f7f5ff;
+  --color-magenta: #ff2bd6;
+  --color-magenta-soft: #471238;
+  --color-on-magenta-soft: #ffc2f1;
+  --color-ultraviolet: #6633ff;
+  /* Lighter ultraviolet for accents on panels (the pure brand value is for the page background). */
+  --color-ultraviolet-strong: #8a63ff;
+  --color-ultraviolet-soft: #241a52;
+  --color-on-ultraviolet-soft: #c9b8ff;
+
+  /* Primary accent: laser cyan */
+  --color-accent: #16f5ff;
+  --color-accent-strong: #8ffbff;
+  --color-on-accent: #100b1c;
+  --color-accent-soft: #0e3d4a;
   --color-on-accent-soft: #a5f3fc;
 
   /* Keyboard focus indicator */
-  --color-focus: #7dd3fc;
+  --color-focus: #16f5ff;
 
   /* Status tones (soft background + readable text) */
-  --color-neutral-soft: #27313d;
-  --color-on-neutral-soft: #d5dde6;
-  --color-info-soft: #16294a;
+  --color-neutral-soft: #2b2547;
+  --color-on-neutral-soft: #d9d2f0;
+  --color-info-soft: #12304a;
   --color-on-info-soft: #b8d4ff;
-  --color-success-soft: #12351f;
+  --color-success-soft: #0f3d24;
   --color-on-success-soft: #b7f0c8;
-  --color-warning-soft: #3a2c0e;
+  --color-warning-soft: #4a3410;
   --color-on-warning-soft: #f5d799;
-  --color-danger-soft: #3f1416;
+  --color-danger-soft: #4a1620;
   --color-on-danger-soft: #f5b8b8;
 
   /* Modal and drawer backdrop */
-  --color-scrim: rgb(5 8 12 / 0.62);
+  --color-scrim: rgb(10 6 24 / 0.66);
 
   /* Restrained glass panels (hero, teasers) */
-  --glass-surface: rgb(19 26 34 / 0.72);
-  --glass-border: rgb(123 168 196 / 0.16);
+  --glass-surface: rgb(25 18 51 / 0.72);
+  --glass-border: rgb(150 130 255 / 0.18);
   --glass-blur: 12px;
 
   /* Typography */
@@ -89,7 +102,7 @@
   --radius-pill: 999px;
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.35);
   --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.45);
-  --shadow-glow: 0 0 32px rgb(34 211 238 / 0.28);
+  --shadow-glow: 0 0 32px rgb(22 245 255 / 0.22);
 
   /* Layout */
   --header-height: 4rem;

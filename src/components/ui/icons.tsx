@@ -110,14 +110,22 @@ export function CaseIcon(props: IconProps) {
 export function BrandMark(props: IconProps) {
   return (
     <svg
-      viewBox="0 0 32 32"
+      viewBox="0 0 48 48"
       aria-hidden="true"
       focusable="false"
       {...props}
       className={cx(styles.brandMark, props.className)}
     >
-      <rect x="0" y="0" width="32" height="32" rx="8" className={styles.brandTile} />
-      <path d="M8 11h16M8 16h10M8 21h13" className={styles.brandLine} />
+      {/* Sign-panel tile */}
+      <rect x="1.5" y="1.5" width="45" height="45" rx="11" className={styles.brandTile} />
+      {/* Dimensional depth: the same S offset behind the face, in ultraviolet */}
+      <path
+        d="M15 15 H37 V22 H22 V26 H15 Z M15 37 H37 V26 H30 V30 H15 Z"
+        className={styles.brandDepth}
+      />
+      {/* The S face: top bar + left stem in magenta, right stem + bottom bar in cyan */}
+      <path d="M13 13 H35 V20 H20 V24 H13 Z" className={styles.brandSlabTop} />
+      <path d="M13 35 H35 V24 H28 V28 H13 Z" className={styles.brandSlabBottom} />
     </svg>
   );
 }
