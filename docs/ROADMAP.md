@@ -278,6 +278,70 @@ copy. Approach B is a separate future milestone; Milestone 4 ships only Approach
 **Shared Admin/Pro authentication.** One login page for both roles; the role decides the
 destination. Server-enforced permissions. Customers keep the free, account-free Customer Space.
 
+### Security review (completed before implementation — findings and amendments)
+
+An independent review of this proposal was performed before implementation. **Verdict: the
+architecture is sound and password security is NOT weakened; the amendments below are hardening,
+migration corrections and honest limitation notes.** Limits re-verified against official Cloudflare
+documentation (Workers limits, updated 8 Oct 2026; D1 limits/pricing, 21 Apr 2026; KV limits,
+8 Oct 2026; Pages limits, 5 Sep 2026; WAF availability, 19 Aug 2026).
+
+**Password design — assessed and kept.** Measured on native crypto: PBKDF2-HMAC-SHA256 at 600,000
+iterations costs ≈ 113 ms of CPU — 11× the 10 ms free-tier CPU limit; even 30,000 iterations
+(≈ 7.5 ms, which would "fit") is 20× below the OWASP minimum of 600,000. So server-side hashing on
+the free tier is either too slow or too weak, and **weakening the work factor to fit the CPU limit
+was considered and rejected**. The browser-side pre-hash keeps the full 600,000-iteration work
+factor (run on the visitor's device, which has no CPU quota) and does not weaken storage security:
+the database holds `SHA-256(clientHash + PEPPER)`, so an attacker with the database alone cannot
+verify a single guess offline (the pepper is a server secret, not in D1) — strictly stronger than
+plain server-side PBKDF2 against a DB-only leak, and equal to it against a full server compromise.
+The raw password never reaches the server. The `argon2id`-in-the-browser alternative
+(e.g. argon2-browser WASM) was investigated and rejected: an extra dependency and memory-hardness
+cost that low-end phones feel, for no security gain over PBKDF2-600k here. Two honest limitations
+of pre-hashing are documented: (a) the server cannot verify how the client derived the hash, so
+password policy (minimum length) is enforced in the UI — a crafted client could set a weaker
+credential **for their own account** (self-harm only; no cross-account effect); (b) the client hash
+is a replayable credential, but it is site-specific (per-account salt + pepper), TLS-protected, and
+no more replayable than the password itself — rotating it is the password change.
+
+**Verified controls (with amendments):**
+
+- **Password storage:** per-account 128-bit random salt (CSPRNG); `password_hash =
+SHA-256(clientHash + PEPPER)`; `PEPPER` is a wrangler secret, never committed; raw passwords and
+  client hashes are never stored, logged or returned.
+- **Login verification:** constant-time byte comparison (XOR-accumulate, never `===` on hex); the
+  unknown-email path returns a dummy salt **and performs a dummy compare** so timing does not
+  reveal account existence; one generic "invalid credentials" message.
+- **Sessions:** new random 256-bit id per login (no fixation); cookie `__Host-sc_session`,
+  `HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/`; 7-day absolute expiry with 1-day sliding renewal;
+  logout deletes the row server-side and clears the cookie; suspend/revoke deletes the account's
+  sessions. (`Secure` on `http://localhost` works because browsers treat localhost as a secure
+  context — verified by e2e.)
+- **CSRF:** `SameSite=Lax` plus an `Origin` check **and** a `Sec-Fetch-Site: cross-site` rejection
+  on every state-changing endpoint; all mutations are POST (no state-changing GET), which also
+  covers login-CSRF.
+- **Rate limiting:** in-app D1-backed limiter (5 failures / 15 min per IP and per email-hash) with
+  an in-isolate memory fast-path to keep D1 writes off the hot path; **plus one free WAF rate
+  limiting rule** on `/api/auth/*` (the free plan includes exactly one IP-keyed rule — official WAF
+  docs) as the first line of defense, configured at deployment time (it applies when the site is
+  served from a Cloudflare-proxied custom domain, not on `*.pages.dev`). Residual free-tier risk,
+  stated honestly: a flood can exhaust the shared 100k/day Function quota (Error 1027) until
+  00:00 UTC — but only the auth APIs go offline; the static customer site keeps serving.
+- **Account recovery:** invite/reset tokens are random 256-bit, stored hashed, single-use
+  (consumed atomically: `UPDATE … WHERE used_at IS NULL` + row-count check), 1-hour expiry,
+  rate-limited per IP; pros are recovered by admin-issued links; admin recovery is the documented
+  break-glass procedure.
+- **Initial admin setup:** allowed only while zero admins exist **and** the `SETUP_SECRET` matches
+  (constant-time compare); the check-and-insert is one atomic statement
+  (`INSERT … SELECT … WHERE NOT EXISTS (… role='admin')` + row-count check), so concurrent setup
+  requests cannot create two admins; permanently refused afterwards; rate-limited; the page is
+  unlinked.
+- **API responses:** `Cache-Control: no-store` on every `/api/auth/*` response so session-dependent
+  data is never cached at the edge.
+- **SQL:** D1's parameterized `prepare().bind()` API only — no string interpolation into SQL.
+- Optional hardening (free): a daily Cron Trigger (free plan allows 5/account) to purge expired
+  sessions, tokens and rate-limit rows.
+
 ### Architecture evaluation (done before choosing)
 
 Current state: the app is 100 % statically prerendered Next.js (16.4.0) run by `next start`; there
@@ -309,14 +373,14 @@ Options considered:
 4. **Vercel or other paid hosts.** Rejected: paid, and out of scope by standing constraint.
 
 **Key design consequence of the 10 ms free CPU limit:** strong password hashing (PBKDF2 at
-OWASP-recommended 600,000 iterations) costs hundreds of ms of CPU — far over 10 ms. So the browser
-does the expensive work (it has no CPU quota): the login form fetches the account's salt, runs
-PBKDF2-SHA256 (600,000 iterations) locally, and sends only the resulting hash; the server stores
-`SHA-256(clientHash + PEPPER)` with `PEPPER` as a wrangler secret. The server never sees the raw
-password, and an offline attacker with the database still pays 600,000 iterations per guess — the
-same cost as server-side hashing. Tradeoffs are documented in ARCHITECTURE.md at implementation
-time. No paid fallback ever exists: if a free-tier ceiling is ever hit, the honest behaviour is a
-localised "try again later" state, never an automatic upgrade.
+OWASP-recommended 600,000 iterations) costs ≈ 113 ms of native CPU — 11× over the 10 ms free-tier
+limit (measured; see the security review above). So the browser does the expensive work (it has no
+CPU quota): the login form fetches the account's salt, runs PBKDF2-SHA256 (600,000 iterations)
+locally, and sends only the resulting hash; the server stores `SHA-256(clientHash + PEPPER)` with
+`PEPPER` as a wrangler secret. The server never sees the raw password, and an attacker with the
+database alone cannot verify guesses offline at all (the pepper is not in D1). No paid fallback
+ever exists: if a free-tier ceiling is ever hit, the honest behaviour is a localised "try again
+later" state, never an automatic upgrade.
 
 ### Routes and roles
 
@@ -389,28 +453,46 @@ audit_log(id INTEGER PRIMARY KEY AUTOINCREMENT, actor_id TEXT, action TEXT NOT N
 
 ### Migration notes and risks (explicit, for approval)
 
-1. **Static export.** `next.config.ts` gains `output: "export"`; `src/proxy.ts` (the locale header
-   for 404s) cannot run on static hosting and is removed. **404 contract evolution:** Pages serves a
-   single static `404.html` for unknown URLs, so a server-rendered per-locale `<html lang>` is no
-   longer possible without per-request Functions (which would burn the 100k/day quota — rejected).
-   The exported `404.html` instead embeds a tiny locale-detection script (written into
-   `global-not-found.tsx` so the export carries it) that sets the correct `lang`/`dir` and shows the
-   right language's text and links. The user-visible behaviour is preserved (right language, right
-   direction, correct links); the **smoke assertions change** from "raw HTML contains `<html
-lang=…>`" to "404.html embeds the three locale variants and the detection logic", and e2e
-   asserts the rendered `lang`/`dir`. `/fr/projects` stays 404; the reserved-segment list is updated
-   (`login`, `admin`, `studio`, `setup` become real routes).
-2. **Test infrastructure.** `npm run build` produces `out/`; `next start` no longer exists. The smoke
+1. **Static export.** `next.config.ts` gains `output: "export"` and `images: { unoptimized: true }`
+   (`next/image` is used by the hero, gallery and pro teaser; export requires it). `src/proxy.ts`
+   (the locale header for 404s) cannot run on static hosting and is removed. Two config features
+   also stop applying in export and move to Pages files (official Pages limits confirm both are
+   supported): the security headers (`X-Content-Type-Options`, `Referrer-Policy`) move from
+   `next.config.ts` `headers()` to `public/_headers`, and the `/` → `/fr` redirect moves from
+   `redirects()` to `public/_redirects` (`/ /fr 307`, preserving the current 307). A `_routes.json`
+   includes only `/api/*` so page views never invoke Functions. The smoke test's
+   `x-nextjs-prerender` check (a `next start` header) is replaced by a static-serving check.
+   **404 contract evolution:** Pages serves a single static `404.html` for unknown URLs, so a
+   server-rendered per-locale `<html lang>` is no longer possible without per-request Functions
+   (which would burn the 100k/day quota — rejected). The exported `404.html` instead embeds a tiny
+   locale-detection script (written into `global-not-found.tsx` so the export carries it) that sets
+   the correct `lang`/`dir`, shows the right language's heading, home link and language switcher.
+   **The e2e 404 contract is preserved** (it asserts rendered `lang`/`dir`, heading text, the home
+   link and the switcher — all produced by the script); only the **smoke raw-HTML lang check**
+   changes to "404.html embeds the three locale variants and the detection logic". `/fr/projects`
+   stays 404; the reserved-segment list is updated (`login`, `admin`, `studio`, `setup` become real
+   routes). **Honest regression:** with JavaScript disabled, a 404 page shows the default locale —
+   flagged here and in ARCHITECTURE.md.
+2. **Preview-deployment isolation.** Pages preview deployments (PR previews) would otherwise share
+   the production D1 database and secrets. The deployment checklist requires a separate preview D1
+   database (`preview_database_id` in `wrangler.toml`) and preview-specific secrets, so a preview can
+   never touch production accounts.
+3. **Test infrastructure.** `npm run build` produces `out/`; `next start` no longer exists. The smoke
    test serves `out/` with a small dependency-free static server; e2e runs against `wrangler pages dev
 out` (static + Functions + local D1 in one process — the real target environment). CI installs
    `wrangler` (devDependency, free) and the browser job runs against `wrangler pages dev`.
-3. **Free-tier ceilings** are documented (100k Function requests/day, 10 ms CPU/request, D1 5M
+4. **Free-tier ceilings** are documented (100k Function requests/day, 10 ms CPU/request, D1 5M
    reads/100k writes/day): comfortable for a small studio; monitored via the Cloudflare dashboard;
    no paid fallback ever.
-4. **No email delivery.** Invite/reset links are copied by the admin and shared manually.
-5. **Deployment is a separate, owner-approved step.** This milestone adds `wrangler.toml` (no
+5. **No email delivery.** Invite/reset links are copied by the admin and shared manually.
+6. **Deployment is a separate, owner-approved step.** This milestone adds `wrangler.toml` (no
    secrets), the Functions, and the local/CI test path. Nothing is deployed; no Cloudflare account,
-   domain or secret is touched until the owner explicitly approves deployment.
+   domain or secret is touched until the owner explicitly approves deployment. The deployment
+   checklist (run only with explicit approval) includes: create the D1 database and apply the
+   schema; set `SETUP_SECRET` and `PASSWORD_PEPPER` via `wrangler secret put`; configure a separate
+   preview database and preview secrets; complete the one-time admin setup immediately; configure
+   the single free WAF rate-limiting rule on `/api/auth/*` when serving from a proxied custom domain;
+   monitor the 100k/day Function quota and D1 daily quotas in the dashboard.
 
 ### Scope (files, on approval)
 
@@ -455,5 +537,10 @@ out` (static + Functions + local D1 in one process — the real target environme
 10. The complete suite passes: format, lint, typecheck, unit (existing + new Functions/component
     tests), build, smoke (updated 404 contract), browser tests (existing + auth e2e) — with the
     404 contract evolution explicitly reported.
-11. Honesty rules hold: the studio shell labels its tools Planned; the login/admin UI never implies
-    more than it does; the docs state the no-email and free-tier-ceiling limitations.
+11. The security-review amendments are implemented: timing-safe comparisons (including the
+    unknown-email dummy path), `Sec-Fetch-Site` rejection, atomic single-use tokens and atomic
+    setup insert, `Cache-Control: no-store` on auth APIs, the `__Host-` cookie prefix, the
+    in-isolate rate-limit fast-path, and the documented pre-hashing limitations.
+12. Honesty rules hold: the studio shell labels its tools Planned; the login/admin UI never implies
+    more than it does; the docs state the no-email, free-tier-ceiling, no-JS-404 and pre-hashing
+    limitations.
