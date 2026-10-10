@@ -154,3 +154,12 @@ admin setup at `/{locale}/setup`, and optionally configure the single free WAF r
 `/api/auth/*` (proxied custom domains only). The full checklist is in `docs/ROADMAP.md` (Milestone 5,
 migration note 6). Local preview: `npm run build && npm start` (or `npm run test:server` for the
 seeded test environment).
+
+**Vercel previews.** The repository also carries a `vercel.json` so the connected Vercel
+project can serve the static export as a pure static site (`out/`, clean URLs, `/` → `/fr`).
+It exists because Vercel's Next.js builder cannot package this export: the builder renames
+`fr/create.html` to `fr/create`, which collides with the `fr/create/` directory of Next.js 16
+segment payloads, so every page is dropped from the deployment (Ready, but 404 everywhere).
+Serving `out/` statically bypasses the builder. The Vercel preview is pages-only: the auth API
+is Cloudflare Pages Functions and is not part of the Vercel deployment. Cloudflare Pages ignores
+`vercel.json`.
