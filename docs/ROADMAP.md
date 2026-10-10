@@ -53,14 +53,14 @@ none of them is started until explicitly approved.
 
 ## Milestone order
 
-| #   | Milestone                                                                      | Status              |
-| --- | ------------------------------------------------------------------------------ | ------------------- |
-| 1   | Product interface: landing page, working customer demo, pro workspace entry    | Implemented (PR #1) |
-| 2   | Customer template and customisation foundation (local, free, instant previews) | Implemented (PR #1) |
-| 3   | Storefront photo upload and sign-area selection (client-side)                  | Implemented (PR #1) |
-| 4   | Mockup generation with enforceable free-usage limits (no paid fallback)        | Later               |
-| 5   | Shared Admin/Pro authentication with server-enforced roles                     | Later               |
-| 6   | Project transfer into the Professional Studio; pro editing tools               | Later               |
+| #   | Milestone                                                                      | Status                      |
+| --- | ------------------------------------------------------------------------------ | --------------------------- |
+| 1   | Product interface: landing page, working customer demo, pro workspace entry    | Implemented (PR #1)         |
+| 2   | Customer template and customisation foundation (local, free, instant previews) | Implemented (PR #1)         |
+| 3   | Storefront photo upload and sign-area selection (client-side)                  | Implemented (PR #1)         |
+| 4   | Mockup generation: free client-side visual mockup (AI approach gated)          | Proposed — pending approval |
+| 5   | Shared Admin/Pro authentication with server-enforced roles                     | Later                       |
+| 6   | Project transfer into the Professional Studio; pro editing tools               | Later                       |
 
 Each later milestone keeps every earlier capability working and keeps the honesty rules of the
 architecture: only working controls are interactive, planned capabilities are labelled, and nothing
@@ -164,3 +164,107 @@ This milestone adds zero server load — it is 100 % client-side — so it is co
 Pages (static hosting, free tier) at zero cost, with no serverless functions. When authentication
 (Milestone 5) arrives, Cloudflare (Workers, D1/KV) becomes the candidate platform; that decision is
 out of scope here.
+
+## Milestone 4 — detailed proposal (pending approval, not started)
+
+**Mockup generation.** Two approaches were evaluated separately; only the first is proposed for
+implementation.
+
+### Approach A — free client-side visual mockup (proposed)
+
+A basic, honest visual mockup rendered entirely in the browser with a 2D canvas: the sign (business
+name and tagline) is drawn in the selected template's style and colours, placed **flat and
+axis-aligned** inside the marked sign area on the customer's photo. There is no perspective
+transform, no environmental lighting, no cast shadows and no occlusion handling — the copy says so
+explicitly ("basic visual mockup — flat placement; no perspective, lighting or shadows; not a
+fabrication-ready result"). The glow in some templates is part of the chosen sign style, not a
+lighting simulation; the copy says that too. Cost: zero. Privacy: the photo never leaves the device
+(the e2e suite asserts same-origin requests only). Dependencies: none — the canvas 2D API is built
+in. `blob:` object URLs are same-origin, so the canvas is not tainted and PNG export works.
+
+### Approach B — AI-powered realistic mockup (evaluated, not proposed)
+
+A realistic composite (perspective, lighting, shadows) needs an AI image-editing provider, which means
+sending the customer's photo to an external service. Key finding: **with no server, usage limits
+cannot be truly enforced** — a client-side counter is advisory and trivially bypassed. True
+enforcement needs a server-side counter. The only zero-cost candidate is a Cloudflare Worker (free
+tier: 100k requests/day) proxying a free AI provider (e.g. Workers AI free tier or Hugging Face free
+inference), with per-IP daily caps, a hard fail at the cap, the provider key as a Worker secret, and
+**no automatic paid fallback ever**. Privacy cost: the photo leaves the device, so an explicit
+consent flow and a provider data-retention review are prerequisites. On-device AI (WebGPU/ONNX) was
+rejected: hundreds of MB of model download, slow on mobile, a heavy dependency.
+
+**Gate:** no AI provider is added without (1) explicit owner approval, (2) the server-enforced
+limits framework implemented and tested, (3) the privacy/consent flow, and (4) verified honesty
+copy. Approach B is a separate future milestone; Milestone 4 ships only Approach A.
+
+### Enforceable limits (defined before any AI provider)
+
+- **Approach A (this milestone):** no quota exists — rendering is free, local compute. The
+  enforceable limits are **performance limits**: rendering is user-initiated (a real button, never
+  automatic), the button is disabled while a render is in progress, at most one render per second,
+  and the output canvas is capped at 1600 px on the longest side (memory bound). These limits protect
+  low-end phones; they never block browsing templates, editing text/colours, or any existing
+  feature — nothing is ever "used up".
+- **Any future AI approach:** per-visitor daily cap enforced **server-side** (Worker counter),
+  hard-failed with a localised message when reached, no paid fallback, no client-side bypass. When
+  the cap is reached, every existing feature (templates, colours, text, photo, the client-side mockup)
+  keeps working — only AI generation stops.
+
+### Exact scope
+
+1. `src/templates/types.ts` + `catalogue.ts` — a small `mockup` descriptor per template:
+   `board: "none" | "panel" | "glowPanel"` and `text: "flat" | "glow" | "gradient" | "band"`, matching
+   the ten existing layouts (e.g. neon → glowPanel + glow, dimensional → panel + gradient, vinyl →
+   none + flat, awning → band). No new templates, no colour changes.
+2. `src/projects/mockup-render.ts` — `renderMockup({ photo, selection, draft, maxSize })` returning
+   a canvas: photo drawn at capped size, sign board fitted flat into the selection rectangle, text
+   measured and shrunk to fit, tagline beneath, per-template text transform (uppercase where the
+   preview uppercases). Plus `canvasToPngBlob`. The canvas factory is injectable so unit tests run
+   without a real 2d context (happy-dom returns `null`).
+3. `src/components/workflow/mockup-panel.tsx` — the mockup panel: result `<img>`, "Generate mockup
+   preview" button (disabled with an explanation when there is no photo or no selection — never a
+   dead control), "Download PNG" button, rendering state announced via `aria-live`, and the honesty
+   label. Throttle: disabled while rendering, ≥ 1 s between renders.
+4. `src/components/workflow/sign-preview-demo.tsx` — integrate the panel in the preview column and
+   own the render state (photo + selection + draft are already there).
+5. `src/i18n/messages/{en,fr,ar}.ts` — a `create.mockup` namespace (title, lead, honesty label,
+   generate/regenerate/download CTAs, disabled explanations, rendering state, error state).
+6. `scripts/smoke-test.mjs` — markers: the mockup section and its honesty label in the prerendered
+   `/create` HTML; the generate button present.
+7. `e2e/mockup.spec.ts` — per locale × 360/768/1280: upload, draw, generate, assert the mockup
+   image appears with the honesty label, click-through throttle (no double render), download a valid
+   PNG (`acceptDownloads`), disabled states without photo/selection, RTL, no overflow, no
+   cross-origin requests.
+8. Docs: this section flips to "Implemented" on approval; `ARCHITECTURE.md`, `DESIGN_SYSTEM.md`,
+   `README.md`, PR body.
+
+### Acceptance criteria
+
+- A visitor with a photo and a selection clicks **Generate mockup preview** and sees a basic mockup:
+  the business name (and tagline) in the selected template's style and colours, placed flat inside
+  the marked area on their photo. The label clearly states it is a basic visual mockup — flat
+  placement, no perspective, lighting or shadows, not fabrication-ready.
+- **Download PNG** produces a valid PNG at the capped size; the file name is `signcraft-mockup.png`.
+- Without a photo or a selection the generate button is disabled with a localised explanation.
+- Changing template, text or colours and generating again updates the mockup; the throttle prevents
+  overlapping renders (one per second, button disabled while rendering).
+- Browsing templates, editing text/colours, the photo flow and every existing feature keep working
+  at all times — no quota is ever reached.
+- French, English and Arabic with correct RTL; works at 360 px; no horizontal overflow; keyboard
+  operable; rendering state announced.
+- No network egress for the photo or the mockup (e2e asserts same-origin only); no new dependencies;
+  no API keys; no paid services.
+- Error handling: a failed render shows a localised error and re-enables the button (retry); a
+  missing 2d context shows a localised unsupported message.
+
+### Security, privacy, performance, testing
+
+- **Security/privacy:** all compute is local; the photo is never uploaded; the canvas is not tainted
+  (`blob:` is same-origin) so export works without proxies; no secrets; EXIF is never read or sent.
+- **Performance:** output capped at 1600 px; render only on demand; one render per second; text
+  measurement loop bounded (minimum font size).
+- **Testing:** renderer unit tests with an injected mock 2d context (draw sequence, pixel-rect math,
+  font shrinking, transforms); component tests (disabled states, throttle, error state, RTL);
+  smoke markers; e2e per locale × 3 viewports including a real download; the existing 182 unit,
+  121 smoke and 87 e2e checks stay green.
