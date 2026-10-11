@@ -254,6 +254,226 @@ export const fr: Messages = {
         name: "Auvent de café",
         hint: "Un auvent de café à rayures avec un emblème tasse — prêt pour votre nom.",
       },
+      bistroRouge: {
+        name: "Ardoise de bistrot",
+        hint: "Un tableau ardoise encadré, à la lumière chaude et au lettrage de bistrot classique.",
+      },
+      espressoBar: {
+        name: "Bar à espresso",
+        hint: "Une plaque rétroéclairée avec un emblème tasse fumante — pensée pour un comptoir café.",
+      },
+      teaHouse: {
+        name: "Salon de thé",
+        hint: "Une enseigne arrondie et discrète avec un emblème feuille — calme et raffinée.",
+      },
+      grillFlame: {
+        name: "Grill à flamme",
+        hint: "Une enseigne projecting avec un emblème flamme — visible de l'autre bout de la rue.",
+      },
+      patisserieRose: {
+        name: "Pâtisserie rose",
+        hint: "Un badge festonné avec un emblème croissant — doux, français, gourmand.",
+      },
+      bakeryGold: {
+        name: "Boulangerie dorée",
+        hint: "Un cadre à ampoules en hauteur — la boulangerie classique du coin de rue.",
+      },
+      barberPole: {
+        name: "Enseigne barbier",
+        hint: "Un look barbier à rayures avec un emblème ciseaux — intemporel et accueillant.",
+      },
+      salonChic: {
+        name: "Salon chic",
+        hint: "Une enseigne douce et lumineuse avec un emblème pinceau — institut de beauté élégant.",
+      },
+      nailsStudio: {
+        name: "Studio ongles",
+        hint: "Une jolie enseigne badge avec un emblème cœur — pensée pour un studio ongles.",
+      },
+      spaCalm: {
+        name: "Spa & calme",
+        hint: "Une enseigne nue et discrète avec un emblème feuille — le bien-être en version minimale.",
+      },
+      pharmacieVert: {
+        name: "Pharmacie verte",
+        hint: "Une plaque illuminée sobre avec la croix verte — la confiance en un clin d'œil.",
+      },
+      cliniqueAzur: {
+        name: "Clinique dentaire",
+        hint: "Une enseigne nette sur fond vitré avec un emblème dent — clinique et propre.",
+      },
+      dentistSmile: {
+        name: "Sourire dentaire",
+        hint: "Un badge rond sympathique avec un emblème dent — dentisterie accueillante.",
+      },
+      boutiqueLilas: {
+        name: "Boutique lilas",
+        hint: "Une douce lueur violette avec un emblème arabesque — une boutique de mode.",
+      },
+      modeStreet: {
+        name: "Streetwear",
+        hint: "Une lame projecting audacieuse avec un emblème t-shirt — l'énergie de la mode urbaine.",
+      },
+      bijouterieOr: {
+        name: "Bijouterie or",
+        hint: "Une plaque à double cadre avec un emblème diamant — le luxe discret.",
+      },
+      bazaarModerne: {
+        name: "Bazaar moderne",
+        hint: "Un auvent à rayures avec un emblème étiquette — le commerce du quartier.",
+      },
+      librairiePage: {
+        name: "Librairie",
+        hint: "Une enseigne sobre en colonnes avec un emblème panneau — pour une librairie de quartier.",
+      },
+      epicerieFine: {
+        name: "Épicerie fine",
+        hint: "Une plaque illuminée avec un emblème pomme — l'épicerie fine du coin.",
+      },
+      fleuristeVerte: {
+        name: "Fleuriste verte",
+        hint: "Une enseigne arrondie lumineuse avec un emblème feuille — fleurs et plantes.",
+      },
+      phoneTech: {
+        name: "Boutique téléphones",
+        hint: "Une enseigne à lettres canal avec un emblème téléphone — magasin tech.",
+      },
+      electroMenager: {
+        name: "Électroménager",
+        hint: "Un totem haut avec un cadre ruban et un emblème éclair — électroménager.",
+      },
+      sonoLumiere: {
+        name: "Coin hi-fi",
+        hint: "Un marquee à ampoules avec un emblème étoile — son et lumière pour les magasins hi-fi.",
+      },
+      carWash: {
+        name: "Station lavage",
+        hint: "Une enseigne arrondie lumineuse avec un emblème voiture — propre et brillante.",
+      },
+      garagePro: {
+        name: "Garage pro",
+        hint: "Une lame solide avec un emblème clé — le garage du quartier.",
+      },
+      pneuService: {
+        name: "Service pneus",
+        hint: "Une enseigne canal à double cadre avec un emblème engrenage — pneus et montage.",
+      },
+      autoDetailing: {
+        name: "Detailing auto",
+        hint: "Une plaque polie avec un emblème voiture — entretien auto premium.",
+      },
+      hotelEtoile: {
+        name: "Hôtel étoile",
+        hint: "Un badge rond avec un emblème étoile — l'hôtellerie avec une grande geste.",
+      },
+      aubergeDoree: {
+        name: "Auberge dorée",
+        hint: "Une enseigne ruban avec un emblème maison — une auberge de campagne chaleureuse.",
+      },
+      residenceClaire: {
+        name: "Agence immobilière",
+        hint: "Une enseigne nette en deux colonnes avec un emblème maison — professionnels de l'immobilier.",
+      },
+      cabinetConseil: {
+        name: "Cabinet conseil",
+        hint: "Une enseigne en colonnes, sobre sur marbre, avec un emblème panneau — cabinets de conseil.",
+      },
+      bureauDesign: {
+        name: "Studio de design",
+        hint: "Une enseigne moderne et nue avec un emblème pinceau — la marque d'un studio de design.",
+      },
+      notaireAuth: {
+        name: "Étude notariale",
+        hint: "Une plaque à double cadre avec un emblème clé — formelle et de confiance.",
+      },
+      salleSport: {
+        name: "Salle de sport",
+        hint: "Une lame audacieuse avec un emblème haltère — la salle du quartier.",
+      },
+      yogaShala: {
+        name: "Studio yoga",
+        hint: "Une enseigne minimale et calme avec un emblème feuille — souffle, équilibre, calme.",
+      },
+      clubFitness: {
+        name: "Club fitness",
+        hint: "Un marquee à ampoules avec un emblème haltère — la salle du quartier.",
+      },
+      painTradition: {
+        name: "Pain traditionnel",
+        hint: "Un auvent à rayures avec un emblème croissant — le pain du fournil d'antan.",
+      },
+      patisserieFines: {
+        name: "Pâtisseries fines",
+        hint: "Une plaque arrondie avec un emblème cupcake — la pâtisserie fine française.",
+      },
+      confiserieDoux: {
+        name: "Confiserie douce",
+        hint: "Un badge rond avec un emblème étoile — bonbons et douceurs.",
+      },
+      atelierMetal: {
+        name: "Atelier métal",
+        hint: "Une enseigne canal à double cadre avec un emblème engrenage — fabrication et acier.",
+      },
+      usineBleu: {
+        name: "Usine bleue",
+        hint: "Un totem haut en ruban avec un emblème bâtiment — l'industrie visible.",
+      },
+      mecaniqueAuto: {
+        name: "Mécanique auto",
+        hint: "Une enseigne canal en colonnes avec un emblème clé — réparations bien faites.",
+      },
+      electricienPro: {
+        name: "Électricien",
+        hint: "Une enseigne canal nette avec un emblème éclair — travaux électriques certifiés.",
+      },
+      marqueOr: {
+        name: "Maison d'or",
+        hint: "Une plaque à double cadre avec un emblème diamant — maison de luxe.",
+      },
+      noirMat: {
+        name: "Noir mat",
+        hint: "Une enseigne nue en lettrage display — typographie pure, sans ornement.",
+      },
+      neonViolet: {
+        name: "Néon violet",
+        hint: "Un badge à lueur néon avec un emblème arabesque — électrique et ludique.",
+      },
+      rougeVif: {
+        name: "Rouge vif",
+        hint: "Une lame audacieuse avec un emblème étoile — bruyante, fière, inmanquable.",
+      },
+      kahwaTunis: {
+        name: "Kahwa de Tunis",
+        hint: "Une enseigne de café tunisien — auvent rayé, lettrage kufi, lumière chaude.",
+      },
+      maktabTunis: {
+        name: "Bureau de Tunis",
+        hint: "Une plaque illuminée nette en lettrage kufi — enseigne de bureau tunisien.",
+      },
+      saydaliyaTunis: {
+        name: "Pharmacie de Tunis",
+        hint: "Une plaque lumineuse avec la croix verte en lettrage naskh — صيدلية.",
+      },
+      mhalTunis: {
+        name: "Boutique de Tunis",
+        hint: "Une enseigne de magasin à auvent rayé en lettrage kufi — le commerce du quartier.",
+      },
+      hallaqTunis: {
+        name: "Coiffeur de Tunis",
+        hint: "Une enseigne de coiffeur en lettrage kufi avec un emblème ciseaux — حلاق.",
+      },
+      mahrazTunis: {
+        name: "Boulangerie de Tunis",
+        hint: "Un marquee à ampoules en lettrage kufi — مخبز, la boulangerie du coin.",
+      },
+      funduqTunis: {
+        name: "Hôtel de Tunis",
+        hint: "Un badge rond en lettrage naskh avec un emblème maison — فندق.",
+      },
+      bilingualSign: {
+        name: "Enseigne bilingue",
+        hint: "Une enseigne en colonnes pour les commerces arabe-français — deux langues, une enseigne.",
+      },
     },
   },
   colours: {

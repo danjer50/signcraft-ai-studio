@@ -252,6 +252,226 @@ export const en = {
         name: "Café awning",
         hint: "A striped café awning with a warm cup emblem — ready for your name.",
       },
+      bistroRouge: {
+        name: "Bistro chalkboard",
+        hint: "A framed chalkboard look with warm lamplight and classic bistro lettering.",
+      },
+      espressoBar: {
+        name: "Espresso bar",
+        hint: "A backlit plaque with a steaming cup emblem — built for a coffee counter.",
+      },
+      teaHouse: {
+        name: "Tea house",
+        hint: "A quiet, rounded sign with a leaf emblem — calm and refined.",
+      },
+      grillFlame: {
+        name: "Steak grill",
+        hint: "A projecting blade sign with a flame emblem — bold from across the street.",
+      },
+      patisserieRose: {
+        name: "Pâtisserie rose",
+        hint: "A scalloped badge with a croissant emblem — soft, French, sweet.",
+      },
+      bakeryGold: {
+        name: "Golden bakery",
+        hint: "A bulbed marquee frame with a tower layout — the classic corner bakery.",
+      },
+      barberPole: {
+        name: "Barber pole",
+        hint: "A striped barber look with a scissors emblem — timeless and friendly.",
+      },
+      salonChic: {
+        name: "Chic salon",
+        hint: "A soft glowing sign with a brush emblem — elegant beauty studio.",
+      },
+      nailsStudio: {
+        name: "Nail studio",
+        hint: "A sweet badge sign with a heart emblem — made for a nail studio.",
+      },
+      spaCalm: {
+        name: "Spa & calm",
+        hint: "A bare, quiet sign with a leaf emblem — wellness in minimal form.",
+      },
+      pharmacieVert: {
+        name: "Green pharmacy",
+        hint: "A clean illuminated plaque with the green cross — trust at a glance.",
+      },
+      cliniqueAzur: {
+        name: "Dental clinic",
+        hint: "A crisp window-light sign with a tooth emblem — clinical and clean.",
+      },
+      dentistSmile: {
+        name: "Smile dental",
+        hint: "A friendly round badge with a tooth emblem — approachable dentistry.",
+      },
+      boutiqueLilas: {
+        name: "Lilac boutique",
+        hint: "A soft violet glow with a flourish emblem — a fashion boutique sign.",
+      },
+      modeStreet: {
+        name: "Streetwear",
+        hint: "A bold projecting blade with a shirt emblem — street fashion energy.",
+      },
+      bijouterieOr: {
+        name: "Gold jewellery",
+        hint: "A double-framed plaque with a diamond emblem — quiet luxury.",
+      },
+      bazaarModerne: {
+        name: "Modern bazaar",
+        hint: "A striped awning with a price-tag emblem — the neighbourhood shop.",
+      },
+      librairiePage: {
+        name: "Bookshop",
+        hint: "A quiet columned sign with a panel emblem — for a corner bookshop.",
+      },
+      epicerieFine: {
+        name: "Fine grocery",
+        hint: "An illuminated plaque with an apple emblem — the local épicerie fine.",
+      },
+      fleuristeVerte: {
+        name: "Green florist",
+        hint: "A glowing rounded sign with a leaf emblem — flowers and plants.",
+      },
+      phoneTech: {
+        name: "Phone shop",
+        hint: "A crisp channel-lettered sign with a phone emblem — tech retail.",
+      },
+      electroMenager: {
+        name: "Appliance store",
+        hint: "A tall totem with a ribbon frame and a bolt emblem — home appliances.",
+      },
+      sonoLumiere: {
+        name: "Hi-fi corner",
+        hint: "A bulbed marquee with a star emblem — sound and light for hi-fi shops.",
+      },
+      carWash: {
+        name: "Car wash",
+        hint: "A rounded glowing sign with a car emblem — spotless and bright.",
+      },
+      garagePro: {
+        name: "Pro garage",
+        hint: "A sturdy blade sign with a wrench emblem — the neighbourhood garage.",
+      },
+      pneuService: {
+        name: "Tyre service",
+        hint: "A double-framed channel sign with a gear emblem — tyres and fitting.",
+      },
+      autoDetailing: {
+        name: "Auto detailing",
+        hint: "A polished plaque with a car emblem — premium car care.",
+      },
+      hotelEtoile: {
+        name: "Star hotel",
+        hint: "A round badge with a star emblem — hospitality with a grand gesture.",
+      },
+      aubergeDoree: {
+        name: "Golden inn",
+        hint: "A ribbon-banner sign with a house emblem — a warm country inn.",
+      },
+      residenceClaire: {
+        name: "Real estate",
+        hint: "A clean split-layout sign with a house emblem — property professionals.",
+      },
+      cabinetConseil: {
+        name: "Consulting",
+        hint: "A marble-quiet columned sign with a panel emblem — advisory firms.",
+      },
+      bureauDesign: {
+        name: "Design studio",
+        hint: "A bare modern sign with a brush emblem — a design studio's mark.",
+      },
+      notaireAuth: {
+        name: "Notary office",
+        hint: "A double-framed plaque with a key emblem — formal and trustworthy.",
+      },
+      salleSport: {
+        name: "Gym hall",
+        hint: "A bold blade sign with a dumbbell emblem — train hard.",
+      },
+      yogaShala: {
+        name: "Yoga studio",
+        hint: "A quiet minimal sign with a leaf emblem — breath, balance, calm.",
+      },
+      clubFitness: {
+        name: "Fitness club",
+        hint: "A bulbed marquee with a dumbbell emblem — the neighbourhood gym.",
+      },
+      painTradition: {
+        name: "Traditional bread",
+        hint: "A striped awning with a croissant emblem — bread from the old oven.",
+      },
+      patisserieFines: {
+        name: "Fine pastries",
+        hint: "A rounded plaque with a cupcake emblem — delicate French pastry.",
+      },
+      confiserieDoux: {
+        name: "Sweet shop",
+        hint: "A round badge with a star emblem — candies and douceurs.",
+      },
+      atelierMetal: {
+        name: "Metal workshop",
+        hint: "A double-framed channel sign with a gear emblem — fabrication and steel.",
+      },
+      usineBleu: {
+        name: "Blue factory",
+        hint: "A tall banner totem with a building emblem — industry made visible.",
+      },
+      mecaniqueAuto: {
+        name: "Auto mechanics",
+        hint: "A columned channel sign with a wrench emblem — repairs done right.",
+      },
+      electricienPro: {
+        name: "Electrician",
+        hint: "A crisp channel sign with a bolt emblem — certified electrical work.",
+      },
+      marqueOr: {
+        name: "Maison d'or",
+        hint: "A double-framed plaque with a diamond emblem — maison de luxe.",
+      },
+      noirMat: {
+        name: "Matte black",
+        hint: "A bare display sign — pure typography, no ornament.",
+      },
+      neonViolet: {
+        name: "Violet neon",
+        hint: "A neon-glow badge with a flourish emblem — electric and playful.",
+      },
+      rougeVif: {
+        name: "Vivid red",
+        hint: "A bold blade sign with a star emblem — loud, proud, unmissable.",
+      },
+      kahwaTunis: {
+        name: "Kahwa Tunis",
+        hint: "A Tunisian coffee-house sign — striped awning, Kufi lettering, warm light.",
+      },
+      maktabTunis: {
+        name: "Tunis office",
+        hint: "A clean illuminated plaque in Kufi lettering — a Tunisian office sign.",
+      },
+      saydaliyaTunis: {
+        name: "Tunis pharmacy",
+        hint: "A glowing plaque with the green cross in Naskh lettering — صيدلية.",
+      },
+      mhalTunis: {
+        name: "Tunis shop",
+        hint: "A striped-awning shop sign in Kufi lettering — the neighbourhood store.",
+      },
+      hallaqTunis: {
+        name: "Tunis barber",
+        hint: "A barber sign in Kufi lettering with a scissors emblem — حلاق.",
+      },
+      mahrazTunis: {
+        name: "Tunis bakery",
+        hint: "A bulbed marquee in Kufi lettering — مخبز, the corner bakery.",
+      },
+      funduqTunis: {
+        name: "Tunis hotel",
+        hint: "A round badge in Naskh lettering with a house emblem — فندق.",
+      },
+      bilingualSign: {
+        name: "Bilingual storefront",
+        hint: "A columned sign for Arabic-French storefronts — both languages, one sign.",
+      },
     },
   },
   colours: {

@@ -62,28 +62,27 @@ test.describe("product surface", () => {
         page.getByRole("heading", { level: 1, name: headings[locale].create }),
       ).toBeVisible();
 
-      // The demo is genuinely interactive: typing updates the preview.
+      // The demo is genuinely interactive: typing updates the preview. The main
+      // preview is marked explicitly because the gallery cards render mini previews.
       const textInput = page.getByRole("textbox").first();
       await textInput.fill("Éclat");
-      await expect(page.locator('p[class*="signText"]')).toHaveText("Éclat");
+      const preview = page.locator('div[data-template][data-preview-role="main"]');
+      await expect(preview.locator('p[class*="signText"]')).toHaveText("Éclat");
 
       // The preview starts on the default template and shows its name.
-      const preview = page.locator("div[data-template]");
       await expect(preview).toHaveAttribute("data-template", "channelLetters");
       await expect(preview.getByText(templateNames[locale].channel)).toBeVisible();
 
       // Choosing a template updates the preview and its name instantly. Matches are
       // anchored because a radio's accessible name also contains its hint, and hints
       // can mention other template names.
-      await page.getByRole("radio", { name: new RegExp(`^${templateNames[locale].neon}`) }).check();
+      await page.getByRole("radio", { name: new RegExp(templateNames[locale].neon) }).check();
       await expect(preview).toHaveAttribute("data-template", "neonScript");
       await expect(preview).toHaveAttribute("data-layout", "neon");
       await expect(preview.getByText(templateNames[locale].neon)).toBeVisible();
 
       // Back to the default template: choosing a colour updates the preview instantly.
-      await page
-        .getByRole("radio", { name: new RegExp(`^${templateNames[locale].channel}`) })
-        .check();
+      await page.getByRole("radio", { name: new RegExp(templateNames[locale].channel) }).check();
       await expect(preview).toHaveAttribute("data-template", "channelLetters");
       await expect(preview.getByText(templateNames[locale].channel)).toBeVisible();
 

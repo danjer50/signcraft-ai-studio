@@ -136,6 +136,10 @@ describe("template catalogue", () => {
       "signPanel",
       "paintbrush",
       "heart",
+      "flame",
+      "tag",
+      "cupcake",
+      "building",
       "none",
     ]);
     const arrangements = new Set([

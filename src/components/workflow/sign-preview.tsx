@@ -108,6 +108,7 @@ export function SignPreview({
       <div
         className={styles.preview}
         data-template={templateId}
+        data-preview-role={mini ? "card" : "main"}
         data-layout={layout}
         data-background={composition.background}
         data-frame={composition.frame}
