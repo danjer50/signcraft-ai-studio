@@ -3,12 +3,14 @@
 import { useEffect, useId, useState } from "react";
 
 import type { Messages } from "@/i18n/messages/en";
+import { loadDraft, saveDraft } from "@/projects/draft-store";
 import { getPhoto, intakePhoto, releaseAllPhotos, releasePhoto } from "@/projects/photo-store";
 import type { PhotoError } from "@/projects/photo-validation";
 import { getTemplate } from "@/templates/catalogue";
 import {
   clearSelection,
   defaultDraft,
+  draftWithLettering,
   draftWithPhoto,
   draftWithSelection,
   draftWithTemplate,
@@ -17,50 +19,57 @@ import {
   MAX_TEXT_LENGTH,
   type CustomerDraft,
 } from "@/templates/draft";
-import type { ColourId, ColourRole, NormalizedRect, TemplateId } from "@/templates/types";
+import type {
+  ArrangementId,
+  ColourId,
+  ColourRole,
+  NormalizedRect,
+  TemplateId,
+} from "@/templates/types";
 
 import { ColourPicker } from "./colour-picker";
+import { LetteringPicker } from "./lettering-picker";
 import { MockupPanel } from "./mockup-panel";
 import { SignAreaPicker } from "./sign-area-picker";
 import { SignPreview } from "./sign-preview";
-import { TemplatePicker } from "./template-picker";
+import { TemplateGallery } from "./template-gallery";
 import styles from "./sign-preview-demo.module.css";
 
 /**
- * A working local demonstration of the first customer steps: describing a sign
- * (business name and optional tagline), uploading a storefront photo and marking
- * the sign area, choosing a template and customising its colours. The photo is
- * validated, measured and stored locally — it is never uploaded — and the preview
- * is a deterministic style composition of the typed text: not an AI-generated
- * design and not a composite on the photo (the mockup panel below composites a
- * basic flat mockup, labelled as such), and not a fabrication model; the panel
- * below says so explicitly. Every change updates instantly. It has no submit
- * action: requesting changes and continuing are planned (step 4 of the workflow).
+ * Normal Mode: a working, fully local, AI-free demonstration of the customer
+ * workflow. The customer browses the template gallery of complete sign designs,
+ * picks one, types a business name and optional tagline, and customises colours,
+ * lettering style and (where the design offers them) composition variants — the
+ * preview updates instantly on every change. The chosen design keeps its emblem,
+ * frame and layout while the text changes. The draft is persisted on this device,
+ * so a reload keeps the work.
  *
- * The state is a serialisable CustomerDraft (template, text, colours, photo
- * metadata, normalised selection), the seam for the future transfer of a
- * customer's customisation into the Professional Studio.
- *
- * The mockup panel composites a basic visual mockup entirely in the browser: the
- * sign placed flat in the marked area — no perspective, lighting or shadows — and
- * labelled as such. Rendering is user-initiated and throttled; the photo and the
- * mockup never leave the device.
+ * The storefront photo and the flat visual mockup remain an OPTIONAL extra step:
+ * they never block the sign-design workflow. Rendering is deterministic — no AI
+ * service is involved anywhere in this flow.
  */
 export function SignPreviewDemo({ messages }: { messages: Messages }) {
   const copy = messages.create;
   const textId = useId();
   const taglineId = useId();
 
-  const [draft, setDraft] = useState<CustomerDraft>(() => defaultDraft());
+  const [draft, setDraft] = useState<CustomerDraft>(() => loadDraft() ?? defaultDraft());
+  const [arrangement, setArrangement] = useState<ArrangementId | null>(null);
   const [photoError, setPhotoError] = useState<PhotoError | null>(null);
   const template = getTemplate(draft.templateId);
   const colours = resolveColourValues(draft);
   const storedPhoto = draft.photo ? getPhoto(draft.photo.id) : null;
 
+  // Persist the draft on this device after every change (best-effort).
+  useEffect(() => {
+    saveDraft(draft);
+  }, [draft]);
+
   // The photo store is session memory: release it when the demo unmounts.
   useEffect(() => releaseAllPhotos, []);
 
   const setTemplate = (templateId: TemplateId) => {
+    setArrangement(null);
     setDraft((current) => draftWithTemplate(current, templateId));
   };
   const setColour = (role: ColourRole, colourId: ColourId) => {
@@ -93,6 +102,9 @@ export function SignPreviewDemo({ messages }: { messages: Messages }) {
   const clearTheSelection = () => {
     setDraft((current) => clearSelection(current));
   };
+
+  const variants = template.composition.variants ?? [];
+  const effectiveArrangement = arrangement ?? template.composition.arrangement;
 
   return (
     <div className={styles.demo}>
@@ -129,7 +141,13 @@ export function SignPreviewDemo({ messages }: { messages: Messages }) {
           />
         </div>
 
-        <TemplatePicker messages={messages} value={draft.templateId} onChange={setTemplate} />
+        <TemplateGallery
+          messages={messages}
+          value={draft.templateId}
+          onChange={setTemplate}
+          text={draft.text}
+          tagline={draft.tagline}
+        />
 
         <ColourPicker
           messages={messages}
@@ -137,6 +155,38 @@ export function SignPreviewDemo({ messages }: { messages: Messages }) {
           value={draft.colours}
           onChange={setColour}
         />
+
+        <LetteringPicker
+          messages={messages}
+          value={draft.lettering}
+          onChange={(lettering) => setDraft((current) => draftWithLettering(current, lettering))}
+        />
+
+        {variants.length > 0 && (
+          <fieldset className={styles.fieldset}>
+            <legend className={styles.label}>{messages.templates.variants.legend}</legend>
+            <p className={styles.hint}>{messages.templates.variants.hint}</p>
+            <div className={styles.variantOptions}>
+              {variants.map((variant) => (
+                <label
+                  key={variant}
+                  className={styles.variantOption}
+                  data-selected={effectiveArrangement === variant}
+                >
+                  <input
+                    type="radio"
+                    name={`${textId}-variant`}
+                    value={variant}
+                    checked={effectiveArrangement === variant}
+                    onChange={() => setArrangement(variant)}
+                    className={styles.radio}
+                  />
+                  <span>{messages.templates.arrangements[variant]}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
       </div>
 
       <div className={styles.previewColumn}>
@@ -159,6 +209,9 @@ export function SignPreviewDemo({ messages }: { messages: Messages }) {
           colours={colours}
           text={draft.text}
           tagline={draft.tagline}
+          composition={template.composition}
+          lettering={draft.lettering}
+          arrangement={effectiveArrangement}
         />
 
         <MockupPanel
@@ -169,6 +222,7 @@ export function SignPreviewDemo({ messages }: { messages: Messages }) {
           text={draft.text}
           tagline={draft.tagline}
           colours={colours}
+          lettering={draft.lettering}
         />
       </div>
     </div>

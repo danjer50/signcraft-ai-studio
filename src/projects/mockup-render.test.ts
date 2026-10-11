@@ -90,6 +90,7 @@ function setup(overrides: Partial<MockupInput> & { template?: SignTemplate } = {
     tagline: "",
     template: overrides.template ?? getTemplate("channelLetters"),
     colours,
+    lettering: "modern",
     createCanvas: () => canvas as unknown as HTMLCanvasElement,
     loadImage: async () => image,
     ...overrides,

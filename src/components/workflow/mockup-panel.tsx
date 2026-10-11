@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Messages } from "@/i18n/messages/en";
 import { canvasToPngBlob, MIN_RENDER_INTERVAL_MS, renderMockup } from "@/projects/mockup-render";
 import type { StoredPhoto } from "@/projects/photo-store";
-import type { ColourRole, NormalizedRect, SignTemplate } from "@/templates/types";
+import type { ColourRole, LetteringId, NormalizedRect, SignTemplate } from "@/templates/types";
 
 import styles from "./mockup-panel.module.css";
 
@@ -35,6 +35,8 @@ type MockupPanelProps = {
   tagline: string;
   /** Resolved hex values per colour role. */
   colours: Record<ColourRole, string>;
+  /** The customer's lettering (font) style choice. */
+  lettering: LetteringId;
 };
 
 type RenderState =
@@ -51,11 +53,16 @@ export function MockupPanel({
   text,
   tagline,
   colours,
+  lettering,
 }: MockupPanelProps) {
   const copy = messages.create.mockup;
   const [state, setState] = useState<RenderState>({ status: "idle" });
   const lastRenderAt = useRef(0);
   const blobRef = useRef<Blob | null>(null);
+  // The ref always holds the CURRENT result URL, so the unmount cleanup can release
+  // it regardless of when the component re-rendered (the previous implementation
+  // captured the initial idle state and leaked the last blob URL on unmount).
+  const objectUrlRef = useRef<string | null>(null);
 
   const ready = photo !== null && selection !== null;
   const disabledReason = !photo
@@ -64,16 +71,15 @@ export function MockupPanel({
       ? copy.disabledNoSelection
       : null;
 
-  // The result object URL is session memory: release it on replace and on unmount.
+  // The result object URL is session memory: release it on unmount.
   useEffect(() => {
     return () => {
-      if (state.status === "done") {
-        URL.revokeObjectURL(state.objectUrl);
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
       }
       blobRef.current = null;
     };
-    // Only the cleanup matters; state is read at cleanup time via a ref pattern below.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const generate = async () => {
@@ -88,10 +94,6 @@ export function MockupPanel({
     }
     lastRenderAt.current = now;
 
-    if (state.status === "done") {
-      URL.revokeObjectURL(state.objectUrl);
-    }
-    blobRef.current = null;
     setState({ status: "rendering" });
 
     const rendered = await renderMockup({
@@ -101,6 +103,7 @@ export function MockupPanel({
       tagline,
       template,
       colours,
+      lettering,
     });
     if (!rendered.ok) {
       setState({ status: "error", kind: rendered.error });
@@ -108,8 +111,15 @@ export function MockupPanel({
     }
     try {
       const blob = await canvasToPngBlob(rendered.canvas);
+      const objectUrl = URL.createObjectURL(blob);
+      // Revoke the previous URL only AFTER the new one exists: no gap in the
+      // displayed result and no leak when the panel unmounts later.
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+      }
+      objectUrlRef.current = objectUrl;
       blobRef.current = blob;
-      setState({ status: "done", objectUrl: URL.createObjectURL(blob) });
+      setState({ status: "done", objectUrl });
     } catch {
       setState({ status: "error", kind: "encode" });
     }

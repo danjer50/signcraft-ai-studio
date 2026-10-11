@@ -7,7 +7,7 @@ import type { Messages } from "@/i18n/messages/en";
 
 import { signTemplates, templateIds } from "./catalogue";
 import { colourPalette } from "./palette";
-import type { TemplateId } from "./types";
+import { letteringIds, type TemplateId } from "./types";
 
 const templateIdSet = new Set<string>(templateIds);
 
@@ -35,12 +35,12 @@ function contrastRatio(a: string, b: string): number {
 }
 
 describe("template catalogue", () => {
-  it("has ten templates with unique ids and one or two colour slots", () => {
-    expect(signTemplates).toHaveLength(10);
-    expect(new Set(templateIds).size).toBe(10);
+  it("has at least ten templates with unique ids and one or two colour slots", () => {
+    expect(signTemplates.length).toBeGreaterThanOrEqual(10);
+    expect(new Set(templateIds).size).toBe(signTemplates.length);
     for (const template of signTemplates) {
       expect(template.slots.length).toBeGreaterThanOrEqual(1);
-      expect(template.slots.length).toBeLessThanOrEqual(2);
+      expect(template.slots.length).toBeLessThanOrEqual(3);
       expect(new Set(template.slots.map((slot) => slot.role)).size).toBe(template.slots.length);
     }
   });
@@ -95,6 +95,141 @@ describe("template catalogue", () => {
     for (const [id, value] of Object.entries(colourPalette)) {
       const ratio = contrastRatio(value.toLowerCase(), sceneBackground);
       expect(ratio, `${id} (${value}) on ${sceneBackground}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("gives every template a complete composition (frame, emblem, arrangement, lettering, scene)", () => {
+    const frames = new Set([
+      "none",
+      "thin",
+      "double",
+      "rounded",
+      "badge",
+      "awning",
+      "marquee",
+      "blade",
+      "plaque",
+      "banner",
+    ]);
+    const emblems = new Set([
+      "scissors",
+      "coffeeCup",
+      "cross",
+      "star",
+      "gear",
+      "leaf",
+      "crown",
+      "phone",
+      "car",
+      "dumbbell",
+      "croissant",
+      "key",
+      "house",
+      "wrench",
+      "bolt",
+      "diamond",
+      "flourish",
+      "tooth",
+      "hammer",
+      "shirt",
+      "apple",
+      "signPanel",
+      "paintbrush",
+      "heart",
+      "none",
+    ]);
+    const arrangements = new Set([
+      "stack",
+      "split",
+      "badge",
+      "band",
+      "vertical",
+      "columns",
+      "inline",
+      "tower",
+    ]);
+    const letterings = new Set([
+      "modern",
+      "classic",
+      "mono",
+      "rounded",
+      "condensed",
+      "script",
+      "kufi",
+      "naskh",
+      "display",
+      "elegant",
+    ]);
+    const backgrounds = new Set([
+      "night",
+      "wall",
+      "window",
+      "wood",
+      "metal",
+      "marble",
+      "concrete",
+      "dusk",
+    ]);
+    for (const template of signTemplates) {
+      const c = template.composition;
+      expect(frames.has(c.frame), `${template.id} frame`).toBe(true);
+      expect(emblems.has(c.emblem), `${template.id} emblem`).toBe(true);
+      expect(arrangements.has(c.arrangement), `${template.id} arrangement`).toBe(true);
+      expect(letterings.has(c.lettering), `${template.id} lettering`).toBe(true);
+      expect(backgrounds.has(c.background), `${template.id} background`).toBe(true);
+      for (const variant of c.variants ?? []) {
+        expect(arrangements.has(variant), `${template.id} variant`).toBe(true);
+        expect(variant).not.toBe(c.arrangement);
+      }
+    }
+  });
+
+  it("composes genuinely distinct designs: no two templates share a composition signature", () => {
+    // A template is a complete composition, not a recolour: two templates may share
+    // a frame or a lettering style, but never the whole signature.
+    const signatures = new Set<string>();
+    for (const template of signTemplates) {
+      const c = template.composition;
+      const signature = [
+        c.frame,
+        c.emblem,
+        c.arrangement,
+        c.lettering,
+        c.background,
+        template.layout,
+        template.slots.map((slot) => `${slot.role}:${slot.defaultId}`).join("|"),
+      ].join("~");
+      expect(signatures.has(signature), `duplicate composition: ${template.id}`).toBe(false);
+      signatures.add(signature);
+    }
+  });
+
+  it("covers a meaningful range of business categories", () => {
+    const categories = new Set(signTemplates.map((template) => template.category));
+    // The library spans hospitality, retail, services, industry and brand styles.
+    // The floor grows with the library; the complete collection covers 15+.
+    expect(categories.size).toBeGreaterThanOrEqual(6);
+  });
+
+  it("names every template's category in all three locales", () => {
+    const locales: Array<[string, Messages]> = [
+      ["fr", getMessages("fr")],
+      ["en", getMessages("en")],
+      ["ar", getMessages("ar")],
+    ];
+    for (const [locale, messages] of locales) {
+      const categories = messages.templates.categories;
+      for (const template of signTemplates) {
+        expect(
+          categories[template.category],
+          `${locale} category label ${template.category}`,
+        ).toBeTruthy();
+      }
+      // Every lettering style the picker can show is named in all locales.
+      const lettering = messages.templates.lettering;
+      for (const letteringId of letteringIds) {
+        expect(lettering.names[letteringId], `${locale} lettering ${letteringId}`).toBeTruthy();
+      }
     }
   });
 });

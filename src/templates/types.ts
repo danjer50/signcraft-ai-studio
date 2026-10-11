@@ -15,7 +15,8 @@ export type TemplateId =
   | "windowVinyl"
   | "lightboxPlaque"
   | "marqueeBulbs"
-  | "totemPanel";
+  | "totemPanel"
+  | "cafeMedina";
 
 /** How a template composes the sign in the preview. Purely visual. */
 export type LayoutId =
@@ -78,13 +79,135 @@ export type MockupStyle = {
   text: MockupText;
 };
 
+/** Business/design direction of a template, used for gallery grouping and copy. */
+export type TemplateCategory =
+  | "cafe"
+  | "restaurant"
+  | "barber"
+  | "pharmacy"
+  | "salon"
+  | "retail"
+  | "fashion"
+  | "electronics"
+  | "automotive"
+  | "hotel"
+  | "office"
+  | "gym"
+  | "bakery"
+  | "realEstate"
+  | "industrial"
+  | "luxury"
+  | "minimal"
+  | "bold"
+  | "arabic"
+  | "bilingual";
+
 export type SignTemplate = {
   id: TemplateId;
   layout: LayoutId;
+  /** The business/design direction this composition is made for. */
+  category: TemplateCategory;
   /** Customisable colour slots. Display name and hint live in messages.templates.items. */
   slots: readonly ColourSlot[];
   /** Visual-mockup treatment, kept in step with the preview layout. */
   mockup: MockupStyle;
+  /**
+   * The complete graphic composition: the finished design a customer picks, not a
+   * blank panel. A template is a whole sign — emblem, frame, arrangement, lettering
+   * and scene — already looking finished before any customisation.
+   */
+  composition: TemplateComposition;
+};
+
+/** A decorative emblem drawn as an inline SVG, tinted by the template colours. */
+export type EmblemId =
+  | "scissors"
+  | "coffeeCup"
+  | "cross"
+  | "star"
+  | "gear"
+  | "leaf"
+  | "crown"
+  | "phone"
+  | "car"
+  | "dumbbell"
+  | "croissant"
+  | "key"
+  | "house"
+  | "wrench"
+  | "bolt"
+  | "diamond"
+  | "flourish"
+  | "tooth"
+  | "hammer"
+  | "shirt"
+  | "apple"
+  | "signPanel"
+  | "paintbrush"
+  | "heart"
+  | "none";
+
+/** The border/frame treatment around the sign board. */
+export type FrameId =
+  | "none"
+  | "thin"
+  | "double"
+  | "rounded"
+  | "badge"
+  | "awning"
+  | "marquee"
+  | "blade"
+  | "plaque"
+  | "banner";
+
+/** How emblem, business name and tagline are arranged on the board. */
+export type ArrangementId =
+  "stack" | "split" | "badge" | "band" | "vertical" | "columns" | "inline" | "tower";
+
+/** The scene behind the sign board. All scenes stay dark so illuminated lettering reads. */
+export type BackgroundId =
+  "night" | "wall" | "window" | "wood" | "metal" | "marble" | "concrete" | "dusk";
+
+/**
+ * Lettering (font) styles. System font stacks only — no webfont downloads. Arabic
+ * styles use the Arabic stack; Arabic text always renders with letter-spacing 0
+ * so cursive joining is never broken.
+ */
+export type LetteringId =
+  | "modern"
+  | "classic"
+  | "mono"
+  | "rounded"
+  | "condensed"
+  | "script"
+  | "kufi"
+  | "naskh"
+  | "display"
+  | "elegant";
+
+/** Every lettering style the Normal Mode picker can offer, in display order. */
+export const letteringIds: readonly LetteringId[] = [
+  "modern",
+  "classic",
+  "mono",
+  "rounded",
+  "condensed",
+  "script",
+  "kufi",
+  "naskh",
+  "display",
+  "elegant",
+];
+
+export type TemplateComposition = {
+  frame: FrameId;
+  emblem: EmblemId;
+  arrangement: ArrangementId;
+  /** Default lettering style; the customer can change it in Normal Mode. */
+  lettering: LetteringId;
+  background: BackgroundId;
+  /** Alternative arrangements the customer can switch between (design variants). */
+  variants?: readonly ArrangementId[];
 };
 
 /**

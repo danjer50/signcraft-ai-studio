@@ -208,3 +208,337 @@
     padding: var(--space-12) var(--space-8);
   }
 }
+
+/* ===== Template compositions (Milestone: Normal Mode template library) ===== */
+/* The board carries the frame; the composition arranges emblem, name and tagline. */
+
+.signBoard {
+  position: relative;
+}
+
+.signFrame {
+  position: absolute;
+  inset: 6px;
+  pointer-events: none;
+  border-radius: var(--radius-md);
+}
+
+.signComposition {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.signEmblem {
+  display: inline-flex;
+  width: 2.4rem;
+  height: 2.4rem;
+  color: var(--sign-glow);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--sign-glow) 60%, transparent));
+}
+
+.signEmblem svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Text fitting: the measured scale keeps long names inside the board. */
+.signText {
+  font-size: calc(clamp(var(--text-2xl), 4.5vw, var(--text-4xl)) * var(--sign-fit, 1));
+}
+
+.signText[data-wrap="true"] {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* Scenes: every background stays dark so illuminated lettering always reads. */
+.preview[data-background="night"] .signScene {
+  background: radial-gradient(120% 120% at 50% 20%, #1d1535, var(--color-bg) 75%);
+}
+.preview[data-background="wall"] .signScene {
+  background: linear-gradient(180deg, #241a47, #191233 70%);
+}
+.preview[data-background="window"] .signScene {
+  background:
+    linear-gradient(115deg, transparent 42%, rgb(143 251 255 / 0.07) 48%, transparent 56%),
+    linear-gradient(180deg, #17112f, #100b1c);
+}
+.preview[data-background="wood"] .signScene {
+  background:
+    repeating-linear-gradient(90deg, rgb(60 38 22 / 0.5) 0 2px, transparent 2px 46px),
+    linear-gradient(180deg, #2b1c14, #1a110c);
+}
+.preview[data-background="metal"] .signScene {
+  background:
+    repeating-linear-gradient(90deg, rgb(180 170 220 / 0.05) 0 1px, transparent 1px 4px),
+    linear-gradient(180deg, #241a47, #191233);
+}
+.preview[data-background="marble"] .signScene {
+  background:
+    radial-gradient(80% 60% at 30% 30%, rgb(150 130 220 / 0.1), transparent 60%),
+    radial-gradient(70% 60% at 70% 70%, rgb(150 130 220 / 0.08), transparent 60%),
+    linear-gradient(180deg, #1d1535, #14102a);
+}
+.preview[data-background="concrete"] .signScene {
+  background: radial-gradient(120% 100% at 50% 0%, #221a45, #14102a 80%);
+}
+.preview[data-background="dusk"] .signScene {
+  background: linear-gradient(180deg, #2b1440 0%, #4a1a52 45%, #1a1030 100%);
+}
+
+/* Frames */
+.preview[data-frame="thin"] .signFrame {
+  border: 2px solid color-mix(in srgb, var(--sign-face) 55%, transparent);
+}
+.preview[data-frame="double"] .signFrame {
+  border: 1px solid color-mix(in srgb, var(--sign-face) 60%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--sign-glow) 45%, transparent);
+  outline-offset: 3px;
+}
+.preview[data-frame="rounded"] .signFrame {
+  border: 2px solid color-mix(in srgb, var(--sign-glow) 55%, transparent);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--sign-glow) 30%, transparent);
+}
+.preview[data-frame="badge"] .signFrame {
+  border: 2px solid color-mix(in srgb, var(--sign-accent) 70%, transparent);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 0 0 4px rgb(16 11 28 / 0.55),
+    inset 0 0 18px color-mix(in srgb, var(--sign-glow) 30%, transparent);
+}
+.preview[data-frame="awning"] .signFrame::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 24%;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--sign-accent) 75%, transparent) 0 12px,
+    color-mix(in srgb, var(--sign-face) 30%, transparent) 12px 24px
+  );
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--sign-accent) 55%, transparent);
+}
+.preview[data-frame="marquee"] .signFrame {
+  border: 3px dotted color-mix(in srgb, var(--sign-glow) 85%, transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--sign-glow) 25%, transparent);
+}
+.preview[data-frame="blade"] .signFrame::before {
+  content: "";
+  position: absolute;
+  inset-block: 12%;
+  inset-inline-start: -9px;
+  width: 7px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--sign-accent) 80%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--sign-accent) 45%, transparent);
+}
+.preview[data-frame="plaque"] .signFrame {
+  border-radius: var(--radius-lg);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--sign-glow) 50%, transparent),
+    inset 0 0 26px color-mix(in srgb, var(--sign-glow) 22%, transparent);
+}
+.preview[data-frame="banner"] .signFrame::before,
+.preview[data-frame="banner"] .signFrame::after {
+  content: "";
+  position: absolute;
+  bottom: -9px;
+  width: 20px;
+  height: 15px;
+  background: color-mix(in srgb, var(--sign-accent) 70%, transparent);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 68%, 0 100%);
+}
+.preview[data-frame="banner"] .signFrame::before {
+  inset-inline-start: 9%;
+}
+.preview[data-frame="banner"] .signFrame::after {
+  inset-inline-end: 9%;
+}
+
+/* Arrangements */
+.preview[data-arrangement="split"] .signComposition {
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "emblem text" "emblem tagline";
+  justify-items: start;
+  text-align: start;
+}
+.preview[data-arrangement="split"] .signEmblem {
+  grid-area: emblem;
+  align-self: center;
+}
+.preview[data-arrangement="split"] .signText {
+  grid-area: text;
+}
+.preview[data-arrangement="split"] .signTagline {
+  grid-area: tagline;
+}
+.preview[data-arrangement="badge"] .signEmblem {
+  border: 2px solid color-mix(in srgb, var(--sign-accent) 75%, transparent);
+  border-radius: 999px;
+  padding: 0.4rem;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--sign-glow) 35%, transparent);
+}
+.preview[data-arrangement="band"] .signBoard {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--sign-accent) 16%, transparent),
+    rgb(20 14 40 / 0.92)
+  );
+  border-block: 3px solid color-mix(in srgb, var(--sign-accent) 55%, transparent);
+}
+.preview[data-arrangement="band"] .signComposition {
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "emblem text" ". tagline";
+  justify-items: start;
+  text-align: start;
+}
+.preview[data-arrangement="band"] .signEmblem {
+  grid-area: emblem;
+}
+.preview[data-arrangement="band"] .signText {
+  grid-area: text;
+}
+.preview[data-arrangement="band"] .signTagline {
+  grid-area: tagline;
+}
+.preview[data-arrangement="vertical"] .signBoard {
+  width: min(100%, 15rem);
+}
+.preview[data-arrangement="columns"] .signComposition {
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: "emblem emblem" "text tagline";
+  gap: var(--space-3);
+}
+.preview[data-arrangement="columns"] .signEmblem {
+  grid-area: emblem;
+  justify-self: center;
+}
+.preview[data-arrangement="columns"] .signText {
+  grid-area: text;
+  justify-self: start;
+  text-align: start;
+}
+.preview[data-arrangement="columns"] .signTagline {
+  grid-area: tagline;
+  align-self: center;
+  border-inline-start: 1px solid color-mix(in srgb, var(--sign-accent) 50%, transparent);
+  padding-inline-start: var(--space-3);
+}
+.preview[data-arrangement="inline"] .signComposition {
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "emblem text" ". tagline";
+  justify-items: start;
+  text-align: start;
+}
+.preview[data-arrangement="inline"] .signEmblem {
+  grid-area: emblem;
+  width: 1.9rem;
+  height: 1.9rem;
+}
+.preview[data-arrangement="inline"] .signText {
+  grid-area: text;
+}
+.preview[data-arrangement="inline"] .signTagline {
+  grid-area: tagline;
+}
+.preview[data-arrangement="tower"] .signComposition {
+  grid-template-areas: "text" "tagline" "emblem";
+}
+.preview[data-arrangement="tower"] .signText {
+  grid-area: text;
+  font-size: calc(clamp(var(--text-3xl), 6vw, var(--text-5xl)) * var(--sign-fit, 1));
+}
+.preview[data-arrangement="tower"] .signTagline {
+  grid-area: tagline;
+}
+.preview[data-arrangement="tower"] .signEmblem {
+  grid-area: emblem;
+  width: 1.9rem;
+  height: 1.9rem;
+}
+
+/* Lettering styles (user-selectable). Declared after the layout treatments so the
+   customer's choice wins over the template's default treatment. */
+.preview .signText[data-lettering="modern"] {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.preview .signText[data-lettering="classic"] {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.preview .signText[data-lettering="mono"] {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.preview .signText[data-lettering="rounded"] {
+  font-family: "Trebuchet MS", Verdana, var(--font-sans);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+.preview .signText[data-lettering="condensed"] {
+  font-family: "Arial Narrow", "Roboto Condensed", var(--font-sans);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.preview .signText[data-lettering="script"] {
+  font-family: "Segoe Script", "Brush Script MT", cursive;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.preview .signText[data-lettering="kufi"] {
+  font-family: var(--font-arabic);
+  font-weight: 800;
+}
+.preview .signText[data-lettering="naskh"] {
+  font-family: var(--font-arabic);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.preview .signText[data-lettering="display"] {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+.preview .signText[data-lettering="elegant"] {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+}
+
+/* Arabic never gets letter-spacing: it would break cursive joining. This guard is
+   declared last so it wins over every lettering treatment. */
+.preview .signText[data-script="ar"],
+.preview .signTagline[data-script="ar"] {
+  letter-spacing: 0;
+}
+
+/* Compact rendering for template-gallery cards. */
+.previewFrame[data-mini="true"] .previewTitle,
+.previewFrame[data-mini="true"] .previewTemplateName,
+.previewFrame[data-mini="true"] .previewCaption {
+  display: none;
+}
+.previewFrame[data-mini="true"] .signScene {
+  min-height: 10rem;
+  padding: var(--space-5) var(--space-4);
+}
+.previewFrame[data-mini="true"] .signText {
+  font-size: calc(clamp(var(--text-lg), 3.4vw, var(--text-2xl)) * var(--sign-fit, 1));
+}
+.previewFrame[data-mini="true"] .signEmblem {
+  width: 1.7rem;
+  height: 1.7rem;
+}

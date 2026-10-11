@@ -1,10 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { getMessages } from "@/i18n/get-messages";
 
 import { SignPreviewDemo } from "./sign-preview-demo";
+
+// The demo persists its draft to localStorage: start every test from a clean draft.
+beforeEach(() => {
+  window.localStorage.clear();
+});
 
 function preview(label = "Sign preview") {
   return screen.getByRole("group", { name: label });

@@ -1,6 +1,13 @@
 import { defaultTemplateId, getTemplate, templateIds } from "./catalogue";
 import { colourPalette } from "./palette";
-import type { ColourId, ColourRole, NormalizedRect, PhotoMeta, TemplateId } from "./types";
+import type {
+  ColourId,
+  ColourRole,
+  LetteringId,
+  NormalizedRect,
+  PhotoMeta,
+  TemplateId,
+} from "./types";
 
 /**
  * The serialisable customer draft: everything a visitor has customised, with stable
@@ -9,10 +16,11 @@ import type { ColourId, ColourRole, NormalizedRect, PhotoMeta, TemplateId } from
  * malformed instead of guessing.
  *
  * Version 2 adds the storefront photo metadata and the normalised sign-area
- * selection (Milestone 3). Version 1 drafts are still accepted and migrated.
+ * selection (Milestone 3). Version 3 adds the lettering (font) style choice.
+ * Older drafts are still accepted and migrated.
  */
 
-export const DRAFT_VERSION = 2 as const;
+export const DRAFT_VERSION = 3 as const;
 
 export const MAX_TEXT_LENGTH = 64;
 export const MAX_TAGLINE_LENGTH = 96;
@@ -26,6 +34,8 @@ export type CustomerDraft = {
   text: string;
   tagline: string;
   colours: Record<ColourRole, ColourId>;
+  /** The customer's lettering (font) style choice for the sign text. */
+  lettering: LetteringId;
   /** Storefront photo metadata; the pixels live in the photo store under photo.id. */
   photo: PhotoMeta | null;
   /** Sign-area selection, normalised to the photo's natural size. */
@@ -40,6 +50,28 @@ function isColourId(value: unknown): value is ColourId {
 
 function isTemplateId(value: unknown): value is TemplateId {
   return typeof value === "string" && (templateIds as readonly string[]).includes(value);
+}
+
+const letteringIds = new Set<string>([
+  "modern",
+  "classic",
+  "mono",
+  "rounded",
+  "condensed",
+  "script",
+  "kufi",
+  "naskh",
+  "display",
+  "elegant",
+]);
+
+function isLetteringId(value: unknown): value is LetteringId {
+  return typeof value === "string" && letteringIds.has(value);
+}
+
+/** The lettering style a template presents by default. */
+export function defaultLettering(templateId: TemplateId): LetteringId {
+  return getTemplate(templateId).composition.lettering;
 }
 
 function clampText(value: unknown, maxLength: number): string {
@@ -139,17 +171,28 @@ export function defaultDraft(): CustomerDraft {
     text: "",
     tagline: "",
     colours: defaultColours(defaultTemplateId),
+    lettering: defaultLettering(defaultTemplateId),
     photo: null,
     selection: null,
   };
 }
 
 /**
- * Switching template keeps the business name and tagline and resets colours to the
- * new template's defaults.
+ * Switching template keeps the business name and tagline and resets colours and
+ * lettering to the new template's defaults.
  */
 export function draftWithTemplate(draft: CustomerDraft, templateId: TemplateId): CustomerDraft {
-  return { ...draft, templateId, colours: defaultColours(templateId) };
+  return {
+    ...draft,
+    templateId,
+    colours: defaultColours(templateId),
+    lettering: defaultLettering(templateId),
+  };
+}
+
+/** Sets the customer's lettering (font) style choice. */
+export function draftWithLettering(draft: CustomerDraft, lettering: LetteringId): CustomerDraft {
+  return { ...draft, lettering };
 }
 
 /**
@@ -178,9 +221,10 @@ export function serializeDraft(draft: CustomerDraft): string {
 
 /**
  * Parses a draft produced by serializeDraft. Accepts version 1 (migrated: photo and
- * selection become null) and version 2. Returns null for anything malformed: wrong
- * version, unknown template or colour ids, invalid photo metadata or selection, or
- * non-object payloads. Missing colour entries fall back to the template defaults;
+ * selection become null), version 2 (migrated: lettering falls back to the template
+ * default) and version 3. Returns null for anything malformed: wrong version,
+ * unknown template, colour or lettering ids, invalid photo metadata or selection,
+ * or non-object payloads. Missing colour entries fall back to the template defaults;
  * text fields are clamped.
  */
 export function parseDraft(raw: string): CustomerDraft | null {
@@ -194,7 +238,7 @@ export function parseDraft(raw: string): CustomerDraft | null {
     return null;
   }
   const record = data as Record<string, unknown>;
-  if (record.version !== 1 && record.version !== DRAFT_VERSION) {
+  if (record.version !== 1 && record.version !== 2 && record.version !== DRAFT_VERSION) {
     return null;
   }
   if (!isTemplateId(record.templateId)) {
@@ -228,12 +272,19 @@ export function parseDraft(raw: string): CustomerDraft | null {
     return null;
   }
 
+  // Version 2 and older drafts predate the lettering choice: fall back to the
+  // template's default style rather than rejecting the customer's saved design.
+  const lettering = isLetteringId(record.lettering)
+    ? record.lettering
+    : defaultLettering(record.templateId);
+
   return {
     version: DRAFT_VERSION,
     templateId: record.templateId,
     text: clampText(record.text, MAX_TEXT_LENGTH),
     tagline: clampText(record.tagline, MAX_TAGLINE_LENGTH),
     colours,
+    lettering,
     photo,
     selection,
   };

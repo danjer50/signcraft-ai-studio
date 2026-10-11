@@ -60,6 +60,7 @@ function setup(overrides: Partial<Parameters<typeof MockupPanel>[0]> = {}) {
     text: "Studio",
     tagline: "",
     colours,
+    lettering: "modern" as const,
     ...overrides,
   };
   render(<MockupPanel {...props} />);

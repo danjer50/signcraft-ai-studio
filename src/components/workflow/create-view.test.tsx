@@ -1,9 +1,14 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { getMessages } from "@/i18n/get-messages";
 
 import { CreateView } from "./create-view";
+
+// The demo persists its draft to localStorage: start every test from a clean draft.
+beforeEach(() => {
+  window.localStorage.clear();
+});
 
 describe("CreateView", () => {
   it("explains the journey and runs the demo for steps 1 to 3", () => {

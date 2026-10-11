@@ -13,6 +13,7 @@ import {
   parseDraft,
   resolveColourValues,
   serializeDraft,
+  draftWithLettering,
 } from "./draft";
 
 const samplePhoto: PhotoMeta = {
@@ -28,11 +29,12 @@ const samplePhoto: PhotoMeta = {
 describe("customer draft", () => {
   it("starts on the default template with its default colours and no photo", () => {
     const draft = defaultDraft();
-    expect(draft.version).toBe(2);
+    expect(draft.version).toBe(3);
     expect(draft.templateId).toBe("channelLetters");
     expect(draft.text).toBe("");
     expect(draft.colours.face).toBe("warmWhite");
     expect(draft.colours.glow).toBe("azure");
+    expect(draft.lettering).toBe("display");
     expect(draft.photo).toBeNull();
     expect(draft.selection).toBeNull();
   });
@@ -44,6 +46,7 @@ describe("customer draft", () => {
       text: "Lumière",
       tagline: "Bakery · Coffee",
       colours: { face: "rose" as const, glow: "violet" as const, accent: "azure" as const },
+      lettering: "script" as const,
     };
     const parsed = parseDraft(serializeDraft(draft));
     expect(parsed).toEqual(draft);
@@ -57,12 +60,14 @@ describe("customer draft", () => {
     expect(switched.templateId).toBe("marqueeBulbs");
     expect(switched.colours.glow).toBe("amber");
     expect(switched.colours.face).toBe("warmWhite");
+    expect(switched.lettering).toBe("display");
   });
 
   it("refuses malformed drafts instead of guessing", () => {
     expect(parseDraft("not json")).toBeNull();
     expect(parseDraft("[]")).toBeNull();
-    expect(parseDraft('{"version":3,"templateId":"neonScript"}')).toBeNull();
+    // A future version is refused; the current version with defaults is accepted.
+    expect(parseDraft('{"version":99,"templateId":"neonScript"}')).toBeNull();
     expect(parseDraft('{"version":1,"templateId":"nope"}')).toBeNull();
     expect(parseDraft('{"version":2,"templateId":"nope"}')).toBeNull();
     // Invalid colour ids for a declared slot are refused, not ignored.
@@ -105,7 +110,7 @@ describe("customer draft", () => {
 });
 
 describe("draft version 1 migration", () => {
-  it("accepts a version 1 draft and migrates it to version 2", () => {
+  it("accepts a version 1 draft and migrates it to the current version", () => {
     const v1 = JSON.stringify({
       version: 1,
       templateId: "neonScript",
@@ -115,17 +120,79 @@ describe("draft version 1 migration", () => {
     });
     const parsed = parseDraft(v1);
     expect(parsed).not.toBeNull();
-    expect(parsed?.version).toBe(2);
+    expect(parsed?.version).toBe(3);
     expect(parsed?.templateId).toBe("neonScript");
     expect(parsed?.text).toBe("Lumière");
     expect(parsed?.photo).toBeNull();
     expect(parsed?.selection).toBeNull();
-    // The migrated draft serialises as version 2.
-    expect(JSON.parse(serializeDraft(parsed!)).version).toBe(2);
+    // The migrated draft serialises as version 3.
+    expect(JSON.parse(serializeDraft(parsed!)).version).toBe(3);
   });
 
   it("refuses a version 1 draft with an unknown template", () => {
     expect(parseDraft('{"version":1,"templateId":"nope"}')).toBeNull();
+  });
+});
+
+describe("draft version 2 migration", () => {
+  it("accepts a version 2 draft and migrates it, falling back to the template's lettering", () => {
+    const v2 = JSON.stringify({
+      version: 2,
+      templateId: "cafeMedina",
+      text: "Menhza",
+      tagline: "",
+      colours: { face: "gold", glow: "amber", accent: "copper" },
+      photo: null,
+      selection: null,
+    });
+    const parsed = parseDraft(v2);
+    expect(parsed).not.toBeNull();
+    expect(parsed?.version).toBe(3);
+    expect(parsed?.templateId).toBe("cafeMedina");
+    expect(parsed?.text).toBe("Menhza");
+    expect(parsed?.colours.face).toBe("gold");
+    // No lettering in v2: the template's default style is kept.
+    expect(parsed?.lettering).toBe("classic");
+  });
+
+  it("keeps an explicit lettering choice through a v2 migration", () => {
+    const v2 = JSON.stringify({
+      version: 2,
+      templateId: "neonScript",
+      text: "",
+      tagline: "",
+      colours: { face: "rose", glow: "violet", accent: "azure" },
+      lettering: "kufi",
+    });
+    const parsed = parseDraft(v2);
+    expect(parsed?.lettering).toBe("kufi");
+  });
+
+  it("refuses an unknown lettering id", () => {
+    const v3 = JSON.stringify({
+      version: 3,
+      templateId: "neonScript",
+      text: "",
+      tagline: "",
+      colours: { face: "rose", glow: "violet", accent: "azure" },
+      lettering: "comic-sans",
+    });
+    // An unknown lettering id falls back to the template default (not rejected:
+    // the customer's design survives), but a valid id round-trips exactly.
+    expect(parseDraft(v3)?.lettering).toBe("script");
+    const valid = { ...defaultDraft(), lettering: "kufi" as const };
+    expect(parseDraft(serializeDraft(valid))?.lettering).toBe("kufi");
+  });
+});
+
+describe("lettering choice", () => {
+  it("draftWithLettering sets the style without touching anything else", () => {
+    const draft = { ...defaultDraft(), text: "Studio" };
+    const changed = draftWithLettering(draft, "mono");
+    expect(changed.lettering).toBe("mono");
+    expect(changed.text).toBe("Studio");
+    expect(changed.templateId).toBe(draft.templateId);
+    expect(changed.colours).toEqual(draft.colours);
   });
 });
 
