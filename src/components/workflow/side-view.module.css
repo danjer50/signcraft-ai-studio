@@ -1,0 +1,47 @@
+.frame {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.title {
+  font-weight: 600;
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.wall {
+  fill: rgb(150 130 220 / 0.12);
+  stroke: rgb(150 130 220 / 0.35);
+  stroke-width: 1;
+}
+
+.bracket {
+  stroke: var(--color-text-muted);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.dimension {
+  stroke: var(--color-accent);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+.dimensionText {
+  fill: var(--color-text-muted);
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+.caption {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
