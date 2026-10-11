@@ -135,6 +135,7 @@ export function SideView({ messages, physical, construction, material, finish }:
         role="img"
         aria-label={copy.title}
         className={styles.svg}
+        data-testid="side-view-svg"
       >
         {/* Wall band */}
         <rect

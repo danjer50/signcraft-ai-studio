@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ChangeEvent } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 
 import {
   constructionIds,
@@ -32,6 +32,7 @@ import type { Messages } from "@/i18n/messages/en";
 import { Button, buttonClassName } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
+import { FabricationOutputs } from "./fabrication-outputs";
 import { SignPreview } from "./sign-preview";
 import { SideView } from "./side-view";
 import styles from "./studio-workspace.module.css";
@@ -63,6 +64,7 @@ export function StudioWorkspace({ locale, messages }: StudioWorkspaceProps) {
   const workspace = messages.pro.workspace;
   const [project, setProject] = useState<SignProject>(initialProject);
   const [savedFlash, setSavedFlash] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   const template = getTemplate(project.draft.templateId);
   const colours = resolveColourValues(project.draft);
@@ -103,7 +105,7 @@ export function StudioWorkspace({ locale, messages }: StudioWorkspaceProps) {
   }
 
   return (
-    <div className={styles.workspace} data-testid="studio-workspace">
+    <div className={styles.workspace} data-testid="studio-workspace" ref={rootRef}>
       <div className={styles.grid}>
         <section className={styles.panel} aria-labelledby="workspace-controls-title">
           <h2 className={styles.panelTitle} id="workspace-controls-title">
@@ -264,6 +266,8 @@ export function StudioWorkspace({ locale, messages }: StudioWorkspaceProps) {
               finish={project.finish}
             />
           </section>
+
+          <FabricationOutputs messages={messages} project={project} rootRef={rootRef} />
         </div>
       </div>
     </div>

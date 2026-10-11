@@ -1,4 +1,5 @@
 import { pbkdf2Sync } from "node:crypto";
+import { readFile } from "node:fs/promises";
 
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 
@@ -495,6 +496,36 @@ test.describe("auth pages", () => {
     // Saving reports the device-local persistence honestly.
     await workspaceRoot.getByRole("button", { name: workspace.save }).click();
     await expect(workspaceRoot.getByRole("status")).toHaveText(workspace.saved);
+
+    // Fabrication exports: real files generated from the structured data, each
+    // labelled with exactly what it contains. The LED plan stays withheld.
+    const [csv] = await Promise.all([
+      page.waitForEvent("download"),
+      workspaceRoot.getByTestId("output-cutlist").getByRole("button").click(),
+    ]);
+    const csvPath = await csv.path();
+    expect(csvPath).toBeTruthy();
+    const csvText = await readFile(csvPath!, "utf8");
+    expect(csvText).toContain("width_mm,height_mm,depth_mm,quantity");
+    expect(csvText).toContain(",900,900,30,1");
+
+    const [dxf] = await Promise.all([
+      page.waitForEvent("download"),
+      workspaceRoot.getByTestId("output-dxf").getByRole("button").click(),
+    ]);
+    const dxfText = await readFile((await dxf.path())!, "utf8");
+    expect(dxfText).toContain("$INSUNITS");
+    expect(dxfText.trim().endsWith("EOF")).toBe(true);
+
+    const [svg] = await Promise.all([
+      page.waitForEvent("download"),
+      workspaceRoot.getByTestId("output-svg-side").getByRole("button").click(),
+    ]);
+    const svgText = await readFile((await svg.path())!, "utf8");
+    expect(svgText.startsWith("<?xml")).toBe(true);
+    expect(svgText).toContain("side-view");
+
+    await expect(workspaceRoot.getByTestId("output-led").getByRole("button")).toBeDisabled();
 
     await expectNoHorizontalOverflow(page);
   });
