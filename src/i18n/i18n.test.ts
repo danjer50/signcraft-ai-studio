@@ -75,7 +75,9 @@ describe("message dictionaries", () => {
 
   it("uses Arabic script for every Arabic message except the product name", () => {
     const arabicScript = /[\u0600-\u06FF]/;
-    const allowedLatin = new Set(["app.name"]);
+    // app.name is the brand; auth.codes.placeholder is the literal code format
+    // (SC-XXXX-XXXX) which is the same technical token in every language.
+    const allowedLatin = new Set(["app.name", "auth.codes.placeholder"]);
     for (const [key, value] of collectLeaves(ar)) {
       if (allowedLatin.has(key)) continue;
       expect(arabicScript.test(value), `ar "${key}" should be Arabic: ${value}`).toBe(true);

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -13,9 +13,14 @@ vi.mock("next/navigation", () => ({
 }));
 
 const loginMock = vi.fn();
+const redeemMock = vi.fn();
 vi.mock("@/lib/auth-client", async (importOriginal) => {
   const original = await importOriginal<typeof import("@/lib/auth-client")>();
-  return { ...original, loginWithPassword: (...args: unknown[]) => loginMock(...args) };
+  return {
+    ...original,
+    loginWithPassword: (...args: unknown[]) => loginMock(...args),
+    redeemAccessCode: (...args: unknown[]) => redeemMock(...args),
+  };
 });
 
 const messages = getMessages("en");
@@ -35,6 +40,7 @@ describe("LoginForm", () => {
   beforeEach(() => {
     pushMock.mockReset();
     loginMock.mockReset();
+    redeemMock.mockReset();
   });
 
   it("renders the shared login form", () => {
@@ -72,6 +78,49 @@ describe("LoginForm", () => {
     renderForm();
     await fillAndSubmit("admin@studio.test", "a-valid-password");
     expect(await screen.findByRole("alert")).toHaveTextContent("nope");
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it("offers the Pro access-code entry next to the password form", () => {
+    renderForm();
+    const codeForm = screen.getByTestId("access-code-form");
+    expect(codeForm).toBeInTheDocument();
+    expect(
+      within(codeForm).getByPlaceholderText(messages.auth.codes.placeholder),
+    ).toBeInTheDocument();
+    expect(
+      within(codeForm).getByRole("button", { name: messages.auth.codes.submit }),
+    ).toBeInTheDocument();
+  });
+
+  it("redeeming a valid access code opens the Pro Workspace", async () => {
+    redeemMock.mockResolvedValue({ id: "c1", email: "pro-x@access.signcraft.local", role: "pro" });
+    renderForm();
+    const codeForm = screen.getByTestId("access-code-form");
+    await userEvent.type(
+      within(codeForm).getByPlaceholderText(messages.auth.codes.placeholder),
+      "SC-7K2M-9QRT",
+    );
+    await userEvent.click(
+      within(codeForm).getByRole("button", { name: messages.auth.codes.submit }),
+    );
+    await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/en/studio"));
+    expect(redeemMock).toHaveBeenCalledWith("en", "SC-7K2M-9QRT");
+    expect(loginMock).not.toHaveBeenCalled();
+  });
+
+  it("shows the localised error when the access code is refused", async () => {
+    redeemMock.mockRejectedValue(new AuthApiError(401, "invalid_code", "bad code"));
+    renderForm();
+    const codeForm = screen.getByTestId("access-code-form");
+    await userEvent.type(
+      within(codeForm).getByPlaceholderText(messages.auth.codes.placeholder),
+      "SC-AAAA-BBBB",
+    );
+    await userEvent.click(
+      within(codeForm).getByRole("button", { name: messages.auth.codes.submit }),
+    );
+    expect(await within(codeForm).findByRole("alert")).toHaveTextContent("bad code");
     expect(pushMock).not.toHaveBeenCalled();
   });
 });

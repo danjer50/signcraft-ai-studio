@@ -62,6 +62,26 @@ const messages: Record<string, Record<SiteLocale, string>> = {
     en: "This invitation link is invalid or has expired.",
     ar: "رابط الدعوة هذا غير صالح أو انتهت صلاحيته.",
   },
+  invalid_code: {
+    fr: "Ce code d'accès professionnel est invalide.",
+    en: "This professional access code is invalid.",
+    ar: "رمز الوصول الاحترافي هذا غير صالح.",
+  },
+  code_revoked: {
+    fr: "Ce code d'accès a été révoqué.",
+    en: "This access code has been revoked.",
+    ar: "تم إلغاء رمز الوصول هذا.",
+  },
+  code_expired: {
+    fr: "Ce code d'accès a expiré.",
+    en: "This access code has expired.",
+    ar: "انتهت صلاحية رمز الوصول هذا.",
+  },
+  code_exhausted: {
+    fr: "Ce code d'accès a atteint son nombre maximal d'utilisations.",
+    en: "This access code has reached its maximum number of uses.",
+    ar: "وصل رمز الوصول هذا إلى الحد الأقصى لعدد الاستخدامات.",
+  },
   cannot_suspend_self: {
     fr: "Vous ne pouvez pas suspendre votre propre compte.",
     en: "You cannot suspend your own account.",

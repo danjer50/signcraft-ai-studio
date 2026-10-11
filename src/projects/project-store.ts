@@ -1,9 +1,4 @@
-import {
-  defaultProject,
-  parseProject,
-  serializeProject,
-  type SignProject,
-} from "./sign-project";
+import { defaultProject, parseProject, serializeProject, type SignProject } from "./sign-project";
 
 /**
  * Device-local persistence for the professional project (the design draft plus

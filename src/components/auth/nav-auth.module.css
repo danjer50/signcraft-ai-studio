@@ -3,6 +3,10 @@
   align-items: center;
   gap: var(--space-3);
   min-height: 2rem;
+  /* The auth controls may shrink on narrow phones: the space link ellipsises
+     instead of blowing the header past the viewport. */
+  min-width: 0;
+  flex: 0 1 auto;
   /* Takes over the header's "push right" role from the language switcher, so the
      auth controls sit at the end of the header on phones (where the switcher is
      hidden in the drawer) and next to it on wider screens. */
@@ -15,6 +19,12 @@
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
+}
+
+.spaceLink {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .signIn:hover,
@@ -44,4 +54,16 @@
 .signOut:hover {
   color: var(--color-text);
   border-color: var(--color-text-muted);
+}
+
+/* Narrowest phones: the space link ellipsises to nothing if needed, and the sign
+   out button trims its padding so both fit the remaining header room. */
+@media (max-width: 30rem) {
+  .slot {
+    gap: var(--space-2);
+  }
+
+  .signOut {
+    padding-inline: var(--space-2);
+  }
 }

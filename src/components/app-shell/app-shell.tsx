@@ -94,7 +94,7 @@ export function AppShell({ locale, messages, children }: AppShellProps) {
           <span>{messages.common.menu}</span>
         </button>
 
-        <Link href={`/${locale}`} className={styles.brand}>
+        <Link href={`/${locale}`} className={styles.brand} aria-label={messages.app.name}>
           <BrandMark />
           <span className={styles.brandName}>{messages.app.name}</span>
         </Link>

@@ -225,6 +225,9 @@ async function runChecks(base) {
   check("/ar heading is written in Arabic script", arabicScript.test(arabicHeading), arabicHeading);
 
   // Product surface: the landing page calls to action and the two real product routes.
+  /** The client gate's loading copy, per locale (the /pro prerender shows this). */
+  const gateLoading = { fr: "Chargement…", en: "Loading…", ar: "جارٍ التحميل…" };
+
   const productPages = [
     {
       path: "create",
@@ -271,24 +274,25 @@ async function runChecks(base) {
       fileInput: true,
       plannedLabels: { fr: "Prévu", en: "Planned", ar: "مخطط" },
     },
-    {
-      path: "pro",
-      headings: {
-        fr: "Espace professionnel",
-        en: "Professional workspace",
-        ar: "مساحة العمل الاحترافية",
-      },
-      demoMarker: null,
-      catalogueMarkers: null,
-      fileInput: false,
-      plannedLabels: { fr: "Prévu", en: "Planned", ar: "مخطط" },
-    },
   ];
   for (const { locale } of localePages) {
     const home = await get(base, `/${locale}`);
     check(`/${locale} links to /${locale}/create`, home.body.includes(`href="/${locale}/create"`));
-    check(`/${locale} links to /${locale}/pro`, home.body.includes(`href="/${locale}/pro"`));
+    check(
+      `/${locale} does NOT publicly advertise /${locale}/pro`,
+      !home.body.includes(`href="/${locale}/pro"`),
+    );
     check(`/${locale} links to the example gallery`, home.body.includes('href="#examples"'));
+  }
+  for (const { locale } of localePages) {
+    // Stage D: /pro still exists as a static file, but the prerender is only the
+    // client gate's loading shell — anonymous visitors are redirected to login.
+    const pro = await get(base, `/${locale}/pro`);
+    check(
+      `/${locale}/pro prerender is a gate shell (no workspace content)`,
+      pro.status === 200 && !pro.body.includes("<h1") && pro.body.includes(gateLoading[locale]),
+      `status ${pro.status}, h1 ${h1Text(pro.body) || "<none>"}`,
+    );
   }
   for (const { locale } of localePages) {
     for (const page of productPages) {

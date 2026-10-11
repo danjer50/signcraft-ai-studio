@@ -64,3 +64,30 @@ CREATE TABLE IF NOT EXISTS audit_log (
 CREATE INDEX IF NOT EXISTS sessions_account ON sessions(account_id);
 CREATE INDEX IF NOT EXISTS account_tokens_account ON account_tokens(account_id);
 CREATE INDEX IF NOT EXISTS audit_log_created ON audit_log(created_at);
+
+CREATE TABLE IF NOT EXISTS access_codes (
+  id TEXT PRIMARY KEY,
+  -- sha256 hex of the plaintext code (with the password pepper); the plaintext is
+  -- shown exactly once, when the admin creates the code. Never stored.
+  code_hash TEXT NOT NULL UNIQUE,
+  label TEXT,
+  -- Codes may be shared: a code with max_uses > 1 can be redeemed several times.
+  max_uses INTEGER NOT NULL DEFAULT 1,
+  uses INTEGER NOT NULL DEFAULT 0,
+  -- Optional expiry; NULL means "until revoked or exhausted".
+  expires_at TEXT,
+  revoked_at TEXT,
+  created_by TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS code_usages (
+  id TEXT PRIMARY KEY,
+  code_id TEXT NOT NULL REFERENCES access_codes(id) ON DELETE CASCADE,
+  -- The lightweight pro account created by this redemption.
+  account_id TEXT REFERENCES accounts(id) ON DELETE SET NULL,
+  ip TEXT,
+  used_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS code_usages_code ON code_usages(code_id);

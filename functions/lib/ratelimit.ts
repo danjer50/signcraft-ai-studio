@@ -14,7 +14,11 @@ import { isoFromMs, parseIso } from "./session";
  */
 
 export type RateLimitKey =
-  `login:ip:${string}` | `login:email:${string}` | `setup:ip:${string}` | `token:ip:${string}`;
+  | `login:ip:${string}`
+  | `login:email:${string}`
+  | `setup:ip:${string}`
+  | `token:ip:${string}`
+  | `code:ip:${string}`;
 
 interface MemoryEntry {
   windowStartMs: number;

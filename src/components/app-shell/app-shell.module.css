@@ -133,6 +133,24 @@
   outline: none;
 }
 
+/* On the narrowest phones the signed-in header (menu + brand + space link + sign
+   out) must still fit: tighten the rhythm instead of clipping or scrolling. */
+@media (max-width: 30rem) {
+  .header {
+    gap: var(--space-2);
+    padding-inline: var(--space-2);
+  }
+
+  .menuButton {
+    padding-inline: var(--space-2);
+  }
+
+  /* The wordmark yields to the mark alone; the link keeps its aria-label. */
+  .brandName {
+    display: none;
+  }
+}
+
 .content {
   max-width: var(--content-max-width);
   margin-inline: auto;

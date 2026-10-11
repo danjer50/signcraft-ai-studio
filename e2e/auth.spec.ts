@@ -427,4 +427,65 @@ test.describe("auth pages", () => {
     expect(create?.status()).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(messages.create.title);
   });
+
+  test("the admin dashboard mints and revokes Pro access codes", async ({ page }) => {
+    const messages = getMessages("fr");
+    const codeCopy = messages.auth.adminCodes;
+    await loginViaUi(page, "fr", SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
+    await expect(page).toHaveURL(/\/fr\/admin$/);
+
+    const codesSection = page.locator("section[aria-labelledby='admin-codes-title']");
+    // All Playwright projects share one database: keep the label unique per run.
+    const label = `Boutique e2e ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    await codesSection.getByLabel(codeCopy.label).fill(label);
+    await codesSection.getByRole("button", { name: codeCopy.create }).click();
+
+    // The plaintext is shown exactly once, in the canonical format.
+    const newCode = page.getByTestId("new-access-code");
+    await expect(newCode).toBeVisible();
+    const code = ((await newCode.textContent()) ?? "").trim();
+    expect(code).toMatch(/^SC-[0-9A-Z]{4}-[0-9A-Z]{4}$/);
+
+    // It is listed, and revoking flips its state (scoped to this run's row).
+    const row = codesSection.locator("tr", { hasText: label });
+    await expect(row).toBeVisible();
+    await row.getByRole("button", { name: codeCopy.revoke }).click();
+    await expect(row.getByRole("cell", { name: codeCopy.statuses.revoked })).toBeVisible();
+
+    // The revoked code no longer opens anything.
+    const redeem = await page.request.post("/api/auth/access-codes/redeem", { data: { code } });
+    expect(redeem.status()).toBe(401);
+    expect(((await redeem.json()) as { error: { code: string } }).error.code).toBe("code_revoked");
+  });
+
+  test("a Pro access code entered at the login opens the Pro Workspace", async ({
+    page,
+    request,
+  }) => {
+    const messages = getMessages("fr");
+
+    // The admin mints a single-use code through the same API the dashboard uses.
+    const adminSession = await apiLogin(request, SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
+    const created = await request.post("/api/auth/access-codes", {
+      data: { label: "e2e-redeem", maxUses: 1 },
+      headers: cookieHeader(adminSession),
+    });
+    expect(created.status()).toBe(201);
+    const { code } = (await created.json()) as { code: string };
+
+    // An anonymous visitor redeems it on the public login page.
+    await page.goto("/fr/login");
+    const codeForm = page.getByTestId("access-code-form");
+    await codeForm.getByPlaceholder(messages.auth.codes.placeholder).fill(code);
+    await codeForm.getByRole("button", { name: messages.auth.codes.submit }).click();
+
+    // Redemption opens a real session and lands in the Pro Studio.
+    await expect(page).toHaveURL(/\/fr\/studio$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(messages.auth.studio.title);
+
+    // The single use is consumed: redeeming again is refused server-side.
+    const again = await page.request.post("/api/auth/access-codes/redeem", { data: { code } });
+    expect(again.status()).toBe(401);
+    expect(((await again.json()) as { error: { code: string } }).error.code).toBe("code_exhausted");
+  });
 });

@@ -515,7 +515,8 @@ export const fr: Messages = {
       width: "Largeur",
       height: "Hauteur",
       depth: "Épaisseur",
-      depthHint: "Épaisseur du panneau pour les enseignes murales ; distance de projection pour les enseignes en saillie.",
+      depthHint:
+        "Épaisseur du panneau pour les enseignes murales ; distance de projection pour les enseignes en saillie.",
       construction: "Construction",
       material: "Matériau",
       lighting: "Éclairage",
@@ -554,7 +555,8 @@ export const fr: Messages = {
       title: "Vue de profil",
       projection: "Projection",
       thickness: "Épaisseur",
-      projectingNote: "Profil schématique : le panneau est en saillie du mur sur un support, à la distance modélisée.",
+      projectingNote:
+        "Profil schématique : le panneau est en saillie du mur sur un support, à la distance modélisée.",
       wallNote: "Profil schématique : le panneau est plaqué au mur, à l'épaisseur modélisée.",
     },
   },

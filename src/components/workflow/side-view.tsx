@@ -55,7 +55,7 @@ export function computeSideViewGeometry(
   const panelThickness = Math.max(spec.depthMm * scale, 3);
   const wallWidth = 14;
   const wallX = MARGIN;
-  const panelY = MARGIN + ((VIEW_HEIGHT - 2 * MARGIN - panelHeight) / 2);
+  const panelY = MARGIN + (VIEW_HEIGHT - 2 * MARGIN - panelHeight) / 2;
 
   if (projecting) {
     // The panel stands perpendicular to the wall, projecting away from it.
@@ -136,7 +136,13 @@ export function SideView({ messages, physical, construction, material, finish }:
         className={styles.svg}
       >
         {/* Wall band */}
-        <rect x={wall.x} y={MARGIN - 8} width={wall.width} height={VIEW_HEIGHT - 2 * MARGIN + 16} className={styles.wall} />
+        <rect
+          x={wall.x}
+          y={MARGIN - 8}
+          width={wall.width}
+          height={VIEW_HEIGHT - 2 * MARGIN + 16}
+          className={styles.wall}
+        />
         {/* Panel */}
         <rect
           x={panel.x}
@@ -166,7 +172,12 @@ export function SideView({ messages, physical, construction, material, finish }:
           y2={panel.y + panel.height}
           className={styles.dimension}
         />
-        <text x={labels.height.x - 4} y={labels.height.y} className={styles.dimensionText} textAnchor="end">
+        <text
+          x={labels.height.x - 4}
+          y={labels.height.y}
+          className={styles.dimensionText}
+          textAnchor="end"
+        >
           {physical.heightMm} mm
         </text>
         {/* Depth / projection dimension (horizontal) */}
@@ -177,7 +188,12 @@ export function SideView({ messages, physical, construction, material, finish }:
           y2={labels.depth.y - 6}
           className={styles.dimension}
         />
-        <text x={labels.depth.x} y={labels.depth.y + 4} className={styles.dimensionText} textAnchor="middle">
+        <text
+          x={labels.depth.x}
+          y={labels.depth.y + 4}
+          className={styles.dimensionText}
+          textAnchor="middle"
+        >
           {projecting ? copy.projection : copy.thickness} {physical.depthMm} mm
         </text>
       </svg>

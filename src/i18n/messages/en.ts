@@ -552,7 +552,8 @@ export const en = {
       title: "Side view",
       projection: "Projection",
       thickness: "Thickness",
-      projectingNote: "Schematic profile: the panel projects from the wall on a bracket, at the modelled distance.",
+      projectingNote:
+        "Schematic profile: the panel projects from the wall on a bracket, at the modelled distance.",
       wallNote: "Schematic profile: the panel sits flat on the wall at the modelled thickness.",
     },
   },

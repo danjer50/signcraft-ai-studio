@@ -8,17 +8,14 @@ const headings = {
   fr: {
     home: "VOTRE IDÉE. NOTRE IA. VOTRE ENSEIGNE PARFAITE.",
     create: "Créer mon enseigne",
-    pro: "Espace professionnel",
   },
   en: {
     home: "YOUR IDEA. OUR AI. YOUR PERFECT SIGN.",
     create: "Create my sign",
-    pro: "Professional workspace",
   },
   ar: {
     home: "فكرتك. ذكاؤنا الاصطناعي. لافتتك المثالية.",
     create: "أنشئ لافتتي",
-    pro: "مساحة العمل الاحترافية",
   },
 } as const;
 
@@ -45,7 +42,8 @@ test.describe("product surface", () => {
         page.getByRole("heading", { level: 1, name: headings[locale].home }),
       ).toBeVisible();
       await expect(page.locator(`main a[href="/${locale}/create"]`).first()).toBeVisible();
-      await expect(page.locator(`main a[href="/${locale}/pro"]`).first()).toBeVisible();
+      // Stage D: the Pro workspace is never advertised on public pages.
+      await expect(page.locator(`main a[href="/${locale}/pro"]`)).toHaveCount(0);
       await expect(page.locator('main a[href="#examples"]').first()).toBeVisible();
       await expectNoHorizontalOverflow(page);
     }
@@ -116,28 +114,22 @@ test.describe("product surface", () => {
   }
 
   for (const locale of locales) {
-    test(`the ${locale} pro page is an honest entry point with no fake editor`, async ({
-      page,
-    }) => {
+    test(`the ${locale} pro page redirects anonymous visitors to the login`, async ({ page }) => {
       const unexpected = trackUnexpectedErrors(page);
 
+      // Stage D: hiding the menu entry is not security — the route itself is gated.
       await page.goto(`/${locale}/pro`);
-      await expect(
-        page.getByRole("heading", { level: 1, name: headings[locale].pro }),
-      ).toBeVisible();
+      await page.waitForURL(`/${locale}/login`);
+      await expect(page).toHaveURL(new RegExp(`/${locale}/login$`));
+      // The access-code entry is the customer-facing door to the Pro workspace.
+      await expect(page.getByTestId("access-code-form")).toBeVisible();
 
-      // Five planned tools, each labelled; no controls that would imply an editor exists.
-      await expect(page.locator("article")).toHaveCount(5);
-      await expect(page.locator("main").getByRole("button")).toHaveCount(0);
-      await expect(page.locator("main").getByRole("textbox")).toHaveCount(0);
-
-      await expectNoHorizontalOverflow(page);
       expect(unexpected).toEqual([]);
     });
   }
 
   test("the Arabic product pages keep RTL", async ({ page }) => {
-    for (const path of ["/ar", "/ar/create", "/ar/pro"]) {
+    for (const path of ["/ar", "/ar/create", "/ar/login"]) {
       await page.goto(path);
       await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
       await expect(page.locator("html")).toHaveAttribute("lang", "ar");

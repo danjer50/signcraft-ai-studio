@@ -95,11 +95,19 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg, 14px);
+  /* Grid items default to min-width:auto; wide tables would otherwise blow the
+     whole dashboard past the viewport on phones. */
+  min-width: 0;
 }
 
 .sectionTitle {
   margin: 0;
   font-size: 1.125rem;
+}
+
+.tableScroll {
+  overflow-x: auto;
+  max-width: 100%;
 }
 
 .table {

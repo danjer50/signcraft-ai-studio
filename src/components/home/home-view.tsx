@@ -3,7 +3,6 @@ import type { Messages } from "@/i18n/messages/en";
 
 import { ExamplesGallery } from "./examples-gallery";
 import { Hero } from "./hero";
-import { ProTeaser } from "./pro-teaser";
 import { WorkflowSummary } from "./workflow-summary";
 import styles from "./home-view.module.css";
 
@@ -13,8 +12,9 @@ type HomeViewProps = {
 };
 
 /**
- * The product landing page: hero, example styles, the customer workflow, and the
- * entry point for professional sign makers.
+ * The product landing page: hero, example styles and the customer workflow. The
+ * professional workspace is deliberately NOT advertised here: professionals enter
+ * through Connection / Login with a valid access code or account.
  */
 export function HomeView({ locale, messages }: HomeViewProps) {
   return (
@@ -22,7 +22,6 @@ export function HomeView({ locale, messages }: HomeViewProps) {
       <Hero locale={locale} messages={messages} />
       <ExamplesGallery messages={messages} />
       <WorkflowSummary locale={locale} messages={messages} />
-      <ProTeaser locale={locale} messages={messages} />
     </div>
   );
 }

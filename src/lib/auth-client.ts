@@ -193,3 +193,57 @@ export async function manageAccount(
     throw await parseError(response, "The action could not be completed.");
   }
 }
+
+/** Admin: a Pro access code as listed by the API (the plaintext is never listed). */
+export interface AccessCodeSummary {
+  id: string;
+  label: string | null;
+  max_uses: number;
+  uses: number;
+  expires_at: string | null;
+  revoked_at: string | null;
+  created_at: string;
+  state: "active" | "expired" | "revoked" | "exhausted";
+}
+
+/**
+ * Redeems a Pro access code: on success the server opens a session for a
+ * lightweight pro account and the caller is signed in — this is the customer-facing
+ * entry to the Pro workspace. Throws AuthApiError (localised) otherwise.
+ */
+export async function redeemAccessCode(locale: Locale, code: string): Promise<AuthAccount> {
+  const response = await postJson(locale, "/api/auth/access-codes/redeem", { code });
+  if (!response.ok) {
+    throw await parseError(response, "This professional access code is invalid.");
+  }
+  return ((await response.json()) as { account: AuthAccount }).account;
+}
+
+/** Admin: lists the access codes (never includes plaintext codes). */
+export async function listAccessCodes(locale: Locale): Promise<AccessCodeSummary[]> {
+  const response = await authFetch(locale, "/api/auth/access-codes");
+  if (!response.ok) {
+    throw await parseError(response, "The access codes could not be loaded.");
+  }
+  return ((await response.json()) as { codes: AccessCodeSummary[] }).codes;
+}
+
+/** Admin: creates an access code; the plaintext is returned exactly once. */
+export async function createAccessCode(
+  locale: Locale,
+  input: { label?: string; maxUses?: number; expiresInHours?: number },
+): Promise<{ id: string; code: string }> {
+  const response = await postJson(locale, "/api/auth/access-codes", input);
+  if (!response.ok) {
+    throw await parseError(response, "The access code could not be created.");
+  }
+  return (await response.json()) as { id: string; code: string };
+}
+
+/** Admin: revokes a code and kills the sessions of the accounts it created. */
+export async function revokeAccessCode(locale: Locale, id: string): Promise<void> {
+  const response = await postJson(locale, `/api/auth/access-codes/${id}/revoke`, {});
+  if (!response.ok) {
+    throw await parseError(response, "The access code could not be revoked.");
+  }
+}

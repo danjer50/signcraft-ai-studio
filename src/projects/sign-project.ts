@@ -12,12 +12,7 @@ import { defaultDraft, parseDraft, type CustomerDraft } from "@/templates/draft"
  */
 
 export type ConstructionId =
-  | "wallPanel"
-  | "alucobond"
-  | "channelLetters"
-  | "projecting"
-  | "reception"
-  | "totem";
+  "wallPanel" | "alucobond" | "channelLetters" | "projecting" | "reception" | "totem";
 
 export type MaterialId = "alucobond" | "acrylic" | "pvc" | "steel";
 

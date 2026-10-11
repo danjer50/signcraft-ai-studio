@@ -94,8 +94,11 @@ describe("AppShell", () => {
 
     const create = within(nav).getByRole("link", { name: "Créer mon enseigne" });
     expect(create).toHaveAttribute("href", "/fr/create");
-    const pro = within(nav).getByRole("link", { name: "Espace professionnel" });
-    expect(pro).toHaveAttribute("href", "/fr/pro");
+
+    // Stage D: the Pro workspace is not a public navigation destination — the only
+    // entry is Connection / Login with a valid access code or account.
+    expect(within(nav).queryByText(/professionnel/i)).not.toBeInTheDocument();
+    expect(within(nav).queryByRole("link", { name: /professionnel/i })).not.toBeInTheDocument();
 
     for (const planned of ["Projets", "Conception 2D", "Géométrie 3D", "Maquettes IA", "Exports"]) {
       expect(within(nav).queryByRole("link", { name: planned })).not.toBeInTheDocument();

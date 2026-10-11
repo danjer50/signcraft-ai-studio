@@ -23,11 +23,11 @@ describe("HomeView", () => {
     expect(examplesLink).toHaveAttribute("href", "#examples");
   });
 
-  it("offers the professional workspace as a separate entry point", () => {
+  it("does NOT advertise the Pro workspace (Stage D: login + access code only)", () => {
     render(<HomeView locale="fr" messages={getMessages("fr")} />);
 
-    const proLink = screen.getByRole("link", { name: "Découvrir l'espace professionnel" });
-    expect(proLink).toHaveAttribute("href", "/fr/pro");
+    expect(screen.queryAllByRole("link", { name: /professionnel/i })).toHaveLength(0);
+    expect(document.querySelector('a[href="/fr/pro"]')).toBeNull();
   });
 
   it("renders exactly one level-1 heading", () => {
@@ -42,9 +42,6 @@ describe("HomeView", () => {
       screen.getByRole("heading", { level: 1, name: "فكرتك. ذكاؤنا الاصطناعي. لافتتك المثالية." }),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "أنشئ لافتتي" })).toHaveAttribute("href", "/ar/create");
-    expect(screen.getByRole("link", { name: "استكشف مساحة العمل الاحترافية" })).toHaveAttribute(
-      "href",
-      "/ar/pro",
-    );
+    expect(document.querySelector('a[href="/ar/pro"]')).toBeNull();
   });
 });

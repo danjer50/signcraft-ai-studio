@@ -7,11 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   AuthApiError,
+  createAccessCode,
   getSession,
   inviteProfessional,
+  listAccessCodes,
   listAccounts,
   logout,
   manageAccount,
+  revokeAccessCode,
+  type AccessCodeSummary,
   type AuthAccount,
 } from "@/lib/auth-client";
 import type { Locale } from "@/i18n/config";
@@ -57,6 +61,7 @@ async function fetchDashboard(locale: Locale): Promise<DashboardData> {
  */
 export function AdminDashboard({ locale, messages }: AdminDashboardProps) {
   const copy = messages.auth.admin;
+  const codeCopy = messages.auth.adminCodes;
   const roleCopy = messages.auth.roles;
   const router = useRouter();
 
@@ -73,6 +78,16 @@ export function AdminDashboard({ locale, messages }: AdminDashboardProps) {
 
   const [actionError, setActionError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
+
+  // Pro access codes (Stage D): the admin mints the codes; redemption happens on
+  // the public login page and never touches admin privileges.
+  const [codes, setCodes] = useState<AccessCodeSummary[]>([]);
+  const [newCode, setNewCode] = useState<string | null>(null);
+  const [codeLabel, setCodeLabel] = useState("");
+  const [codeMaxUses, setCodeMaxUses] = useState("1");
+  const [codeExpiry, setCodeExpiry] = useState("");
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [codeBusy, setCodeBusy] = useState(false);
 
   const applyResult = useCallback(
     (result: DashboardData) => {
@@ -109,6 +124,35 @@ export function AdminDashboard({ locale, messages }: AdminDashboardProps) {
     applyResult(await fetchDashboard(locale));
   }, [locale, applyResult]);
 
+  const refreshCodes = useCallback(async () => {
+    try {
+      setCodes(await listAccessCodes(locale));
+    } catch {
+      setCodeError(codeCopy.title);
+    }
+  }, [locale, codeCopy.title]);
+
+  useEffect(() => {
+    if (loading || loadError) {
+      return;
+    }
+    let cancelled = false;
+    void listAccessCodes(locale)
+      .then((list) => {
+        if (!cancelled) {
+          setCodes(list);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCodeError(codeCopy.title);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, loadError, locale, codeCopy.title]);
+
   async function handleInvite(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (inviting) return;
@@ -140,6 +184,47 @@ export function AdminDashboard({ locale, messages }: AdminDashboardProps) {
       setActionError(
         caught instanceof AuthApiError && caught.message ? caught.message : copy.loading,
       );
+    }
+  }
+
+  async function handleCreateCode(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (codeBusy) return;
+    setCodeError(null);
+    setNewCode(null);
+    setCodeBusy(true);
+    try {
+      const created = await createAccessCode(locale, {
+        label: codeLabel.trim() === "" ? undefined : codeLabel.trim(),
+        maxUses: Number(codeMaxUses),
+        expiresInHours: codeExpiry.trim() === "" ? undefined : Number(codeExpiry),
+      });
+      setNewCode(created.code);
+      setCodeLabel("");
+      setCodeMaxUses("1");
+      setCodeExpiry("");
+      await refreshCodes();
+    } catch (caught) {
+      setCodeError(
+        caught instanceof AuthApiError && caught.message ? caught.message : codeCopy.create,
+      );
+    } finally {
+      setCodeBusy(false);
+    }
+  }
+
+  async function handleRevokeCode(id: string) {
+    setCodeError(null);
+    setCodeBusy(true);
+    try {
+      await revokeAccessCode(locale, id);
+      await refreshCodes();
+    } catch (caught) {
+      setCodeError(
+        caught instanceof AuthApiError && caught.message ? caught.message : codeCopy.revoke,
+      );
+    } finally {
+      setCodeBusy(false);
     }
   }
 
@@ -194,96 +279,98 @@ export function AdminDashboard({ locale, messages }: AdminDashboardProps) {
         {accounts.length === 0 ? (
           <p className={styles.muted}>{copy.empty}</p>
         ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th scope="col">{copy.email}</th>
-                <th scope="col">{copy.role}</th>
-                <th scope="col">{copy.status}</th>
-                <th scope="col">{copy.lastLogin}</th>
-                <th scope="col">{copy.accounts}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {accounts.map((account) => {
-                const status = account.status as AccountStatus;
-                const isSelf = account.email === currentEmail;
-                const isAdmin = account.role === "admin";
-                const busy =
-                  confirming === `${account.id}:suspend` || confirming === `${account.id}:revoke`;
-                return (
-                  <tr key={account.id}>
-                    <td>{account.email}</td>
-                    <td>
-                      <Badge tone={isAdmin ? "info" : "neutral"}>{roleCopy[account.role]}</Badge>
-                    </td>
-                    <td>
-                      <Badge
-                        tone={
-                          status === "active"
-                            ? "success"
-                            : status === "suspended"
-                              ? "warning"
-                              : status === "revoked"
-                                ? "danger"
-                                : "neutral"
-                        }
-                      >
-                        {copy.statuses[status]}
-                      </Badge>
-                    </td>
-                    <td className={styles.muted}>
-                      {account.last_login_at
-                        ? new Date(account.last_login_at).toLocaleString(locale)
-                        : copy.never}
-                    </td>
-                    <td>
-                      <div className={styles.rowActions}>
-                        {status === "suspended" && !isSelf && !isAdmin && (
-                          <Button
-                            variant="secondary"
-                            onClick={() => void handleAction(account.id, "restore")}
-                          >
-                            {copy.restore}
-                          </Button>
-                        )}
-                        {(status === "active" || status === "invited") && !isSelf && !isAdmin && (
-                          <>
+          <div className={styles.tableScroll}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th scope="col">{copy.email}</th>
+                  <th scope="col">{copy.role}</th>
+                  <th scope="col">{copy.status}</th>
+                  <th scope="col">{copy.lastLogin}</th>
+                  <th scope="col">{copy.accounts}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {accounts.map((account) => {
+                  const status = account.status as AccountStatus;
+                  const isSelf = account.email === currentEmail;
+                  const isAdmin = account.role === "admin";
+                  const busy =
+                    confirming === `${account.id}:suspend` || confirming === `${account.id}:revoke`;
+                  return (
+                    <tr key={account.id}>
+                      <td>{account.email}</td>
+                      <td>
+                        <Badge tone={isAdmin ? "info" : "neutral"}>{roleCopy[account.role]}</Badge>
+                      </td>
+                      <td>
+                        <Badge
+                          tone={
+                            status === "active"
+                              ? "success"
+                              : status === "suspended"
+                                ? "warning"
+                                : status === "revoked"
+                                  ? "danger"
+                                  : "neutral"
+                          }
+                        >
+                          {copy.statuses[status]}
+                        </Badge>
+                      </td>
+                      <td className={styles.muted}>
+                        {account.last_login_at
+                          ? new Date(account.last_login_at).toLocaleString(locale)
+                          : copy.never}
+                      </td>
+                      <td>
+                        <div className={styles.rowActions}>
+                          {status === "suspended" && !isSelf && !isAdmin && (
                             <Button
-                              variant="ghost"
-                              disabled={busy}
-                              onClick={() =>
-                                confirming === `${account.id}:suspend`
-                                  ? void handleAction(account.id, "suspend")
-                                  : setConfirming(`${account.id}:suspend`)
-                              }
+                              variant="secondary"
+                              onClick={() => void handleAction(account.id, "restore")}
                             >
-                              {confirming === `${account.id}:suspend`
-                                ? copy.confirmSuspend
-                                : copy.suspend}
+                              {copy.restore}
                             </Button>
-                            <Button
-                              variant="ghost"
-                              disabled={busy}
-                              onClick={() =>
-                                confirming === `${account.id}:revoke`
-                                  ? void handleAction(account.id, "revoke")
-                                  : setConfirming(`${account.id}:revoke`)
-                              }
-                            >
-                              {confirming === `${account.id}:revoke`
-                                ? copy.confirmRevoke
-                                : copy.revoke}
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                          )}
+                          {(status === "active" || status === "invited") && !isSelf && !isAdmin && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                disabled={busy}
+                                onClick={() =>
+                                  confirming === `${account.id}:suspend`
+                                    ? void handleAction(account.id, "suspend")
+                                    : setConfirming(`${account.id}:suspend`)
+                                }
+                              >
+                                {confirming === `${account.id}:suspend`
+                                  ? copy.confirmSuspend
+                                  : copy.suspend}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                disabled={busy}
+                                onClick={() =>
+                                  confirming === `${account.id}:revoke`
+                                    ? void handleAction(account.id, "revoke")
+                                    : setConfirming(`${account.id}:revoke`)
+                                }
+                              >
+                                {confirming === `${account.id}:revoke`
+                                  ? copy.confirmRevoke
+                                  : copy.revoke}
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
         {actionError !== null && (
           <p className={styles.error} role="alert">
@@ -339,6 +426,130 @@ export function AdminDashboard({ locale, messages }: AdminDashboardProps) {
                 {copied ? copy.copied : copy.copyLink}
               </Button>
             </div>
+          </div>
+        )}
+      </section>
+
+      <section className={styles.section} aria-labelledby="admin-codes-title">
+        <h2 className={styles.sectionTitle} id="admin-codes-title">
+          {codeCopy.title}
+        </h2>
+        <p className={styles.hint}>{codeCopy.lead}</p>
+
+        <form className={styles.form} onSubmit={handleCreateCode}>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="code-label">
+              {codeCopy.label}
+            </label>
+            <input
+              id="code-label"
+              className={styles.input}
+              type="text"
+              autoComplete="off"
+              value={codeLabel}
+              onChange={(event) => setCodeLabel(event.target.value)}
+            />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="code-max-uses">
+              {codeCopy.maxUses}
+            </label>
+            <input
+              id="code-max-uses"
+              className={styles.input}
+              type="number"
+              min={1}
+              max={100}
+              required
+              value={codeMaxUses}
+              onChange={(event) => setCodeMaxUses(event.target.value)}
+            />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="code-expiry">
+              {codeCopy.expiresInHours}
+            </label>
+            <input
+              id="code-expiry"
+              className={styles.input}
+              type="number"
+              min={1}
+              max={8760}
+              value={codeExpiry}
+              onChange={(event) => setCodeExpiry(event.target.value)}
+            />
+          </div>
+          {codeError !== null && (
+            <p className={styles.error} role="alert">
+              {codeError}
+            </p>
+          )}
+          <div className={styles.actions}>
+            <Button type="submit" disabled={codeBusy}>
+              {codeCopy.create}
+            </Button>
+          </div>
+        </form>
+
+        {newCode !== null && (
+          <div className={styles.inviteLink}>
+            <p className={styles.hint}>{codeCopy.created}</p>
+            <p className={styles.inviteLinkText} data-testid="new-access-code">
+              {newCode}
+            </p>
+          </div>
+        )}
+
+        {codes.length === 0 ? (
+          <p className={styles.muted}>{codeCopy.empty}</p>
+        ) : (
+          <div className={styles.tableScroll}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th scope="col">{codeCopy.list}</th>
+                  <th scope="col">{codeCopy.uses}</th>
+                  <th scope="col">{copy.status}</th>
+                  <th scope="col">{codeCopy.revoke}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {codes.map((code) => (
+                  <tr key={code.id}>
+                    <td>{code.label ?? "—"}</td>
+                    <td>
+                      {code.uses}/{code.max_uses}
+                    </td>
+                    <td>
+                      <Badge
+                        tone={
+                          code.state === "active"
+                            ? "success"
+                            : code.state === "expired"
+                              ? "warning"
+                              : code.state === "revoked"
+                                ? "danger"
+                                : "neutral"
+                        }
+                      >
+                        {codeCopy.statuses[code.state]}
+                      </Badge>
+                    </td>
+                    <td>
+                      {code.state === "active" && (
+                        <Button
+                          variant="ghost"
+                          disabled={codeBusy}
+                          onClick={() => void handleRevokeCode(code.id)}
+                        >
+                          {codeCopy.revoke}
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </section>
