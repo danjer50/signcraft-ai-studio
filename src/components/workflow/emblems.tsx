@@ -125,6 +125,31 @@ const EMBLEMS: Record<Exclude<EmblemId, "none">, readonly EmblemMark[]> = {
       d: "M12 20s-7-4.5-7-9.5A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7 2.5C19 15.5 12 20 12 20z",
     },
   ],
+  flame: [
+    {
+      t: "path",
+      d: "M12 3c1 3-4 5-4 9a4 4 0 0 0 8 0c0-2-1-3.5-2-5-.5 1.5-1.5 2-2 2 .5-2 0-4 0-6z",
+    },
+  ],
+  tag: [
+    { t: "path", d: "M4 12 12 4h7v7l-8 8z" },
+    { t: "circle", cx: 15.5, cy: 8.5, r: 1.4 },
+  ],
+  cupcake: [
+    { t: "path", d: "M6 12h12l-1.5 8h-9z" },
+    {
+      t: "path",
+      d: "M6 12c-1.5-1-1.5-3 0-4 0-2 2-3 3-2 .5-1.5 3.5-1.5 4 0 1-1 3 0 3 2 1.5 1 1.5 3 0 4",
+    },
+  ],
+  building: [
+    { t: "path", d: "M5 20V6l7-3 7 3v14" },
+    { t: "rect", x: 9, y: 9, w: 2, h: 2 },
+    { t: "rect", x: 13, y: 9, w: 2, h: 2 },
+    { t: "rect", x: 9, y: 13, w: 2, h: 2 },
+    { t: "rect", x: 13, y: 13, w: 2, h: 2 },
+    { t: "path", d: "M10 20v-4h4v4" },
+  ],
 };
 
 type EmblemIconProps = {

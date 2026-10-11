@@ -145,6 +145,10 @@ export type EmblemId =
   | "signPanel"
   | "paintbrush"
   | "heart"
+  | "flame"
+  | "tag"
+  | "cupcake"
+  | "building"
   | "none";
 
 /** The border/frame treatment around the sign board. */
