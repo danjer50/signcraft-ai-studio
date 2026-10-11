@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonClassName } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { StudioWorkspace } from "@/components/workflow/studio-workspace";
 import { getSession, logout, type AuthAccount } from "@/lib/auth-client";
 import type { Locale } from "@/i18n/config";
 import type { Messages } from "@/i18n/messages/en";
@@ -18,9 +18,11 @@ type StudioPanelProps = {
 };
 
 /**
- * The Professional Studio (Milestone 5): a genuine signed-in workspace for
- * Professionals and the Admin. The manual editing tools are a later milestone, so
- * they are labelled as planned — nothing here pretends to work.
+ * The Professional Studio: a genuine signed-in workspace for Professionals and
+ * the Admin. Stage E wires the shared structured project: fabrication settings,
+ * live front view and dimensioned side view, saved on this device. The design
+ * itself is edited in the customer creator; deeper tools remain labelled planned
+ * on the /pro page — nothing here pretends to work.
  */
 export function StudioPanel({ locale, messages }: StudioPanelProps) {
   const copy = messages.auth.studio;
@@ -76,18 +78,10 @@ export function StudioPanel({ locale, messages }: StudioPanelProps) {
           <Button variant="secondary" onClick={() => void handleSignOut()}>
             {copy.signOut}
           </Button>
-          <Link href={`/${locale}/create`} className={buttonClassName({ variant: "primary" })}>
-            {copy.createCta}
-          </Link>
         </div>
       </div>
 
-      <section className={styles.section} aria-labelledby="studio-planned-title">
-        <h2 className={styles.sectionTitle} id="studio-planned-title">
-          {copy.plannedTitle} <Badge>{messages.status.planned}</Badge>
-        </h2>
-        <p className={styles.hint}>{copy.plannedBody}</p>
-      </section>
+      <StudioWorkspace locale={locale} messages={messages} />
     </div>
   );
 }

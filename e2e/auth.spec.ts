@@ -5,6 +5,8 @@ import { expect, test, type APIRequestContext, type Page } from "@playwright/tes
 import { locales, type Locale } from "../src/i18n/config";
 import { getMessages } from "../src/i18n/get-messages";
 
+import { expectNoHorizontalOverflow } from "./helpers";
+
 /**
  * Milestone 5: the authentication and Admin/Professional access system.
  *
@@ -456,6 +458,45 @@ test.describe("auth pages", () => {
     const redeem = await page.request.post("/api/auth/access-codes/redeem", { data: { code } });
     expect(redeem.status()).toBe(401);
     expect(((await redeem.json()) as { error: { code: string } }).error.code).toBe("code_revoked");
+  });
+
+  test("the Pro studio is a working workspace: dimensions, side view and save", async ({
+    page,
+  }) => {
+    const messages = getMessages("fr");
+    const workspace = messages.pro.workspace;
+    await loginViaUi(page, "fr", SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
+    await expect(page).toHaveURL(/\/fr\/admin$/);
+    await page.goto("/fr/studio");
+
+    const workspaceRoot = page.getByTestId("studio-workspace");
+    await expect(workspaceRoot).toBeVisible();
+
+    // The three dimension fields, the four fabrication pickers and both views.
+    await expect(workspaceRoot.getByLabel(workspace.width)).toBeVisible();
+    await expect(workspaceRoot.getByLabel(workspace.height)).toBeVisible();
+    await expect(workspaceRoot.getByLabel(workspace.depth)).toBeVisible();
+    await expect(workspaceRoot.getByLabel(workspace.construction)).toBeVisible();
+    await expect(workspaceRoot.getByLabel(workspace.material)).toBeVisible();
+    await expect(workspaceRoot.getByLabel(workspace.lighting)).toBeVisible();
+    await expect(workspaceRoot.getByLabel(workspace.finish)).toBeVisible();
+    await expect(workspaceRoot.getByRole("heading", { name: workspace.frontView })).toBeVisible();
+    await expect(workspaceRoot.getByRole("heading", { name: workspace.sideView })).toBeVisible();
+
+    // Changing a dimension is reflected in the dimensioned side view.
+    const height = workspaceRoot.getByLabel(workspace.height);
+    await height.fill("900");
+    await expect(workspaceRoot.getByText("900 mm")).toBeVisible();
+
+    // A projecting construction switches the side view to a bracketed projection.
+    await workspaceRoot.getByLabel(workspace.construction).selectOption("projecting");
+    await expect(workspaceRoot.getByText(/Projection/)).toBeVisible();
+
+    // Saving reports the device-local persistence honestly.
+    await workspaceRoot.getByRole("button", { name: workspace.save }).click();
+    await expect(workspaceRoot.getByRole("status")).toHaveText(workspace.saved);
+
+    await expectNoHorizontalOverflow(page);
   });
 
   test("a Pro access code entered at the login opens the Pro Workspace", async ({

@@ -44,7 +44,7 @@ export function computeSideViewGeometry(
   construction: ConstructionId,
 ): SideViewGeometry {
   const projecting = isProjecting(construction);
-  const horizontalMm = projecting ? spec.depthMm : spec.depthMm;
+  const horizontalMm = spec.depthMm;
   // Fit the height into the vertical area and the depth/projection into half
   // the horizontal area; the wall and labels take the rest.
   const scale = Math.min(
@@ -128,7 +128,8 @@ export function SideView({ messages, physical, construction, material, finish }:
 
   return (
     <figure className={styles.frame}>
-      <figcaption className={styles.title}>{copy.title}</figcaption>
+      {/* The embedding panel supplies the visible heading; the figure keeps its
+          own accessible name through the svg role/aria-label. */}
       <svg
         viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`}
         role="img"
@@ -173,10 +174,12 @@ export function SideView({ messages, physical, construction, material, finish }:
           className={styles.dimension}
         />
         <text
-          x={labels.height.x - 4}
+          x={labels.height.x - 8}
           y={labels.height.y}
           className={styles.dimensionText}
-          textAnchor="end"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          transform={`rotate(-90 ${labels.height.x - 8} ${labels.height.y})`}
         >
           {physical.heightMm} mm
         </text>
@@ -189,7 +192,8 @@ export function SideView({ messages, physical, construction, material, finish }:
           className={styles.dimension}
         />
         <text
-          x={labels.depth.x}
+          // The projection label is wide; keep it inside the drawing area.
+          x={Math.max(labels.depth.x, 62)}
           y={labels.depth.y + 4}
           className={styles.dimensionText}
           textAnchor="middle"

@@ -524,6 +524,13 @@ export const fr: Messages = {
       frontView: "Vue de face",
       sideView: "Vue de profil",
       saved: "Projet enregistré sur cet appareil.",
+      title: "Espace de travail",
+      controls: "Paramètres de fabrication",
+      save: "Enregistrer le projet",
+      new: "Nouveau projet",
+      openCreate: "Modifier le design dans le studio client",
+      deviceNote: "Le projet est enregistré uniquement sur cet appareil.",
+      imported: "Projet repris depuis votre esquisse cliente.",
       constructions: {
         wallPanel: "Panneau mural plat",
         alucobond: "Panneau alucobond",

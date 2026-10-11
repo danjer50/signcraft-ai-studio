@@ -521,6 +521,13 @@ export const en = {
       frontView: "Front view",
       sideView: "Side view",
       saved: "Project saved on this device.",
+      title: "Workspace",
+      controls: "Fabrication settings",
+      save: "Save project",
+      new: "New project",
+      openCreate: "Edit the design in the customer studio",
+      deviceNote: "The project is stored on this device only.",
+      imported: "Project imported from your customer draft.",
       constructions: {
         wallPanel: "Flat wall panel",
         alucobond: "Alucobond panel",
