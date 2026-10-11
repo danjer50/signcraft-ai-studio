@@ -36,15 +36,31 @@ application shell, design system, automated checks and CI.
   browser (PBKDF2 pre-hash + server pepper); sessions are HttpOnly `__Host-` cookies; login and setup
   are rate-limited; every security-relevant action is audited. The customer space stays free: no
   accounts, no login. See `docs/ARCHITECTURE.md`, section 11.
+- Pro access codes (Stage D): the Pro workspace is NOT advertised anywhere on the public site — no
+  nav entry, no landing teaser. The single customer-facing door is the login page, where a
+  professional enters an access code minted by the admin (`SC-XXXX-XXXX`, multi-use, optional
+  expiry). Redemption is rate-limited, atomic against concurrent use, opens a normal session for a
+  lightweight `pro` account, and never grants admin. The admin manages codes (mint, list, revoke —
+  revocation kills the sessions created from the code) in the Admin Space. `/pro` itself redirects
+  anonymous visitors to the login.
+- Professional Studio workspace (Stage E): the shared structured project — customer design plus
+  fabrication attributes (construction, material, lighting, finish) and real millimetre dimensions
+  — with a live front view, a dimensioned schematic side view (projection + bracket for projecting
+  signs), and device-local save/load. The design stays editable in the free customer creator.
+- Honest fabrication exports (Stage F): cut list (CSV) and panel outline (DXF R12, mm) generated
+  only from the validated structured data, plus the dimensioned side view as SVG; each file is
+  labelled with exactly what it contains. No LED plan and no electrical values are offered until
+  manufacturer data exists; nothing is ever saved as a fake DXF. See `docs/ARCHITECTURE.md`,
+  section 12.
 
 **Planned, labelled as such, with no controls that pretend otherwise:** AI generation,
-revision requests, realistic AI mockups (perspective, lighting, shadows), the professional 2D/3D
-design and fabrication tools (exact dimensions,
-3D geometry, materials, LED layout, technical drawings, fabrication exports), project persistence and
-project transfer into the Professional Studio. The professional entry point at `/{locale}/pro`
-describes these tools and marks each one "Planned"; it contains no fake editor. The Professional
-Studio at `/{locale}/studio` is a real signed-in workspace, and its editing tools are labelled
-"Planned". Deployment is configured (`wrangler.toml`, Cloudflare Pages) but not performed.
+revision requests, realistic AI mockups (perspective, lighting, shadows), the professional 2D
+editor and true 3D geometry, an LED plan (requires manufacturer data), shop-grade drawings and
+cross-device project storage. The professional entry point at `/{locale}/pro` describes these tools
+and marks each one "Planned"; it contains no fake editor and redirects anonymous visitors to the
+login. The Professional Studio at `/{locale}/studio` is a real signed-in workspace: fabrication
+settings, live views and honest exports work today; deeper tools remain labelled "Planned".
+Deployment is configured (`wrangler.toml`, Cloudflare Pages) but not performed.
 
 Architecture decisions and known limitations: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 Design tokens and component rules: [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md).

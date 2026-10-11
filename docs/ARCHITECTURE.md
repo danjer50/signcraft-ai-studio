@@ -540,3 +540,61 @@ the onboarding through a real invitation link, guards and redirects, rate limiti
 customer space stays free. Local test values are deterministic and TEST-ONLY
 (`scripts/test-env.mjs` → gitignored `.dev.vars`; `e2e/fixtures/seed.sql`); production secrets are set
 per environment with `wrangler pages secret put` and are never committed.
+
+## 12. Pro access codes and the professional workspace (Stages D–F)
+
+**No public Pro surface.** The Pro workspace is deliberately absent from every public menu, the
+landing page and the home call-to-action list. The only customer-facing entry is the shared login
+page (`/{locale}/login`), which offers an access-code fieldset next to the password form. `/pro`
+still resolves but renders a gate: anonymous visitors are redirected to the login, and a signed-in
+session sees the workspace description. Hiding the menu is convenience, not security — the API and
+the gate enforce the actual control, and the e2e suite types the URL directly.
+
+**Access codes (`functions/api/auth/access-codes/`, `functions/lib/access-codes.ts`).** The schema
+adds `access_codes` (id, `code_hash` UNIQUE, label, `max_uses`, `uses`, `expires_at`, `revoked_at`,
+`created_by`, `created_at`) and `code_usages` (code → account created by each redemption). Codes are
+`SC-XXXX-XXXX` over the 32-symbol Crockford alphabet (40 bits); only `sha256(code + pepper)` is
+stored; the plaintext is shown exactly once, at creation. `POST /api/auth/access-codes/redeem`
+(public, same-origin-checked, rate-limited `code:ip:<ip>` with the login limits) finds the row by
+hash, then claims a use with a single atomic
+`UPDATE access_codes SET uses = uses + 1 WHERE id = ? AND revoked_at IS NULL AND uses < max_uses
+AND (expires_at IS NULL OR expires_at > now)` — two simultaneous redemptions of the last remaining
+use cannot both succeed (covered by `functions/test/access-codes.test.ts`). On success a lightweight
+account is created (role `pro`, `password_hash` NULL — codes can never create or elevate to admin)
+and a normal `__Host-` session opens, so the whole downstream authorization stack is reused.
+Admin-only `GET/POST /api/auth/access-codes` and `POST /api/auth/access-codes/[id]/revoke` back the
+Admin Space section; revocation also deletes the sessions of every account recorded in
+`code_usages` for that code, so a leaked code can be cut off at once. Error codes
+(`invalid_code`, `code_expired`, `code_exhausted`, `code_revoked`) are localised like the rest of
+the API.
+
+**Workspace (`src/components/workflow/studio-workspace.tsx`).** The studio hosts the shared
+structured project from `src/projects/sign-project.ts`: the customer draft (design) plus SEPARATE
+fabrication attributes — construction / material / lighting / finish are attributes, never
+templates — and clamped millimetre dimensions. The front view renders the real composition
+(`SignPreview`); the side view (`side-view.tsx`) is a pure function of the physical model: the wall
+band, the panel at its true thickness, or — for projecting constructions — standing off the wall on
+a bracket at the modelled projection, with rotated height and clamped depth dimension labels. It is
+explicitly labelled schematic. Save/load is device-local (`project-store.ts`) and says so; a first
+visit imports the customer draft (`projectFromDraft`), which is the Normal-Mode → Pro handoff.
+Dimension inputs clamp on blur/save/render, never per keystroke, so typing behaves normally.
+
+**Fabrication exports (`src/projects/fabrication-outputs.ts`).** Outputs are generated only from
+the validated structured data and each one states exactly what it is: the cut list CSV (exact cut
+dimensions, quantity 1), a minimal valid AutoCAD R12 DXF of the panel face rectangle with
+`$INSUNITS` = millimetres (outline only — labelled "verify in the workshop"), and the live
+dimensioned side view serialised to a standalone SVG (labelled schematic). The front design is an
+HTML/CSS visual, so no front-view SVG/DXF is offered; an LED plan and any electrical or engineering
+values require manufacturer data and are withheld (disabled button, explicit note) instead of being
+invented. Unit tests pin the CSV row and the DXF coordinates; the e2e downloads the files and
+asserts their content.
+
+**Hosting reality (honest).** The site's static export is served by Vercel (`vercel.json`, see
+section 4); the auth API — including the access-code endpoints — is written as Cloudflare Pages
+Functions and runs locally through `wrangler pages dev` (`npm start`, `npm run test:server`, the
+Playwright webServer). Vercel's static deployment does NOT execute these Functions: on a
+Vercel-hosted preview the pages render and the client degrades to "anonymous" gracefully, but
+login, codes and admin actions require a Functions-capable deployment (Cloudflare Pages, or an
+equivalent runtime). This split is deliberate and documented; switching the hosting platform is out
+of scope, and `vercel.json` must keep the static configuration that fixed the export routing
+(section 4).

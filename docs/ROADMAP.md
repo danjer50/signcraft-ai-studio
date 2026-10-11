@@ -35,6 +35,14 @@ none of them is started until explicitly approved.
   technical drawings, and fabrication exports.
 - Customer projects must be able to transfer into the Professional Studio.
 
+Status (Stages D–F, 2026-10): the workspace is real and gated behind Pro access codes minted by the
+admin (no public Pro advertising; `/pro` redirects anonymous visitors). It offers fabrication
+attributes (construction/material/lighting/finish), clamped millimetre dimensions, a live front
+view, a dimensioned schematic side view with true projection for projecting signs, device-local
+save/load, and honest exports (cut list CSV, panel-outline DXF in mm, side-view SVG). The customer
+draft transfers in on first visit. Still ahead: the manual 2D editor, true 3D, an LED plan (needs
+manufacturer data) and cross-device storage.
+
 ### Admin space
 
 - One shared login page for Admin and Pro members.
@@ -53,19 +61,19 @@ none of them is started until explicitly approved.
 
 ## Milestone order
 
-| #   | Milestone                                                                          | Status              |
-| --- | ---------------------------------------------------------------------------------- | ------------------- |
-| 1   | Product interface: landing page, working customer demo, pro workspace entry        | Implemented (PR #1) |
-| 2   | Customer template and customisation foundation (local, free, instant previews)     | Implemented (PR #1) |
-| 3   | Storefront photo upload and sign-area selection (client-side)                      | Implemented (PR #1) |
-| 4   | Mockup generation: free client-side visual mockup (AI approach gated)              | Implemented (PR #1) |
-| 5   | Shared Admin/Pro authentication with server-enforced roles (Cloudflare Pages + D1) | Implemented (PR #1) |
-| 6   | Project transfer into the Professional Studio; pro editing tools (dimensions, 2D)  | Next                |
-| 7   | 3D geometry, materials and LED lighting for signs                                  | Planned             |
-| 8   | Mounting systems and installation details                                          | Planned             |
-| 9   | Technical drawings and fabrication exports (honest accuracy labels)                | Planned             |
-| 10  | Gated AI mockups (enforceable free-usage limits, no automatic paid fallback)       | Planned             |
-| 11  | Admin Space beyond account management (usage, audit review, project oversight)     | Planned             |
+| #   | Milestone                                                                          | Status                                                                |
+| --- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| 1   | Product interface: landing page, working customer demo, pro workspace entry        | Implemented (PR #1)                                                   |
+| 2   | Customer template and customisation foundation (local, free, instant previews)     | Implemented (PR #1)                                                   |
+| 3   | Storefront photo upload and sign-area selection (client-side)                      | Implemented (PR #1)                                                   |
+| 4   | Mockup generation: free client-side visual mockup (AI approach gated)              | Implemented (PR #1)                                                   |
+| 5   | Shared Admin/Pro authentication with server-enforced roles (Cloudflare Pages + D1) | Implemented (PR #1)                                                   |
+| 6   | Project transfer into the Professional Studio; pro editing tools (dimensions, 2D)  | Partial (Stages D–F: transfer, dimensions, workspace; 2D editor next) |
+| 7   | 3D geometry, materials and LED lighting for signs                                  | Planned                                                               |
+| 8   | Mounting systems and installation details                                          | Planned                                                               |
+| 9   | Technical drawings and fabrication exports (honest accuracy labels)                | Partial (Stage F: cut list CSV, panel DXF, side-view SVG, labelled)   |
+| 10  | Gated AI mockups (enforceable free-usage limits, no automatic paid fallback)       | Planned                                                               |
+| 11  | Admin Space beyond account management (usage, audit review, project oversight)     | Planned                                                               |
 
 Each later milestone keeps every earlier capability working and keeps the honesty rules of the
 architecture: only working controls are interactive, planned capabilities are labelled, and nothing
