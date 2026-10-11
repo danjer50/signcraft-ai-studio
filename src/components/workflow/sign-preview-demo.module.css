@@ -1,0 +1,95 @@
+.demo {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.controls {
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.label {
+  font-weight: 600;
+}
+
+.input {
+  min-height: var(--touch-target);
+  padding-inline: var(--space-3);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.previewColumn {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+}
+
+@media (min-width: 48rem) {
+  .demo {
+    grid-template-columns: minmax(0, 24rem) minmax(0, 1fr);
+    gap: var(--space-8);
+  }
+}
+
+/* Lettering variants control (design variants for templates that offer them) */
+.fieldset {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.variantOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.variantOption {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.variantOption[data-selected="true"] {
+  border-color: var(--color-accent);
+  color: var(--color-accent-strong);
+}
+
+.variantOption:focus-within {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}

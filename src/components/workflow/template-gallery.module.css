@@ -1,0 +1,62 @@
+.fieldset {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.label {
+  font-weight: 600;
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--space-4);
+}
+
+.card {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.card[data-selected="true"] {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-glow);
+}
+
+.radio {
+  position: absolute;
+  opacity: 0;
+}
+
+.card:focus-within {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.cardMeta {
+  display: grid;
+  gap: 2px;
+}
+
+.cardName {
+  font-weight: 600;
+}
+
+.cardCategory {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}

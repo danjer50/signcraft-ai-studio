@@ -1,0 +1,2 @@
+# The root path has no content of its own; send visitors to the default locale.
+/ /fr 307

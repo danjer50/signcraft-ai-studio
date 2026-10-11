@@ -1,0 +1,11 @@
+.next
+out
+coverage
+node_modules
+package-lock.json
+next-env.d.ts
+test-results
+playwright-report
+blob-report
+.wrangler
+.dev.vars

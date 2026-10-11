@@ -1,0 +1,47 @@
+.slot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2rem;
+  /* Takes over the header's "push right" role from the language switcher, so the
+     auth controls sit at the end of the header on phones (where the switcher is
+     hidden in the drawer) and next to it on wider screens. */
+  margin-inline-start: auto;
+}
+
+.signIn,
+.spaceLink {
+  color: var(--color-text);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.signIn:hover,
+.spaceLink:hover {
+  color: var(--color-accent-strong);
+}
+
+.signIn:focus-visible,
+.spaceLink:focus-visible,
+.signOut:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.signOut {
+  padding: var(--space-1) var(--space-2);
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.signOut:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
