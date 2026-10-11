@@ -1,0 +1,70 @@
+.fieldset {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.label {
+  font-weight: 600;
+}
+
+.slots {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.slotGroup {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.slotName {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.swatchOption {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-height: var(--touch-target);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard);
+}
+
+.swatchOption:hover {
+  border-color: var(--color-border-strong);
+}
+
+.swatchOption[data-selected="true"] {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+
+.radio {
+  accent-color: var(--color-accent);
+}
+
+.swatch {
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.25);
+  border-radius: var(--radius-pill);
+}
+
+.swatchName {
+  font-size: var(--text-sm);
+}

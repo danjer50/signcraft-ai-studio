@@ -1,0 +1,90 @@
+.page {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.intro {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 60ch;
+}
+
+.eyebrow {
+  color: var(--color-accent-strong);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: var(--text-3xl);
+}
+
+.lead {
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+}
+
+.image {
+  width: 100%;
+  height: auto;
+  max-height: 22rem;
+  object-fit: cover;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+}
+
+.audience {
+  gap: var(--space-3);
+  background: var(--color-surface-muted);
+}
+
+.audienceTitle {
+  font-size: var(--text-lg);
+}
+
+.section {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.sectionTitle {
+  font-size: var(--text-xl);
+}
+
+.toolGrid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toolCard {
+  height: 100%;
+  align-content: start;
+}
+
+.toolHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.toolTitle {
+  font-size: var(--text-lg);
+}
+
+.noteText {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+}

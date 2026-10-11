@@ -1,0 +1,31 @@
+.icon {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.brandMark {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+}
+
+.brandTile {
+  fill: var(--color-bg);
+  stroke: var(--color-porcelain);
+  stroke-opacity: 0.16;
+  stroke-width: 1.5;
+}
+
+.brandDepth {
+  fill: var(--color-ultraviolet);
+  opacity: 0.55;
+}
+
+.brandSlabTop {
+  fill: var(--color-magenta);
+}
+
+.brandSlabBottom {
+  fill: var(--color-accent);
+}

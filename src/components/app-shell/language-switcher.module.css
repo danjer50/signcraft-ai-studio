@@ -1,0 +1,58 @@
+.switcher {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+}
+
+.list {
+  display: flex;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.option:hover {
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
+.option[aria-current="true"] {
+  background: var(--color-text);
+  color: var(--color-surface);
+}
+
+/* Drawer variant: the three options share the full width equally. */
+.fill {
+  display: flex;
+}
+
+.fill .list {
+  flex: 1;
+}
+
+.fill .list > li {
+  display: flex;
+  flex: 1;
+}
+
+.fill .option {
+  flex: 1;
+}

@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "description": "Only /api/* invokes Pages Functions (the auth API). Every other path is served from the static export and never consumes the Workers request quota. Do NOT add \"exclude\": [\"/*\"] here: exclude takes precedence over include, which would disable the functions entirely.",
+  "include": ["/api/*"],
+  "exclude": []
+}
